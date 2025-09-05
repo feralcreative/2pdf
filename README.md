@@ -1,3 +1,9 @@
+<!-- PDF-ONLY
+<span style="font-size: 10px; font-weight: 500; color: #333; margin:-2em 0 4em 0 ; display:block; padding:0.25em 1em; border:1px solid #808;border-radius: 2em; text-align:center; background-color:#F2E6F2">
+<strong>Note:</strong> This PDF was generated automagically from [README.md](https://github.com/feralcreative/md-to-pdf/blob/main/README.md).
+</span>
+-->
+
 # Markdown to PDF Converter
 
 A portable, self-contained script that converts Markdown files to beautifully formatted PDFs with no headers or footers.
@@ -89,13 +95,23 @@ Content on new page...
 Include content that only appears in the PDF:
 
 ```markdown
-<!-- PDF-ONLY-START -->
-
+<!-- PDF ONLY
 This content will only appear in the PDF, not in web/GitHub rendering.
 
 - Perfect for print-specific instructions
 - Copyright notices for printed versions
-<!-- PDF-ONLY-END -->
+-->
+```
+
+Or alternatively:
+
+```markdown
+<!-- PDF-ONLY
+This content will only appear in the PDF, not in web/GitHub rendering.
+
+- Perfect for print-specific instructions
+- Copyright notices for printed versions
+-->
 ```
 
 ### Image Processing

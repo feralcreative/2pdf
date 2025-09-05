@@ -45,13 +45,18 @@ if ! command -v pandoc &> /dev/null; then
     fi
 fi
 
-# Convert markdown to HTML
-echo "📝 Converting markdown to HTML..."
-pandoc "$MARKDOWN_FILE" -t html --no-highlight > /tmp/md_base.html
-
-# Process PDF-only tags - make PDF-only content visible
+# Process PDF-only content first - extract and convert to HTML
 echo "🏷️ Processing PDF-only content tags..."
-sed 's/<!-- PDF-ONLY-START -->//g; s/<!-- PDF-ONLY-END -->//g' /tmp/md_base.html > /tmp/md_processed.html
+
+# Extract PDF-ONLY content and process it as Markdown
+perl -0pe 's/<!--\s*PDF\s+ONLY\s*\n(.*?)\n-->/PDFONLY_PLACEHOLDER_START\n\1\nPDFONLY_PLACEHOLDER_END/gs; s/<!--\s*PDF-ONLY\s*\n(.*?)\n-->/PDFONLY_PLACEHOLDER_START\n\1\nPDFONLY_PLACEHOLDER_END/gs' "$MARKDOWN_FILE" > /tmp/md_with_placeholders.md
+
+# Convert the entire file to HTML (including PDF-ONLY content)
+echo "📝 Converting markdown to HTML..."
+pandoc /tmp/md_with_placeholders.md -t html --no-highlight > /tmp/md_base.html
+
+# Clean up the placeholder markers
+sed 's/PDFONLY_PLACEHOLDER_START//g; s/PDFONLY_PLACEHOLDER_END//g' /tmp/md_base.html > /tmp/md_processed.html
 mv /tmp/md_processed.html /tmp/md_base.html
 
 # Create beautiful styled HTML with image support
@@ -277,6 +282,7 @@ cat > /tmp/md_styled.html << 'EOF'
         a {
             color: #880088;
             text-decoration: none;
+            font-weight: 600;
         }
         
         /* Image styling */
@@ -463,14 +469,14 @@ cat >> /tmp/md_styled.html << 'EOF'
         console.log('Manual page breaks processed');
     }
 
-    // Process PDF-only content tags (already processed by shell script, but clean up any remaining)
-    const pdfOnlyStartRegex = /<!--\s*PDF-ONLY-START\s*-->/gi;
-    const pdfOnlyEndRegex = /<!--\s*PDF-ONLY-END\s*-->/gi;
+    // Process PDF-only content tags (already processed by shell script, but clean up any remaining placeholders)
+    const pdfOnlyPlaceholderStart = /PDFONLY_PLACEHOLDER_START/gi;
+    const pdfOnlyPlaceholderEnd = /PDFONLY_PLACEHOLDER_END/gi;
 
-    if (pdfOnlyStartRegex.test(htmlContent) || pdfOnlyEndRegex.test(htmlContent)) {
-        htmlContent = htmlContent.replace(pdfOnlyStartRegex, '');
-        htmlContent = htmlContent.replace(pdfOnlyEndRegex, '');
-        console.log('PDF-only content tags processed');
+    if (pdfOnlyPlaceholderStart.test(htmlContent) || pdfOnlyPlaceholderEnd.test(htmlContent)) {
+        htmlContent = htmlContent.replace(pdfOnlyPlaceholderStart, '');
+        htmlContent = htmlContent.replace(pdfOnlyPlaceholderEnd, '');
+        console.log('PDF-only placeholder tags cleaned up');
     }
 
     // Apply all HTML changes at once
