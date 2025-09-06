@@ -10,7 +10,7 @@
 # - Google Chrome or Chromium browser
 #
 # Features:
-# - Beautiful styling with Inter font
+# - Beautiful styling with Lato font
 # - Image support (converts SVG to PNG when available)
 # - No headers/footers in PDF output
 # - Automatic page break support
@@ -59,297 +59,39 @@ pandoc /tmp/md_with_placeholders.md -t html --no-highlight > /tmp/md_base.html
 sed 's/PDFONLY_PLACEHOLDER_START//g; s/PDFONLY_PLACEHOLDER_END//g' /tmp/md_base.html > /tmp/md_processed.html
 mv /tmp/md_processed.html /tmp/md_base.html
 
-# Create beautiful styled HTML with image support
-echo "🎨 Creating styled HTML with image support..."
-cat > /tmp/md_styled.html << 'EOF'
+# Use the minimized CSS file compiled by IDE
+CSS_FILE="$CURRENT_DIR/style/pdf.min.css"
+
+if [ -f "$CSS_FILE" ]; then
+    echo "🎨 Using minimized CSS from IDE compilation..."
+    # Replace relative font paths with absolute file:// URLs for Chrome
+    sed "s|url(\"../fonts/|url(\"file://$CURRENT_DIR/fonts/|g" "$CSS_FILE" > /tmp/pdf_absolute.css
+    CSS_FILE="/tmp/pdf_absolute.css"
+
+    # Debug: Show font paths being used
+    echo "🔍 Font paths in CSS:"
+    grep -o "file://[^)]*\.ttf" "$CSS_FILE" | head -3
+
+    # Debug: Verify font files exist
+    echo "🔍 Checking font files:"
+    ls -la "$CURRENT_DIR/fonts/Lato-Regular.ttf" 2>/dev/null && echo "✅ Lato-Regular.ttf found" || echo "❌ Lato-Regular.ttf missing"
+    ls -la "$CURRENT_DIR/fonts/Lato-Bold.ttf" 2>/dev/null && echo "✅ Lato-Bold.ttf found" || echo "❌ Lato-Bold.ttf missing"
+else
+    echo "❌ Minimized CSS file not found: $CSS_FILE"
+    echo "💡 Make sure your IDE has compiled pdf.scss to pdf.min.css"
+    exit 1
+fi
+
+# Create beautiful styled HTML with external CSS
+echo "🎨 Creating styled HTML with minimized CSS..."
+cat > /tmp/md_styled.html << EOF
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Markdown to PDF</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        @page {
-            margin: 0.5in;
-            size: letter;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Hide any potential headers/footers */
-        .header, .footer, header, footer {
-            display: none !important;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            line-height: 1.6;
-            color: #1a1a1a;
-            font-size: 14px;
-            background: white;
-            padding: 25px;
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: left;
-        }
-        
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
-            color: #880088;
-            margin: 0 0 20px 0;
-            border-bottom: 1px solid #880088;
-            padding-bottom: 5px;
-        }
-
-        h2 {
-            font-size: 26px;
-            font-weight: 600;
-            color: #222;
-            margin: 37px 0 15px 0;
-            border-bottom: 1px solid #e1e5e9;
-            padding-bottom: 4px;
-        }
-
-        h3 {
-            font-size: 21px;
-            font-weight: 600;
-            color: #333;
-            margin: 30px 0 6px 0;
-        }
-
-        h4 {
-            font-size: 18px;
-            font-weight: 500;
-            color: #444;
-            margin: 13px 0 2px 0;
-        }
-
-        h5, h6 {
-            font-size: 16px;
-            font-weight: 500;
-            color: #555;
-            margin: 24px 0 4px 0;
-        }
-
-        p {
-            margin: 10px 0;
-            text-align: left;
-        }
-        
-        ul, ol {
-            margin: 8px 0 8px 25px;
-        }
-
-        li {
-            margin: 2px 0;
-        }
-        
-        code {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 2px 4px;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            font-size: 11px;
-            font-weight: 600;
-            color: #d73a49;
-        }
-
-        pre {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 16px;
-            margin: 16px 0;
-            overflow-x: auto;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-            font-size: 11px;
-            font-weight: 600;
-            line-height: 1.5;
-        }
-        
-        pre code {
-            background: none;
-            border: none;
-            padding: 0;
-            color: #24292e;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 18px 0;
-            font-size: 13px;
-            background: white;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            table-layout: fixed;
-        }
-
-        th {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            font-weight: 600;
-            padding: 1px 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-            color: #333;
-            vertical-align: middle;
-        }
-
-        td {
-            padding: 1px 12px;
-            border: 1px solid #ddd;
-            vertical-align: middle;
-        }
-
-        tr:nth-child(even) {
-            background: #fafbfc;
-        }
-
-        /* Fixed column widths for consistent layout */
-        td:nth-child(1), th:nth-child(1) {
-            width: 80px !important;
-            min-width: 80px !important;
-            max-width: 80px !important;
-            text-align: center !important;
-            vertical-align: middle !important;
-        }
-
-        /* Large font size only for icon cells, not headers */
-        td:nth-child(1) {
-            font-size: 24px;
-        }
-
-        td:nth-child(2), th:nth-child(2) {
-            width: 200px !important;
-            min-width: 200px !important;
-            max-width: 200px !important;
-            font-weight: 600;
-        }
-
-        td:nth-child(3), th:nth-child(3) {
-            width: 400px !important;
-            min-width: 400px !important;
-            max-width: 400px !important;
-        }
-
-        /* Force table to respect column widths */
-        table col:nth-child(1) { width: 80px !important; }
-        table col:nth-child(2) { width: 200px !important; }
-        table col:nth-child(3) { width: 400px !important; }
-
-        /* Manual page break support */
-        .page-break {
-            page-break-before: always !important;
-            break-before: page !important;
-            height: 0;
-            margin: 0;
-            padding: 0;
-            border: none;
-            visibility: hidden;
-        }
-
-        /* Convert complex HTML icons to simple colored squares */
-        .icon-placeholder {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
-            margin: 2px;
-        }
-
-        .icon-5g { background-color: #006400; }
-        .icon-1gig { background-color: #ff8c00; }
-        .icon-10gig { background-color: #cc4400; }
-        .icon-sonic { background-color: #27aae1; }
-        
-        blockquote {
-            border-left: 4px solid #880088;
-            background: #F2E6F2;
-            margin: 16px 0;
-            padding: 12px 20px;
-            font-style: italic;
-            color: #555;
-            border-radius: 0 4px 4px 0;
-        }
-        
-        a {
-            color: #880088;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        /* Image styling */
-        img {
-            max-width: 100%;
-            height: auto;
-            display: inline-block;
-            vertical-align: middle;
-            border-radius: 4px;
-        }
-
-        /* Make table icons 25% smaller */
-        table img {
-            width: 75% !important;
-            height: 75% !important;
-            max-width: 19px;
-            max-height: 19px;
-        }
-        
-        /* SVG icon styling */
-        img[src$=".svg"] {
-            width: 25px;
-            height: 25px;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        
-        /* Emoji support */
-        h1, h2, h3, h4, h5, h6, p, li, td, th {
-            font-family: 'Inter', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-        }
-
-        /* Print optimizations */
-        @media print {
-            body {
-                font-size: 12px;
-                padding: 15px;
-            }
-
-            h1 { font-size: 26px; margin: 0 0 15px 0; }
-            h2 { font-size: 22px; margin: 30px 0 12px 0; color: #222; }
-            h3 { font-size: 17px; margin: 24px 0 5px 0; color: #333; }
-            h4 { font-size: 16px; margin: 10px 0 2px 0; color: #444; }
-            h5, h6 { font-size: 14px; margin: 16px 0 3px 0; color: #555; }
-
-            table {
-                font-size: 11px;
-                margin: 12px 0;
-            }
-
-            th, td {
-                padding: 1px 8px;
-            }
-
-            ul, ol {
-                margin: 6px 0 6px 20px;
-            }
-
-            li {
-                margin: 1px 0;
-            }
-
-            img[src$=".svg"] {
-                width: 20px;
-                height: 20px;
-            }
-        }
+$(cat "$CSS_FILE")
     </style>
 </head>
 <body>
@@ -384,9 +126,26 @@ fi
 # Handle any remaining image paths with absolute file:// URLs
 sed 's|src="img/|src="file://'$(pwd)'/img/|g' /tmp/md_temp.html >> /tmp/md_styled.html
 
-# Add JavaScript to process icons and close HTML
+# Add JavaScript to process icons and force fonts
 cat >> /tmp/md_styled.html << 'EOF'
 <script>
+// Force Lato font on all elements (JavaScript nuclear option)
+function forceLato() {
+    console.log('🔤 Forcing Lato font on all elements...');
+    const elements = document.querySelectorAll('*:not(code):not(pre)');
+    elements.forEach(el => {
+        el.style.setProperty('font-family', '"Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif', 'important');
+    });
+
+    // Special handling for paragraphs and lists
+    const textElements = document.querySelectorAll('p, li, div, span, h1, h2, h3, h4, h5, h6, ul, ol');
+    textElements.forEach(el => {
+        el.style.setProperty('font-family', '"Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif', 'important');
+    });
+
+    console.log(`🔤 Applied Lato to ${elements.length} elements`);
+}
+
 // Convert complex HTML div icons to simple colored squares
 (function() {
     // Add column groups to enforce widths immediately
@@ -483,6 +242,9 @@ cat >> /tmp/md_styled.html << 'EOF'
     if (htmlContent !== document.documentElement.outerHTML) {
         document.documentElement.innerHTML = htmlContent;
     }
+
+    // Force Lato font after all other processing
+    setTimeout(forceLato, 100);
 })();
 </script>
 </body>
@@ -531,6 +293,9 @@ echo "📄 Converting to PDF (no headers/footers)..."
     --disable-renderer-backgrounding \
     --disable-features=TranslateUI,VizDisplayCompositor \
     --disable-component-extensions-with-background-pages \
+    --font-render-hinting=none \
+    --disable-font-subpixel-positioning \
+    --disable-lcd-text \
     --print-to-pdf="$OUTPUT_FILE" \
     --print-to-pdf-no-header \
     --no-pdf-header-footer \

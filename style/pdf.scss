@@ -1,0 +1,490 @@
+// Load Lato fonts from local workspace files for reliable PDF generation
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+// Italic variants
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+// Page setup
+@page {
+  margin: 0.5in;
+  size: letter;
+}
+
+// Basic reset and utility styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// Hide any potential headers/footers
+.header,
+.footer,
+header,
+footer {
+  display: none !important;
+}
+
+// All styles for PDF generation
+@media print {
+  html {
+    font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+    line-height: 1.1em;
+    color: #111;
+    font-size: 18px;
+  }
+
+  body {
+    font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+    background: white;
+    padding: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    font-size: 0.75rem;
+  }
+
+  // Headings with proper nesting and hierarchy
+  h1 {
+    font-size: 2rem;
+    font-weight: 400;
+    color: #880088;
+    margin: 0 0 1em 0;
+    border-bottom: 1px solid #880088;
+    padding: 0.5em 0 0.3em 0;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #222;
+    margin: 1.5em 0 0.5em 0;
+    border-bottom: 1px solid #ccc;
+    padding: 0.5em 0 0.4em 0;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #808;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5em;
+    margin: 1.5em 0 0.5em 0;
+  }
+
+  h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #444;
+    margin: 2em 0 0.1em 0;
+  }
+
+  h5,
+  h6 {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #808;
+    margin: 24px 0 4px 0;
+    padding-bottom: 0.25em;
+  }
+
+  // Typography
+  p {
+    margin: 10px 0;
+    text-align: left;
+  }
+
+  ul,
+  ol {
+    margin: 8px 0 8px 25px;
+
+    li {
+      margin: 2px 0;
+    }
+  }
+
+  // Code styling
+  code {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #d73a49;
+  }
+
+  pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.5;
+
+    code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #24292e;
+    }
+  }
+
+  // Table styling with nested selectors
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 0.8125rem;
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
+
+    th {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      font-weight: 600;
+      padding: 1px 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+      color: #333;
+      vertical-align: middle;
+    }
+
+    td {
+      padding: 1px 12px;
+      border: 1px solid #ddd;
+      vertical-align: middle;
+      font-size: 0.9em;
+    }
+
+    tr:nth-child(even) {
+      background: #fafbfc;
+    }
+
+    // Fixed column widths for consistent layout
+    td:nth-child(1),
+    th:nth-child(1) {
+      width: 50px !important;
+      min-width: 50px !important;
+      max-width: 50px !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+
+    // Keep normal font size for first column (no more oversized numbers)
+    td:nth-child(1) {
+      font-size: inherit;
+    }
+
+    td:nth-child(2),
+    th:nth-child(2) {
+      width: 150px !important;
+      min-width: 150px !important;
+      max-width: 150px !important;
+      font-weight: 600;
+    }
+
+    td:nth-child(3),
+    th:nth-child(3) {
+      width: auto !important;
+      min-width: auto !important;
+      max-width: none !important;
+    }
+
+    // Force table to respect column widths
+    col:nth-child(1) {
+      width: 50px !important;
+    }
+    col:nth-child(2) {
+      width: 150px !important;
+    }
+    col:nth-child(3) {
+      width: auto !important;
+    }
+
+    // Make table icons 25% smaller
+    img {
+      width: 75% !important;
+      height: 75% !important;
+      max-width: 19px;
+      max-height: 19px;
+    }
+  }
+
+  blockquote {
+    border-left: 4px solid #880088;
+    background: #f2e6f2;
+    margin: 16px 0;
+    padding: 12px 20px;
+    font-style: italic;
+    color: #555;
+    border-radius: 0 4px 4px 0;
+  }
+
+  a {
+    color: #880088;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  // Image styling
+  img {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 4px;
+
+    // SVG icon styling
+    &[src$=".svg"] {
+      width: 25px;
+      height: 25px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  // Ensure code elements stay monospace
+  code,
+  pre {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+  }
+
+  // NUCLEAR OPTION: Force Lato on absolutely everything (moved to end for maximum specificity)
+  html *,
+  html *::before,
+  html *::after {
+    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+      sans-serif !important;
+  }
+
+  // Extra specific targeting for common elements
+  html body *,
+  html body p,
+  html body div,
+  html body span,
+  html body h1,
+  html body h2,
+  html body h3,
+  html body h4,
+  html body h5,
+  html body h6,
+  html body li,
+  html body td,
+  html body th,
+  html body blockquote,
+  html body a,
+  html body strong,
+  html body em,
+  html body b,
+  html body i {
+    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+      sans-serif !important;
+  }
+
+  // Override code elements back to monospace
+  html code,
+  html pre,
+  html body code,
+  html body pre {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+  }
+
+  // ULTRA NUCLEAR: Target specific problematic elements with maximum specificity
+  html body {
+    p {
+      font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+        sans-serif !important;
+    }
+
+    ul,
+    ol {
+      font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+        sans-serif !important;
+
+      li {
+        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
+          "Noto Color Emoji", sans-serif !important;
+      }
+    }
+
+    div {
+      p {
+        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
+          "Noto Color Emoji", sans-serif !important;
+      }
+
+      ul,
+      ol {
+        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
+          "Noto Color Emoji", sans-serif !important;
+
+        li {
+          font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
+            "Noto Color Emoji", sans-serif !important;
+        }
+      }
+    }
+
+    section,
+    article,
+    main {
+      p {
+        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
+          "Noto Color Emoji", sans-serif !important;
+      }
+
+      ul,
+      ol {
+        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
+          "Noto Color Emoji", sans-serif !important;
+
+        li {
+          font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
+            "Noto Color Emoji", sans-serif !important;
+        }
+      }
+    }
+  }
+
+  // DEBUG: Add a visible indicator to see which elements are getting Lato
+  // Uncomment to see which elements are using Lato (they'll have a red border)
+  // html body *:not(code):not(pre) {
+  //   border: 1px solid red !important;
+  // }
+}
+
+// Manual page break support - works in both screen and print
+.page-break {
+  page-break-before: always !important;
+  break-before: page !important;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  visibility: hidden;
+}
+
+// Convert complex HTML icons to simple colored squares
+.icon-placeholder {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  margin: 2px;
+}
+
+// Icon color classes
+.icon-5g {
+  background-color: #006400;
+}
+.icon-1gig {
+  background-color: #ff8c00;
+}
+.icon-10gig {
+  background-color: #cc4400;
+}
+.icon-sonic {
+  background-color: #27aae1;
+}
+
+// PDF source styling
+.pdf-source {
+  width: 100% !important;
+  display: block !important;
+  border: 1px solid #333 !important;
+  padding: 0.5em 1em !important;
+  border-radius: 2em !important;
+  background-color: #f7f7f7 !important;
+  color: #333 !important;
+  margin: 0 auto 3em auto !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+
+  p {
+    margin: 0 !important;
+    text-align: center !important;
+    padding: 0 !important;
+    font: 600 0.7rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      sans-serif !important;
+  }
+}
