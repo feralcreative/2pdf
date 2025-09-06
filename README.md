@@ -28,37 +28,18 @@ A portable, self-contained script that converts Markdown files to beautifully fo
 
 ## Installation
 
-### Option 1: Manual Copy
+**Option 1: Manual Copy**
+Copy the entire `md-to-pdf` folder to your project root, then run `./md-to-pdf/md-to-pdf.sh`
 
-1. Copy the entire `md-to-pdf` folder to your project root
-2. Run from your project directory:
-   ```bash
-   ./md-to-pdf/md-to-pdf.sh
-   ```
-
-### Option 2: Using Install Script
-
-1. From within the `md-to-pdf` directory:
-   ```bash
-   ./install.sh /path/to/your/project
-   ```
-2. The script will copy everything needed and make it executable
+**Option 2: Using Install Script**
+From within the `md-to-pdf` directory, run `./install.sh /path/to/your/project` to automatically copy and set up everything
 
 ## Dependencies
 
-The script automatically handles dependencies:
+The script automatically handles dependencies on macOS. For manual installation:
 
-- **Pandoc** - Auto-installed via Homebrew on macOS
-- **Google Chrome or Chromium** - Used for PDF generation
-
-### Manual Installation
-
-**macOS:**
-
-```bash
-brew install pandoc
-# Chrome: Download from https://www.google.com/chrome/
-```
+- **Pandoc** - Auto-installed via Homebrew on macOS (`brew install pandoc`)
+- **Google Chrome or Chromium** - Download from https://www.google.com/chrome/
 
 **Linux:**
 
@@ -92,7 +73,7 @@ Content on new page...
 
 ### PDF-Only Content
 
-Include content that only appears in the PDF:
+Include content that only appears in the PDF using either format:
 
 ```markdown
 <!-- PDF ONLY
@@ -101,16 +82,9 @@ This content will only appear in the PDF, not in web/GitHub rendering.
 - Perfect for print-specific instructions
 - Copyright notices for printed versions
 -->
-```
 
-Or alternatively:
-
-```markdown
-<!-- PDF-ONLY
-This content will only appear in the PDF, not in web/GitHub rendering.
-
-- Perfect for print-specific instructions
-- Copyright notices for printed versions
+<!-- PDF-ONLY (alternative format)
+Same functionality with dash instead of space
 -->
 ```
 
@@ -166,17 +140,11 @@ This content will only appear in the PDF, not in web/GitHub rendering.
 
 The script saves the intermediate HTML file at `/tmp/md_styled.html` for inspection if issues occur.
 
-## Portability
+## Technical Details
 
-This script is designed to be completely portable:
-
-- ✅ No Node.js dependencies
-- ✅ No project-specific configurations
-- ✅ Works from any directory
-- ✅ Self-contained styling and logic
-- ✅ Cross-platform (macOS, Linux)
-
-Simply copy the `md-to-pdf` folder to any project and run the script.
+- ✅ **Portable** - No Node.js dependencies, works from any directory
+- ✅ **Self-contained** - All styling and logic included
+- ✅ **Cross-platform** - macOS and Linux support
 
 ## Files
 

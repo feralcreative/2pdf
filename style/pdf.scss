@@ -126,7 +126,7 @@ footer {
     color: #880088;
     margin: 0 0 1em 0;
     border-bottom: 1px solid #880088;
-    padding: 0.5em 0 0.3em 0;
+    padding: 0.5em 0 0.5em 0;
   }
 
   h2 {
@@ -142,25 +142,33 @@ footer {
     font-size: 1.125rem;
     font-weight: 800;
     color: #808;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #808;
     padding-bottom: 0.5em;
     margin: 1.5em 0 0.5em 0;
   }
 
   h4 {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #444;
     margin: 2em 0 0.1em 0;
   }
 
-  h5,
-  h6 {
-    font-size: 0.8rem;
+  h5 {
+    font-size: 0.9rem;
     font-weight: 800;
     color: #808;
     margin: 24px 0 4px 0;
     padding-bottom: 0.25em;
+  }
+  h6 {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #222;
+    margin: 24px 0 4px 0;
+    padding-bottom: 0.25em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   // Typography
@@ -218,6 +226,7 @@ footer {
     border: 1px solid #ddd;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     table-layout: fixed;
+    z-index: 10;
 
     th {
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -227,17 +236,21 @@ footer {
       border: 1px solid #ddd;
       color: #333;
       vertical-align: middle;
+      z-index: 15;
     }
 
     td {
-      padding: 1px 12px;
+      padding: 0.25em 0.5em;
       border: 1px solid #ddd;
       vertical-align: middle;
       font-size: 0.9em;
+      font-family: Lato;
+      z-index: 12;
     }
 
     tr:nth-child(even) {
       background: #fafbfc;
+      z-index: 11;
     }
 
     // Fixed column widths for consistent layout
@@ -248,6 +261,7 @@ footer {
       max-width: 50px !important;
       text-align: center !important;
       vertical-align: middle !important;
+      z-index: 20;
     }
 
     // Keep normal font size for first column (no more oversized numbers)
@@ -261,6 +275,7 @@ footer {
       min-width: 150px !important;
       max-width: 150px !important;
       font-weight: 600;
+      z-index: 18;
     }
 
     td:nth-child(3),
@@ -268,17 +283,21 @@ footer {
       width: auto !important;
       min-width: auto !important;
       max-width: none !important;
+      z-index: 16;
     }
 
     // Force table to respect column widths
     col:nth-child(1) {
       width: 50px !important;
+      z-index: 25;
     }
     col:nth-child(2) {
       width: 150px !important;
+      z-index: 23;
     }
     col:nth-child(3) {
       width: auto !important;
+      z-index: 21;
     }
 
     // Make table icons 25% smaller
@@ -327,6 +346,55 @@ footer {
   code,
   pre {
     font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+    font-size: 0.9em;
+    font-weight: normal;
+    line-height: 1.1em;
+  }
+
+  // Z-index reference table specific styling
+  .z-index-table {
+    // Make all text 25% smaller
+    font-size: 0.75em !important;
+
+    code,
+    pre {
+      font-size: 0.65em !important;
+      line-height: 1.2em;
+    }
+
+    // Column width control for z-index reference table only
+    col:nth-child(1) {
+      width: 75px !important;
+    }
+    col:nth-child(3) {
+      width: 100px !important; // Further reduced from 140px to 100px
+    }
+
+    td:nth-child(1),
+    th:nth-child(1) {
+      width: 75px !important;
+      min-width: 75px !important;
+      max-width: 75px !important;
+    }
+
+    td:nth-child(3),
+    th:nth-child(3) {
+      width: 100px !important; // Further reduced from 140px to 100px
+      min-width: 100px !important;
+      max-width: 100px !important;
+      word-wrap: break-word !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      hyphens: auto !important;
+    }
+
+    // Ensure all cells respect boundaries
+    td,
+    th {
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: normal !important;
+    }
   }
 
   // NUCLEAR OPTION: Force Lato on absolutely everything (moved to end for maximum specificity)
@@ -471,8 +539,8 @@ footer {
 .pdf-source {
   width: 100% !important;
   display: block !important;
-  border: 1px solid #333 !important;
-  padding: 0.5em 1em !important;
+  border: 0.5px solid #808 !important;
+  padding: 0.25em 0.5em !important;
   border-radius: 2em !important;
   background-color: #f7f7f7 !important;
   color: #333 !important;

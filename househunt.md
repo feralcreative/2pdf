@@ -1,23 +1,13 @@
 <!-- PDF-ONLY
-<div class="pdf-source"><p>This PDF was generated automatically from [README.md](https://github.com/feralcreative/househunt/blob/main/README.md) in my [private Git repo](https://github.com/feralcreative/househunt/). For access, contact me via [email](mailto:ziad@feralcreative.co) or [Signal](https://feral.ly/signal).
+<div class="pdf-source"><p>This PDF was generated automatically from [README.md](https://github.com/feralcreative/househunt/blob/main/README.md) in my [private Git repo](https://github.com/feralcreative/househunt/). For access, please [contact me](mailto:ziad@feralcreative.co) or [contact me](https://feral.ly/signal) or [contact me](/Users/ziad/Desktop/CleanShot 2025-09-05 at 21.48.40@2x.png).
 </p></div>
 -->
 
 # House Hunt 🏠
 
-## Headline 2
-
-### Headline 3
-
-#### Headline 4
-
-##### Headline 5
-
-####### Headline 6
-
 _A smart map for finding our new home in the Bay Area._
 
-This is an interactive map to help us house hunt more effectively. It shows the houses we’re considering, nearby amenities that matter to us, important risk information like flood zones and fire hazards, and accissibility to 5G wireless and fiber optic internet service.
+This is an interactive map to help us house hunt more effectively. It shows the houses we’re considering, nearby amenities that matter to us, important risk information like flood zones and fire hazards, and accessibility of fiber optic and 5G wireless internet service.
 
 **🌐 Live Site:** [https://max:gracie@househunt.ezzat.com](https://max:gracie@househunt.ezzat.com)
 
@@ -25,7 +15,7 @@ This is an interactive map to help us house hunt more effectively. It shows the 
 
 ## ![](img/househunt-screenshot.jpg)
 
-©2025 [Feral Creative](https://feralcreative.co) / [@feralcreative](https://github.com/feralcreative). All rights reserved.
+©2025 [Feral Creative w](https://feralcreative.co) / [@feralcreative](https://github.com/feralcreative). All rights reserved, mothafucka.
 
 <!-- PAGE-BREAK -->
 
@@ -254,17 +244,17 @@ _Property age is calculated using "Days on Redfin" data automatically extracted 
 | <img src="img/icons/belair.svg" width="25" height="25">     | **Bel Air**      | Bel Air Markets              |
 | <img src="img/icons/nobhill.svg" width="25" height="25">    | **Nob Hill**     | Nob Hill Foods stores        |
 
-<!-- PAGE-BREAK -->
-
 ### Climate Data 🌡️
 
 Climate data helps understand long-term weather patterns for each area. The map displays temperature and precipitation using smooth heatmap overlays with comprehensive hover information.
 
-| Layer                                                          | Data Type         | Description                                                                                 |
-| -------------------------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------- |
-| <img src="img/icons/temperature.png" width="25" height="25">   | **Temperature**   | Shows average temperature patterns across the region using NOAA climate normals (2006-2020) |
-| <img src="img/icons/precipitation.png" width="25" height="25"> | **Precipitation** | Shows annual precipitation patterns using NOAA climate normals (2006-2020)                  |
-| <img src="img/icons/wind.png" width="25" height="25">          | **Wind**          | Shows wind speed and direction patterns using NREL wind data (2001-2020)                    |
+| Layer                                                          | Data Type         | Description                                                               |
+| -------------------------------------------------------------- | ----------------- | ------------------------------------------------------------------------- |
+| <img src="img/icons/temperature.png" width="25" height="25">   | **Temperature**   | Average patterns across the region using NOAA climate normals (2006-2020) |
+| <img src="img/icons/precipitation.png" width="25" height="25"> | **Precipitation** | Annual patterns using NOAA climate normals (2006-2020)                    |
+| <img src="img/icons/wind.png" width="25" height="25">          | **Wind**          | Average wind speed and direction patterns using NREL data (2001-2020)     |
+
+<!-- PAGE-BREAK -->
 
 #### Hover Information
 
@@ -301,8 +291,6 @@ The climate popups include a "Relatively" column that compares each location's c
 - All comparisons use this single reference point for consistency
 - Provides "compared to home" context rather than abstract regional rankings
 
-<!-- PAGE-BREAK -->
-
 **Quintile-Based Comparison Logic:**
 
 The system calculates quintiles (5 equal groups) from all climate data points in the region, then compares each location's quintile position to our home location's quintile position.
@@ -316,79 +304,9 @@ Warmer/Wetter:      1 quintile above home
 Much Warmer/Wetter: ≥ 2 quintiles above home
 ```
 
-**Why Quintiles?**
-
-- **Data-driven**: Based on actual distribution of all regional climate data
-- **Relative context**: Shows where each location ranks compared to the full range of options
-- **Consistent scale**: Same ranking system applies to both temperature and precipitation
-- **Meaningful differences**: Each quintile represents a significant 20% segment of the data range
-
-##### Example Climate Popups
-
-**Temperature Popup:**
-
-```
-Temperature Data    37.979, -122.479
-┌─────────┬─────┬─────┬──────┬─────────────┐
-│         │ Low │ Avg │ High │ Relatively  │
-├─────────┼─────┼─────┼──────┼─────────────┤
-│ Winter  │ 44° │ 51° │ 58°  │ Similar     │
-│ Spring  │ 48° │ 56° │ 65°  │ Similar     │
-│ Summer  │ 54° │ 64° │ 73°  │ Colder      │
-│ Fall    │ 52° │ 61° │ 69°  │ Similar     │
-├─────────┼─────┼─────┼──────┼─────────────┤
-│ Annual  │ 50° │ 58° │ 66°  │ Similar     │
-└─────────┴─────┴─────┴──────┴─────────────┘
-```
-
-**Precipitation Popup:**
-
-```
-Precipitation Data    37.979, -122.479
-┌─────────┬─────┬─────────────┐
-│         │ Avg │ Relatively  │
-├─────────┼─────┼─────────────┤
-│ Winter  │ 5.2"│ Much Wetter │
-│ Spring  │ 2.1"│ Dryer       │
-│ Summer  │ 0.1"│ Similar     │
-│ Fall    │ 3.8"│ Wetter      │
-├─────────┼─────┼─────────────┤
-│ Annual  │11.2"│ Much Wetter │
-└─────────┴─────┴─────────────┘
-```
-
-<!-- PAGE-BREAK -->
-
-**Wind Popup:**
-
-```
-Wind Data    37.979, -122.479
-┌─────────┬───────┬─────────────┬─────────────┐
-│         │ Speed │ Direction   │ Relatively  │
-├─────────┼───────┼─────────────┼─────────────┤
-│ Winter  │ 7.2   │ NW          │ Windier     │
-│ Spring  │ 9.2   │ NW          │ Much Windier│
-│ Summer  │10.7   │ WNW         │ Windier     │
-│ Fall    │ 6.5   │ NW          │ Similar     │
-├─────────┼───────┼─────────────┼─────────────┤
-│ Annual  │ 8.4   │ NW          │ Windier     │
-└─────────┴───────┴─────────────┴─────────────┘
-
-Speed in mph • Direction shows prevailing wind
-Vector-averaged using meteorologically correct methods
-```
-
-This system answers the practical question: "How will this location's weather compare to what we're used to at home?"
+ <!-- PAGE-BREAK -->
 
 ### Telecom Coverage 📡
-
-Good internet is essential for working from home. The map shows coverage areas using hexagonal overlays:
-
-#### 5G Mobile Coverage
-
-| Icon                                                       | Coverage Type | Description                           |
-| ---------------------------------------------------------- | ------------- | ------------------------------------- |
-| <img src="img/icons/mobile-5g.svg" width="25" height="25"> | **5G Mobile** | 5G NR mobile broadband coverage areas |
 
 #### Fiber Internet Coverage
 
@@ -398,9 +316,13 @@ Good internet is essential for working from home. The map shows coverage areas u
 | <img src="img/icons/fiber-10g.svg" width="25" height="25">   | **10+ Gigabit** | Multi-gigabit fiber connections                        |
 | <img src="img/icons/fiber-sonic.svg" width="25" height="25"> | **Sonic.net**   | Sonic.net fiber service (highlighted with blue border) |
 
-_Data comes from the [FCC’s nationwide broadband database](https://broadbandmap.fcc.gov/data-download/nationwide-data). Hexagons represent H3 geographic coverage areas._
+#### 5G Mobile Coverage
 
-<!-- PAGE-BREAK -->
+| Icon                                                       | Coverage Type | Description                           |
+| ---------------------------------------------------------- | ------------- | ------------------------------------- |
+| <img src="img/icons/mobile-5g.svg" width="25" height="25"> | **5G Mobile** | 5G NR mobile broadband coverage areas |
+
+_Data comes from the [FCC’s nationwide broadband database](https://broadbandmap.fcc.gov/data-download/nationwide-data). Hexagons represent H3 geographic coverage areas._
 
 ### Marker Behavior
 
@@ -417,6 +339,8 @@ _Data comes from the [FCC’s nationwide broadband database](https://broadbandma
   - **Sold + Redfin**: Shows all Redfin properties (current and sold suggestions)
   - **All checked**: Shows all property types
 - **Authentic Icon Shapes**: Markers respect their original SVG shapes (Redfin icons show less rounded corners)
+
+<!-- PAGE-BREAK -->
 
 ## 🔗 Resources
 
@@ -463,17 +387,6 @@ _Data comes from the [FCC’s nationwide broadband database](https://broadbandma
 3. Implement loading logic in `js/houseHunt.js`
 4. Add UI controls in `index.html`
 
-#### Clean Up Button
-
-The "Clean up" button provides a quick way to reset the map to a clean state showing only current properties. Located at the bottom of the control panel, it:
-
-- **Turns on**: Current properties checkbox
-- **Turns off**: All other property types (Sold, Redfin Suggestions, Hidden)
-- **Turns off**: All POI categories (Coffee, Retail, Hardware, etc.)
-- **Turns off**: All environmental layers (Climate, Fire, Telecom)
-- **Persists changes**: Saves all checkbox states to localStorage
-- **Fast tooltip**: Custom tooltip appears in 100ms instead of browser default ~500ms
-
 ### Architecture
 
 - **Frontend**: Vanilla JavaScript with Mapbox GL JS for the interactive map, SCSS for styling
@@ -482,12 +395,7 @@ The "Clean up" button provides a quick way to reset the map to a clean state sho
 - **Automation**: Google Apps Script for email monitoring and data collection
 - **Deployment**: PM2 on a Synology NAS
 
-#### UI/UX Improvements
-
-- **Map Scale Positioning**: Scale control repositioned next to Mapbox logo for cleaner layout
-- **Marker Shape Fidelity**: Removed CSS border-radius override to preserve authentic SVG icon shapes
-- **Property Visibility Logic**: Implemented smart filtering where property types only show when their respective checkboxes are enabled
-- **Fast Tooltips**: Custom tooltip system with 100ms delay for better responsiveness
+<!-- PAGE-BREAK -->
 
 ### How the Email Automation Works
 
@@ -531,148 +439,6 @@ The "Clean up" button provides a quick way to reset the map to a clean state sho
 - `js/houseHunt.js` - Frontend map logic, marker management, and climate popup functionality
 - `css/househunt.scss` - All the styling including marker opacity rules and climate popup styling
 
-### Developer Utilities
-
-The `utils/` directory contains specialized tools for data processing, conversion, and analysis:
-
-#### **Environmental Data Processing**
-
-- `splitFireData.js` - Splits large CAL FIRE GeoJSON files by geographic region for better performance
-- `splitFireDataStream.js` - Memory-efficient version for processing massive fire datasets
-- `trimFireDataGeographic.js` - Trims fire hazard data to Bay Area boundaries
-- `splitFloodplains.js` - Processes FEMA flood zone data into manageable chunks
-- `splitFloodplainsStream.js` - Streaming version for large flood datasets
-- `trimEastOfManteca.js` - Geographic trimming utility for eastern boundary cleanup
-
-#### **Climate Data Processing**
-
-- `extract-climate-geojson.py` - Extracts and processes NOAA climate normals from NetCDF files to GeoJSON
-- `generate-climate-rasters.py` - Generates smooth PNG heatmap overlays from climate GeoJSONs
-- `climate-layer-config.py` - Creates configuration files and templates for climate layer integration
-
-<!-- PAGE-BREAK -->
-
-#### **Wind Data Processing**
-
-- `wind_extract_base.py` - Core wind data processing functions and utilities
-- `wind_extract_weekly.py` - Processes hourly NREL wind data into weekly climatology (2001-2020)
-- `wind_extract_monthly.py` - Creates monthly wind climatology aggregates
-- `wind_extract_daily.py` - Generates daily wind pattern summaries
-- `wind_extract_hourly.py` - Processes raw hourly wind data with quality control
-- `wind_extract_ampm.py` - Processes wind data into AM/PM temporal aggregations
-- `wind_extract_geojson.py` - Converts processed wind data to GeoJSON format
-- `wind_extract_geojson_enhanced.py` - Enhanced GeoJSON generation with improved metadata
-- `wind_extract_geojson_netcdf.py` - Direct NetCDF to GeoJSON conversion for wind data
-- `wind_generate_png_raster.py` - Creates georeferenced PNG raster overlays from wind GeoJSON data
-- `wind_prepare_hourly_data.py` - Prepares and validates hourly wind data for processing
-- `wind_process_enhanced_pipeline.py` - Comprehensive wind data processing pipeline
-- `boundary_filter.py` - Removes ocean-based wind stations using hybrid land/water detection
-
-#### **Telecom Data Processing**
-
-- `convertFiberCsvToGeojson.js` - Converts FCC fiber-to-premises CSV data to GeoJSON
-- `trimTelecom5GCloverdale.js` - Trims 5G coverage data to specific geographic regions
-
-#### **POI Data Collection**
-
-- `findStuff.js` - Google Maps Places API integration for fetching POIs
-- `safeway.py` - Python script for collecting Safeway locations across California cities
-
-#### **Data Analysis & Extraction**
-
-- `analyzeFireData.js` - Analyzes fire risk datasets for coverage statistics and data quality
-- `extractCa.py` - Extracts California-specific data from national datasets
-- `extractSample.py` - Creates sample datasets for testing and development
-- `convertGpkgWithOgr.js` - Converts GeoPackage files to GeoJSON using OGR/GDAL
-<!-- PAGE-BREAK -->
-
-#### **Usage Examples**
-
-```bash
-# Process fire data for Bay Area
-node utils/splitFireData.js california-high-hazard-zones.geojson
-
-# Generate climate heatmap overlays
-python3 utils/generate-climate-rasters.py --period 2006-2020
-
-# Extract climate data from NetCDF files
-python3 utils/extract-climate-geojson.py --variable tave --period 2006-2020
-
-# Process wind data into weekly climatology
-python3 utils/wind_extract_weekly.py --input-file data/climate/wind/norcal-wind-2001-2020-hourly.csv
-
-# Generate wind raster overlays with proper georeferencing
-python3 utils/wind_generate_png_raster.py --input-file data/climate/norcal-climate-wind-weekly-2001-2020.geojson.gz --output-file data/climate/rasters/climate-wind-weekly-land-only-2001-2020.png --resolution 1500
-
-# Process enhanced wind data pipeline
-python3 utils/wind_process_enhanced_pipeline.py --input-file data/climate/wind/norcal-wind-2001-2020-hourly.csv
-
-# Extract wind data directly from NetCDF files
-python3 utils/wind_extract_geojson_netcdf.py --input-file data/climate/wind/norcal-wind-2001-2020.nc
-
-# Convert telecom CSV to GeoJSON
-node utils/convertFiberCsvToGeojson.js
-
-# Collect POI data via Google Maps API
-node utils/findStuff.js
-
-# Analyze dataset coverage
-node utils/analyzeFireData.js
-```
-
-### Environmental Data Processing Pipeline
-
-The flood and fire risk layers required significant data processing:
-
-- **FEMA flood data**: Downloaded massive GeoJSON files, split by zone type, trimmed to Bay Area
-- **CAL FIRE data**: Similar process for fire hazard severity zones
-- **Processing tools**: Located in `utils/` directory with both standard and streaming versions
-
-### Wind Data Processing Pipeline
-
-The wind layer required extensive processing of NREL's high-resolution meteorological data:
-
-#### **Data Acquisition**
-
-- **Source**: NREL Wind Integration National Dataset (WIND Toolkit)
-- **Coverage**: 2001-2020 (20 years) at hourly resolution
-- **Spatial Resolution**: ~2km grid spacing across Northern California
-- **Raw Data Size**: ~42GB for the consolidated hourly CSV file
-- **Download Process**: Automated via `download_wind_zips.py` using NREL's API
-
-#### **Processing Stages**
-
-1. **Data Consolidation**: Individual station/year CSV files merged into master hourly dataset
-2. **Geographic Filtering**: Stations filtered to Northern California bounds (Ukiah to Salinas)
-3. **Land/Ocean Filtering**: Ocean-based stations removed using hybrid boundary detection
-4. **Temporal Aggregation**: Hourly data processed into weekly climatology using vector averaging
-5. **Statistical Analysis**: Seasonal, monthly, and annual wind patterns calculated
-6. **GeoJSON Generation**: Final data exported as compressed GeoJSON with full metadata
-
-#### **Vector Wind Averaging**
-
-Wind data requires special mathematical treatment since direction is circular:
-
-- **U/V Components**: Wind speed/direction converted to eastward (U) and northward (V) components
-- **Component Averaging**: U and V components averaged separately over time periods
-- **Reconversion**: Averaged components converted back to speed and direction
-- **Meteorological Accuracy**: Ensures prevailing wind directions are mathematically correct
-
-#### **Output Formats**
-
-- **Full Dataset**: `norcal-climate-wind-weekly-2001-2020.geojson.gz` (~37.9MB, 2,182 stations with seasonal/annual averages)
-- **Monthly Dataset**: `norcal-climate-wind-monthly-2001-2020.geojson.gz` (~4.2MB, monthly aggregations)
-- **PNG Rasters**: Georeferenced PNG overlays with world files (.pgw) for precise map alignment
-- **Metadata Files**: JSON metadata with processing details, data bounds, and statistics
-
-#### **Wind Visualization Features**
-
-- **Black Color Scheme**: Wind data uses shades of black for better contrast against the base map
-- **Land-Only Coverage**: Ocean-based wind stations filtered out using hybrid boundary detection
-- **High Resolution**: 1500×1500 pixel PNG rasters for detailed visualization
-- **Proper Georeferencing**: World files (.pgw) ensure accurate alignment with map coordinates
-- **Interactive Popups**: Hover over wind arrows to see detailed speed/direction data with relative comparisons to home location
-
 ### Getting Started (Technical)
 
 1. **Prerequisites**: Node.js, Google Cloud Project with Sheets API, Mapbox account
@@ -686,8 +452,6 @@ Wind data requires special mathematical treatment since direction is circular:
 - **New property fields**: Update scraping functions in `gs/redfinExtractors.gs`, modify popup template
 - **New environmental layers**: Process data to GeoJSON, add loading logic to frontend
 <p>&nbsp;</p>
-
-<!-- PAGE-BREAK -->
 
 ## CSS Z-Index Reference
 
@@ -716,7 +480,9 @@ The following table shows all z-index values used in the application, ordered fr
 - Interactive elements (search, controls) are above informational elements (popups)
 - Climate hover tooltips are between regular popups and layer popups for proper interaction
 
-### Footnotes
+<!-- PAGE-BREAK -->
+
+Footnotes
 
 [^1]: **Proposition 19**: California's Proposition 19 (passed in 2020) allows homeowners over 55, disabled persons, or disaster victims to transfer their property tax basis to a new home anywhere in the state. This is relevant to us because we can potentially take our current low property tax assessment with us when we move, significantly reducing the property taxes on a new home.
 [^2]: **Target**: Yes, we are currently boycotting Target because they are [hot garbage](https://www.pbs.org/newshour/classroom/daily-news-lessons/2025/08/pastor-leading-target-boycott-on-its-impact-and-the-retailers-response).
