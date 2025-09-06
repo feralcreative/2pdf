@@ -125,7 +125,7 @@ footer {
     font-weight: 400;
     color: #880088;
     margin: 0 0 1em 0;
-    border-bottom: 1px solid #880088;
+    border-bottom: 0.25pt solid #880088;
     padding: 0.5em 0 0.5em 0;
   }
 
@@ -134,7 +134,7 @@ footer {
     font-weight: 500;
     color: #222;
     margin: 1.5em 0 0.5em 0;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 0.5px solid #ccc;
     padding: 0.5em 0 0.4em 0;
   }
 
@@ -142,7 +142,7 @@ footer {
     font-size: 1.125rem;
     font-weight: 800;
     color: #808;
-    border-bottom: 1px solid #808;
+    border-bottom: 0.25px solid #808;
     padding-bottom: 0.5em;
     margin: 1.5em 0 0.5em 0;
   }
@@ -182,7 +182,7 @@ footer {
     margin: 8px 0 8px 25px;
 
     li {
-      margin: 2px 0;
+      margin: 0.2em 0;
     }
   }
 
@@ -216,113 +216,20 @@ footer {
     }
   }
 
-  // Table styling with nested selectors
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 18px 0;
-    font-size: 0.8125rem;
-    background: white;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    table-layout: fixed;
-    z-index: 10;
-
-    th {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      font-weight: 600;
-      padding: 1px 12px;
-      text-align: left;
-      border: 1px solid #ddd;
-      color: #333;
-      vertical-align: middle;
-      z-index: 15;
-    }
-
-    td {
-      padding: 0.25em 0.5em;
-      border: 1px solid #ddd;
-      vertical-align: middle;
-      font-size: 0.9em;
-      font-family: Lato;
-      z-index: 12;
-    }
-
-    tr:nth-child(even) {
-      background: #fafbfc;
-      z-index: 11;
-    }
-
-    // Fixed column widths for consistent layout
-    td:nth-child(1),
-    th:nth-child(1) {
-      width: 50px !important;
-      min-width: 50px !important;
-      max-width: 50px !important;
-      text-align: center !important;
-      vertical-align: middle !important;
-      z-index: 20;
-    }
-
-    // Keep normal font size for first column (no more oversized numbers)
-    td:nth-child(1) {
-      font-size: inherit;
-    }
-
-    td:nth-child(2),
-    th:nth-child(2) {
-      width: 150px !important;
-      min-width: 150px !important;
-      max-width: 150px !important;
-      font-weight: 600;
-      z-index: 18;
-    }
-
-    td:nth-child(3),
-    th:nth-child(3) {
-      width: auto !important;
-      min-width: auto !important;
-      max-width: none !important;
-      z-index: 16;
-    }
-
-    // Force table to respect column widths
-    col:nth-child(1) {
-      width: 50px !important;
-      z-index: 25;
-    }
-    col:nth-child(2) {
-      width: 150px !important;
-      z-index: 23;
-    }
-    col:nth-child(3) {
-      width: auto !important;
-      z-index: 21;
-    }
-
-    // Make table icons 25% smaller
-    img {
-      width: 75% !important;
-      height: 75% !important;
-      max-width: 19px;
-      max-height: 19px;
-    }
-  }
-
   blockquote {
     border-left: 4px solid #880088;
     background: #f2e6f2;
     margin: 16px 0;
-    padding: 12px 20px;
+    padding: 1em 1em;
     font-style: italic;
-    color: #555;
+    color: #222;
     border-radius: 0 4px 4px 0;
   }
 
   a {
     color: #880088;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   // Image styling
@@ -331,7 +238,6 @@ footer {
     height: auto;
     display: inline-block;
     vertical-align: middle;
-    border-radius: 4px;
 
     // SVG icon styling
     &[src$=".svg"] {
@@ -346,54 +252,31 @@ footer {
   code,
   pre {
     font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-    font-size: 0.9em;
+    font-size: 0.8em;
     font-weight: normal;
     line-height: 1.1em;
   }
 
-  // Z-index reference table specific styling
-  .z-index-table {
-    // Make all text 25% smaller
-    font-size: 0.75em !important;
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
 
     code,
     pre {
-      font-size: 0.65em !important;
       line-height: 1.2em;
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
     }
 
-    // Column width control for z-index reference table only
-    col:nth-child(1) {
-      width: 75px !important;
-    }
-    col:nth-child(3) {
-      width: 100px !important; // Further reduced from 140px to 100px
-    }
-
-    td:nth-child(1),
-    th:nth-child(1) {
-      width: 75px !important;
-      min-width: 75px !important;
-      max-width: 75px !important;
-    }
-
-    td:nth-child(3),
-    th:nth-child(3) {
-      width: 100px !important; // Further reduced from 140px to 100px
-      min-width: 100px !important;
-      max-width: 100px !important;
-      word-wrap: break-word !important;
-      word-break: break-word !important;
-      overflow-wrap: break-word !important;
-      hyphens: auto !important;
-    }
-
-    // Ensure all cells respect boundaries
-    td,
     th {
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      white-space: normal !important;
+      border-bottom: 0.25pt solid #999;
+      padding: 0.3em;
+      font-family: Lato, sans-serif !important;
+    }
+    td {
+      border-bottom: 0.25pt solid #ccc;
+      padding: 0.3em;
+      font-size: 0.9em;
+      font-family: Lato, sans-serif !important;
     }
   }
 
@@ -450,25 +333,21 @@ footer {
         sans-serif !important;
 
       li {
-        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
-          "Noto Color Emoji", sans-serif !important;
+        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
       }
     }
 
     div {
       p {
-        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
-          "Noto Color Emoji", sans-serif !important;
+        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
       }
 
       ul,
       ol {
-        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
-          "Noto Color Emoji", sans-serif !important;
+        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
 
         li {
-          font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
-            "Noto Color Emoji", sans-serif !important;
+          font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
         }
       }
     }
@@ -477,28 +356,19 @@ footer {
     article,
     main {
       p {
-        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
-          "Noto Color Emoji", sans-serif !important;
+        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
       }
 
       ul,
       ol {
-        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
-          "Noto Color Emoji", sans-serif !important;
+        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
 
         li {
-          font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji",
-            "Noto Color Emoji", sans-serif !important;
+          font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
         }
       }
     }
   }
-
-  // DEBUG: Add a visible indicator to see which elements are getting Lato
-  // Uncomment to see which elements are using Lato (they'll have a red border)
-  // html body *:not(code):not(pre) {
-  //   border: 1px solid red !important;
-  // }
 }
 
 // Manual page break support - works in both screen and print
@@ -539,12 +409,12 @@ footer {
 .pdf-source {
   width: 100% !important;
   display: block !important;
-  border: 0.5px solid #808 !important;
-  padding: 0.25em 0.5em !important;
+  border: 0.5px solid #ccc !important;
+  padding: 0.25em !important;
   border-radius: 2em !important;
   background-color: #f7f7f7 !important;
   color: #333 !important;
-  margin: 0 auto 3em auto !important;
+  margin: -1em auto 3em auto !important;
   text-align: center !important;
   box-sizing: border-box !important;
 
@@ -552,7 +422,44 @@ footer {
     margin: 0 !important;
     text-align: center !important;
     padding: 0 !important;
-    font: 600 0.7rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    font: 600 0.6rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
       sans-serif !important;
+  }
+}
+
+// Live Site Shield styling - targets paragraph after live-site-shield comment
+.live-site-shield {
+  display: inline-block !important;
+  background: linear-gradient(90deg, #555 0%, #555 35%, #808 35%, #808 100%) !important;
+  color: white !important;
+  padding: 0 !important;
+  margin: 1em 0 !important;
+  border-radius: 4px !important;
+  font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+  font-size: 1.1em !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+
+  strong {
+    background: #555 !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    font-weight: 600 !important;
+  }
+
+  a {
+    background: #808 !important;
+    color: white !important;
+    text-decoration: none !important;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    font-weight: 700 !important;
   }
 }

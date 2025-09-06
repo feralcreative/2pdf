@@ -13,8 +13,10 @@ A portable, self-contained script that converts Markdown files to beautifully fo
 - 🖼️ **Image support** - automatically converts SVG icons to PNG when available
 - 🔧 **Portable** - works from any project directory
 - 📱 **Print-optimized** - responsive layout that looks great in PDF format
-- 📖 **Page breaks** - supports manual page break comments (`<!-- PAGE-BREAK -->`)
+- 📖 **Page breaks** - supports manual page break comments (`<!--| PAGE-BREAK -->`)
 - 🏷️ **PDF-only content** - special tags for content that only appears in PDF
+- 📊 **Table column widths** - precise control over table column sizing with comments
+- 🎨 **Professional styling** - clean typography with Lato fonts and consistent borders
 
 ## Quick Start
 
@@ -62,14 +64,14 @@ Add page breaks in your Markdown:
 
 Content here...
 
-<!-- PAGE-BREAK -->
+<!--| PAGE-BREAK -->
 
 ## Section 2
 
 Content on new page...
 ```
 
-<!-- PAGE-BREAK -->
+<!--| PAGE-BREAK -->
 
 ### PDF-Only Content
 
@@ -88,6 +90,31 @@ Same functionality with dash instead of space
 -->
 ```
 
+### Table Column Width Control
+
+Control precise column widths in tables using special comments:
+
+```markdown
+<!--! col-widths: 50px, 150px, auto -->
+
+| Icon | Name   | Description |
+| ---- | ------ | ----------- |
+| 🎯   | Target | Example row |
+```
+
+**Supported width formats:**
+
+- **Fixed pixels**: `50px`, `150px`, `200px`
+- **Percentages**: `10%`, `30%`, `60%`
+- **Auto sizing**: `auto` (takes remaining space)
+
+**Usage notes:**
+
+- Place the comment directly above the table
+- Widths are applied left-to-right to columns
+- Use `<!--!` (exclamation) instead of `<!--~` (tilde) for the comment
+- All tables get consistent border styling with `border-collapse: collapse`
+
 ### Image Processing
 
 - **SVG Support**: Automatically converts to PNG when available
@@ -99,15 +126,24 @@ Same functionality with dash instead of space
 ### Typography
 
 - **Headers**: Purple H1 with underline, clean hierarchy for H2-H6
-- **Body text**: Inter font family with optimized line spacing
-- **Code blocks**: Syntax highlighting with rounded corners
-- **Tables**: Professional styling with alternating row colors
+- **Body text**: Lato font family with optimized line spacing for print
+- **Code blocks**: Syntax highlighting with rounded corners and monospace fonts
+- **Tables**: Professional styling with consistent borders and proper cell padding
+
+### Table Styling
+
+- **Consistent borders**: All tables use `border-collapse: collapse` for clean lines
+- **Header styling**: Solid bottom borders (`#999`) with proper padding
+- **Cell styling**: Dotted bottom borders (`#ccc`) for subtle row separation
+- **Column control**: Precise width control via HTML colgroup elements
+- **Font consistency**: Lato font family applied to all table content
 
 ### Print Optimization
 
 - **Page margins**: 0.5 inch on all sides
 - **Font scaling**: Optimized sizes for print readability
-- **Table formatting**: Fixed column widths for consistent layout
+- **Table formatting**: Fixed table layout with controlled column widths
+- **Border consistency**: No gaps between table cell borders
 
 ## Output
 
@@ -115,7 +151,7 @@ Same functionality with dash instead of space
 - Input: `myfile.md` → Output: `myfile.pdf`
 - PDFs are created in the same directory as the input file
 
-<!-- PAGE-BREAK -->
+<!--| PAGE-BREAK -->
 
 ## Troubleshooting
 
@@ -142,14 +178,36 @@ The script saves the intermediate HTML file at `/tmp/md_styled.html` for inspect
 
 ## Technical Details
 
+### Architecture
+
 - ✅ **Portable** - No Node.js dependencies, works from any directory
 - ✅ **Self-contained** - All styling and logic included
 - ✅ **Cross-platform** - macOS and Linux support
+- ✅ **Modular processing** - Separate stages for content, styling, and PDF generation
+
+### Processing Pipeline
+
+1. **Content Processing**: PDF-only tags and page breaks
+2. **Markdown Conversion**: Pandoc converts MD to HTML
+3. **Image Processing**: SVG to PNG conversion when available
+4. **Table Enhancement**: Column width processing with HTML colgroup injection
+5. **Style Application**: SCSS-compiled CSS with Lato fonts
+6. **PDF Generation**: Puppeteer/Chrome headless rendering
+
+### Column Width System
+
+- **Regex matching**: Flexible pattern matching for table comments with attributes
+- **HTML manipulation**: Direct colgroup injection with `!important` CSS
+- **Conflict resolution**: Removes conflicting CSS rules that override column widths
+- **Cross-table consistency**: Unified `border-collapse: collapse` for all tables
 
 ## Files
 
-- `md-to-pdf.sh` - Main conversion script
+- `md-to-pdf.sh` - Main conversion script with column width processing
 - `install.sh` - Installation helper for other projects
+- `style/pdf.scss` - SCSS source for PDF styling (compiled to CSS)
+- `style/pdf.min.css` - Compiled and minified CSS for PDF generation
+- `fonts/` - Lato font family files for consistent typography
 - `README.md` - This documentation
 
 ## License
