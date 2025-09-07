@@ -1,62 +1,10 @@
 // =============================================================================
 // FONT DEFINITIONS - SIMPLIFIED FOR PDF RELIABILITY
 // =============================================================================
-// Load only essential Lato fonts using TTF format for maximum PDF compatibility
-// This approach reduces font loading complexity and improves PDF generation reliability
+// GOOGLE FONTS - Inter font family for reliable PDF generation
+// =============================================================================
 
-// Regular weight (400/normal) - Most important
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/ttf/lato-regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/ttf/lato-italic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-}
-
-// Bold weight (700/bold) - Second most important
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/ttf/lato-bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/ttf/lato-bolditalic.ttf") format("truetype");
-  font-weight: 700;
-  font-style: italic;
-}
-
-// Medium weight (500) - For headings
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/ttf/lato-medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-}
-
-// Semi-bold weight (600) - For emphasis
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/ttf/lato-semibold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-}
-
-// Extra bold weight (800) - For strong headings
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/ttf/lato-extrabold.ttf") format("truetype");
-  font-weight: 800;
-  font-style: normal;
-}
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 // =============================================================================
 // PAGE SETUP & GLOBAL STYLES
@@ -84,28 +32,22 @@ footer {
 }
 
 // Base styles that apply regardless of media type (fallback for PDF generation)
-// Force Lato font on all elements immediately - don't rely on @media print
+// Force Inter font on all elements immediately - don't rely on @media print
 * {
-  font-family: "Lato" !important;
+  font-family: "Inter", sans-serif !important;
 }
 
 // Override only monospace elements
-code,
-pre,
-code *,
-pre * {
-  font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-}
 
 html {
-  font-family: "Lato" !important;
+  font-family: "Inter", sans-serif !important;
   line-height: 1.3em;
   color: #111 !important;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 body {
-  font-family: "Lato" !important;
+  font-family: "Inter", sans-serif !important;
   background: white !important;
   padding: 15px;
   max-width: 800px;
@@ -114,12 +56,21 @@ body {
   color: #111 !important;
 }
 
+code,
+pre,
+code *,
+pre * {
+  font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+}
 // =============================================================================
 // PRINT MEDIA STYLES
 // =============================================================================
 
 @media print {
-  // Print-specific styles only (fonts are handled globally above)
+  // Using Google Fonts Inter - no font-face declarations needed
+  // Chrome will handle all font weights and styles automatically
+
+  // Print-specific styles
 
   // Base HTML and body styles for print
   html {
@@ -141,7 +92,7 @@ body {
   h1 {
     font-size: 2rem;
     font-weight: 400 !important;
-    font-family: "Lato" !important;
+    font-family: "Inter", sans-serif !important;
     color: #880088;
     margin: 0 0 0.5em 0;
     border-bottom: 0.25pt solid #880088;
@@ -151,7 +102,7 @@ body {
   h2 {
     font-size: 1.5rem;
     font-weight: 400 !important;
-    font-family: "Lato" !important;
+    font-family: "Inter", sans-serif !important;
     color: #222;
     margin: 0.5em 0 0.5em 0;
     border-bottom: 0.5px solid #ccc;
@@ -161,7 +112,7 @@ body {
   h3 {
     font-size: 1.25rem;
     font-weight: 700 !important;
-    font-family: "Lato" !important;
+    font-family: "Inter", sans-serif !important;
     color: #808;
     border-bottom: 0.25px solid #808;
     padding: 1em 0 0.5em 0;
@@ -170,7 +121,7 @@ body {
   h4 {
     font-size: 1.25rem;
     font-weight: 700 !important;
-    font-family: "Lato" !important;
+    font-family: "Inter", sans-serif !important;
     color: #444;
     margin: 1em 0 0.1em 0;
   }
@@ -178,7 +129,7 @@ body {
   h5 {
     font-size: 1rem;
     font-weight: 700 !important;
-    font-family: "Lato" !important;
+    font-family: "Inter", sans-serif !important;
     color: #808;
     margin: 24px 0 4px 0;
     padding-bottom: 0.25em;
@@ -187,7 +138,7 @@ body {
   h6 {
     font-size: 0.7rem;
     font-weight: 700 !important;
-    font-family: "Lato" !important;
+    font-family: "Inter", sans-serif !important;
     color: #222;
     margin: 1em 0 0.25em 0;
     padding-bottom: 0.25em;
@@ -213,6 +164,22 @@ body {
     }
   }
 
+  // -------------------------------------------------------------------------
+  // BOLD AND ITALIC ELEMENTS - Explicit font weight and style definitions
+  // -------------------------------------------------------------------------
+
+  strong,
+  b {
+    font-weight: bold !important;
+    font-family: "Inter", sans-serif !important;
+  }
+
+  em,
+  i {
+    font-style: italic !important;
+    font-family: "Inter", sans-serif !important;
+  }
+
   blockquote {
     border-left: 4px solid #880088;
     background: #f2e6f2;
@@ -221,6 +188,18 @@ body {
     font-style: italic;
     color: #222;
     border-radius: 0 4px 4px 0;
+  }
+
+  // Ensure bold text within italic contexts (like blockquotes) uses Bold Italic
+  blockquote strong,
+  blockquote b,
+  em strong,
+  em b,
+  i strong,
+  i b {
+    font-family: "Inter", sans-serif !important;
+    font-weight: bold !important;
+    font-style: italic !important;
   }
 
   a {
@@ -295,12 +274,12 @@ body {
 
     th {
       border-bottom: 0.25pt solid #999;
-      padding: 0.3em;
+      padding: 0.4em 0.2em;
     }
 
     td {
       border-bottom: 0.25pt solid #ccc;
-      padding: 0.3em;
+      padding: 0.4em 0.2em;
       font-size: 0.9em;
     }
   }
@@ -364,8 +343,7 @@ body {
       margin: 0 !important;
       text-align: center !important;
       padding: 0 !important;
-      font: 600 0.75rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-        sans-serif !important;
+      font: 600 0.75rem/1.2 "Inter", sans-serif !important;
     }
   }
 
