@@ -20,6 +20,9 @@
 # Get the current working directory (where the script is run from)
 CURRENT_DIR="$(pwd)"
 
+# Get the directory where the script is located (for finding assets like CSS and fonts)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Default to README.md if no argument provided
 MARKDOWN_FILE="${1:-README.md}"
 
@@ -59,13 +62,13 @@ pandoc /tmp/md_with_placeholders.md -t html --no-highlight > /tmp/md_base.html
 sed 's/PDFONLY_PLACEHOLDER_START//g; s/PDFONLY_PLACEHOLDER_END//g' /tmp/md_base.html > /tmp/md_processed.html
 mv /tmp/md_processed.html /tmp/md_base.html
 
-# Use the minimized CSS file compiled by IDE
-CSS_FILE="$CURRENT_DIR/style/pdf.min.css"
+# Use the minimized CSS file compiled by IDE (from script directory)
+CSS_FILE="$SCRIPT_DIR/style/pdf.min.css"
 
 if [ -f "$CSS_FILE" ]; then
     echo "🎨 Using minimized CSS from IDE compilation..."
     # Replace relative font paths with absolute file:// URLs for Chrome
-    sed "s|url(\"../fonts/|url(\"file://$CURRENT_DIR/fonts/|g" "$CSS_FILE" > /tmp/pdf_absolute.css
+    sed "s|url(\"../fonts/|url(\"file://$SCRIPT_DIR/fonts/|g" "$CSS_FILE" > /tmp/pdf_absolute.css
     CSS_FILE="/tmp/pdf_absolute.css"
 
     # Debug: Show font paths being used
@@ -74,8 +77,8 @@ if [ -f "$CSS_FILE" ]; then
 
     # Debug: Verify font files exist
     echo "🔍 Checking font files:"
-    ls -la "$CURRENT_DIR/fonts/Lato-Regular.ttf" 2>/dev/null && echo "✅ Lato-Regular.ttf found" || echo "❌ Lato-Regular.ttf missing"
-    ls -la "$CURRENT_DIR/fonts/Lato-Bold.ttf" 2>/dev/null && echo "✅ Lato-Bold.ttf found" || echo "❌ Lato-Bold.ttf missing"
+    ls -la "$SCRIPT_DIR/fonts/Lato-Regular.ttf" 2>/dev/null && echo "✅ Lato-Regular.ttf found" || echo "❌ Lato-Regular.ttf missing"
+    ls -la "$SCRIPT_DIR/fonts/Lato-Bold.ttf" 2>/dev/null && echo "✅ Lato-Bold.ttf found" || echo "❌ Lato-Bold.ttf missing"
 else
     echo "❌ Minimized CSS file not found: $CSS_FILE"
     echo "💡 Make sure your IDE has compiled pdf.scss to pdf.min.css"
