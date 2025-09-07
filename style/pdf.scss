@@ -1,83 +1,28 @@
+// =============================================================================
+// FONT DEFINITIONS
+// =============================================================================
 // Load Lato fonts from local workspace files for reliable PDF generation
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-Thin.ttf") format("truetype");
-  font-weight: 100;
-  font-style: normal;
-}
 
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-ExtraLight.ttf") format("truetype");
-  font-weight: 200;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-Light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-}
-
+// Simplified font loading - just the essentials
 @font-face {
   font-family: "Lato";
   src: url("../fonts/Lato-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-SemiBold.ttf") format("truetype");
-  font-weight: 600;
+  font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Lato";
   src: url("../fonts/Lato-Bold.ttf") format("truetype");
-  font-weight: 700;
+  font-weight: bold;
   font-style: normal;
 }
 
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-ExtraBold.ttf") format("truetype");
-  font-weight: 800;
-  font-style: normal;
-}
+// =============================================================================
+// PAGE SETUP & GLOBAL STYLES
+// =============================================================================
 
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-Black.ttf") format("truetype");
-  font-weight: 900;
-  font-style: normal;
-}
-
-// Italic variants
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-Italic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato-BoldItalic.ttf") format("truetype");
-  font-weight: 700;
-  font-style: italic;
-}
-
-// Page setup
+// Page setup for PDF generation
 @page {
   margin: 0.5in;
   size: letter;
@@ -102,9 +47,9 @@ footer {
 html {
   font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-  line-height: 1.1em;
+  line-height: 1.3em;
   color: #111 !important;
-  font-size: 18px;
+  font-size: 14px;
 }
 
 body {
@@ -115,37 +60,49 @@ body {
   max-width: 800px;
   margin: 0 auto;
   text-align: left;
-  font-size: 0.75rem;
   color: #111 !important;
 }
 
-// All styles for PDF generation
+// =============================================================================
+// PRINT MEDIA STYLES
+// =============================================================================
+
 @media print {
+  // Universal font setting - Lato ONLY (no fallbacks to avoid confusion)
+  * {
+    font-family: "Lato" !important;
+  }
+
+  // Override only monospace elements
+  code,
+  pre,
+  code *,
+  pre * {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+  }
+
+  // Base HTML and body styles for print
   html {
-    font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-      "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-    line-height: 1.1em;
     color: #111;
-    font-size: 18px;
   }
 
   body {
-    font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-      "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
     background: white;
     padding: 15px;
     max-width: 800px;
     margin: 0 auto;
     text-align: left;
-    font-size: 0.75rem;
   }
 
-  // Headings with proper nesting and hierarchy
+  // -------------------------------------------------------------------------
+  // HEADINGS - Hierarchical structure with consistent styling
+  // -------------------------------------------------------------------------
+
   h1 {
     font-size: 2rem;
     font-weight: 400;
     color: #880088;
-    margin: 0 0 1em 0;
+    margin: 0 0 0.5em 0;
     border-bottom: 0.25pt solid #880088;
     padding: 0.5em 0 0.5em 0;
   }
@@ -154,45 +111,48 @@ body {
     font-size: 1.5rem;
     font-weight: 500;
     color: #222;
-    margin: 1.5em 0 0.5em 0;
+    margin: 0.5em 0 0.5em 0;
     border-bottom: 0.5px solid #ccc;
     padding: 0.5em 0 0.4em 0;
   }
 
   h3 {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: #808;
     border-bottom: 0.25px solid #808;
-    padding-bottom: 0.5em;
-    margin: 1.5em 0 0.5em 0;
+    padding: 1em 0 0.5em 0;
   }
 
   h4 {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #444;
-    margin: 2em 0 0.1em 0;
+    margin: 1em 0 0.1em 0;
   }
 
   h5 {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 800;
     color: #808;
     margin: 24px 0 4px 0;
     padding-bottom: 0.25em;
   }
+
   h6 {
     font-size: 0.7rem;
     font-weight: 800;
     color: #222;
-    margin: 24px 0 4px 0;
+    margin: 1em 0 0.25em 0;
     padding-bottom: 0.25em;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  // Typography
+  // -------------------------------------------------------------------------
+  // TYPOGRAPHY - Paragraphs, lists, and basic text elements
+  // -------------------------------------------------------------------------
+
   p {
     margin: 10px 0;
     text-align: left;
@@ -207,41 +167,11 @@ body {
     }
   }
 
-  // Code styling
-  code {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
-    padding: 2px 4px;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: #d73a49;
-  }
-
-  pre {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 16px;
-    margin: 16px 0;
-    overflow-x: auto;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    line-height: 1.5;
-
-    code {
-      background: none;
-      border: none;
-      padding: 0;
-      color: #24292e;
-    }
-  }
-
   blockquote {
     border-left: 4px solid #880088;
     background: #f2e6f2;
     margin: 16px 0;
-    padding: 1em 1em;
+    padding: 0.25em 0.5em;
     font-style: italic;
     color: #222;
     border-radius: 0 4px 4px 0;
@@ -253,7 +183,42 @@ body {
     font-weight: 700;
   }
 
-  // Image styling
+  // -------------------------------------------------------------------------
+  // CODE BLOCKS - Inline code and pre-formatted blocks
+  // -------------------------------------------------------------------------
+
+  code {
+    background: #f7f7f7;
+    border: 1px solid #e7e7e7;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-weight: 700;
+    color: #d73a49;
+    font-size: 0.75em !important;
+  }
+
+  pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.5em;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-weight: 600;
+    color: blue;
+
+    code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #24292e;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // IMAGES - General image handling and SVG icons
+  // -------------------------------------------------------------------------
+
   img {
     max-width: 100%;
     height: auto;
@@ -269,14 +234,9 @@ body {
     }
   }
 
-  // Ensure code elements stay monospace
-  code,
-  pre {
-    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-    font-size: 0.8em;
-    font-weight: normal;
-    line-height: 1.1em;
-  }
+  // -------------------------------------------------------------------------
+  // TABLES - Column width control and consistent styling
+  // -------------------------------------------------------------------------
 
   table {
     width: 100% !important;
@@ -285,111 +245,23 @@ body {
     code,
     pre {
       line-height: 1.2em;
-      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
     }
 
     th {
       border-bottom: 0.25pt solid #999;
       padding: 0.3em;
-      font-family: Lato, sans-serif !important;
     }
+
     td {
       border-bottom: 0.25pt solid #ccc;
       padding: 0.3em;
       font-size: 0.9em;
-      font-family: Lato, sans-serif !important;
     }
   }
 
-  // NUCLEAR OPTION: Force Lato on absolutely everything (moved to end for maximum specificity)
-  html *,
-  html *::before,
-  html *::after {
-    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
-      sans-serif !important;
-  }
-
-  // Extra specific targeting for common elements
-  html body *,
-  html body p,
-  html body div,
-  html body span,
-  html body h1,
-  html body h2,
-  html body h3,
-  html body h4,
-  html body h5,
-  html body h6,
-  html body li,
-  html body td,
-  html body th,
-  html body blockquote,
-  html body a,
-  html body strong,
-  html body em,
-  html body b,
-  html body i {
-    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
-      sans-serif !important;
-  }
-
-  // Override code elements back to monospace
-  html code,
-  html pre,
-  html body code,
-  html body pre {
-    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-  }
-
-  // ULTRA NUCLEAR: Target specific problematic elements with maximum specificity
-  html body {
-    p {
-      font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
-        sans-serif !important;
-    }
-
-    ul,
-    ol {
-      font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
-        sans-serif !important;
-
-      li {
-        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-      }
-    }
-
-    div {
-      p {
-        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-      }
-
-      ul,
-      ol {
-        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-
-        li {
-          font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-        }
-      }
-    }
-
-    section,
-    article,
-    main {
-      p {
-        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-      }
-
-      ul,
-      ol {
-        font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-
-        li {
-          font-family: "Lato", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-        }
-      }
-    }
-  }
+  // -------------------------------------------------------------------------
+  // SPECIAL FEATURES - Page breaks, icons, and PDF-specific elements
+  // -------------------------------------------------------------------------
 
   // Manual page break support - works in both screen and print
   .page-break {
@@ -411,7 +283,7 @@ body {
     margin: 2px;
   }
 
-  // Icon color classes
+  // Icon color classes for househunt.md and other documents
   .icon-5g {
     background-color: #006400;
   }
@@ -425,7 +297,11 @@ body {
     background-color: #27aae1;
   }
 
-  // PDF source styling
+  // -------------------------------------------------------------------------
+  // PDF-ONLY CONTENT - Special styling for PDF-only elements
+  // -------------------------------------------------------------------------
+
+  // PDF source attribution styling
   .pdf-source {
     width: 100% !important;
     display: block !important;
@@ -442,7 +318,7 @@ body {
       margin: 0 !important;
       text-align: center !important;
       padding: 0 !important;
-      font: 600 0.6rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      font: 600 0.75rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
         sans-serif !important;
     }
   }
@@ -456,7 +332,7 @@ body {
     margin: 1em 0 !important;
     border-radius: 4px !important;
     font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-    font-size: 1.1em !important;
+    font-size: 0.9em !important;
     font-weight: 400 !important;
     text-align: left !important;
     overflow: hidden !important;
@@ -476,7 +352,6 @@ body {
       color: white !important;
       text-decoration: none !important;
       font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-
       padding: 8px 12px !important;
       margin: 0 !important;
       display: inline-block !important;

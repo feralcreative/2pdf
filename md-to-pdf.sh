@@ -198,13 +198,13 @@ function forceLato() {
     console.log('🔤 Forcing Lato font on all elements...');
     const elements = document.querySelectorAll('*:not(code):not(pre)');
     elements.forEach(el => {
-        el.style.setProperty('font-family', '"Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif', 'important');
+        el.style.setProperty('font-family', '"Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif', '!important');
     });
 
     // Special handling for paragraphs and lists
     const textElements = document.querySelectorAll('p, li, div, span, h1, h2, h3, h4, h5, h6, ul, ol');
     textElements.forEach(el => {
-        el.style.setProperty('font-family', '"Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif', 'important');
+        el.style.setProperty('font-family', '"Lato", "Helvetica Neue", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif', '!important');
     });
 
     console.log(`🔤 Applied Lato to ${elements.length} elements`);
@@ -360,8 +360,8 @@ function forceLato() {
         document.documentElement.innerHTML = htmlContent;
     }
 
-    // Force Lato font after all other processing
-    setTimeout(forceLato, 100);
+    // Force Lato font after all other processing - DISABLED FOR DEBUGGING
+    // setTimeout(forceLato, 100);
 })();
 </script>
 </body>
@@ -418,8 +418,10 @@ echo "📄 Converting to PDF (no headers/footers)..."
     --print-to-pdf-no-header \
     --no-pdf-header-footer \
     --disable-pdf-tagging \
-    --virtual-time-budget=10000 \
+    --virtual-time-budget=15000 \
     --run-all-compositor-stages-before-draw \
+    --disable-font-subpixel-positioning \
+    --disable-features=FontAccess \
     "file:///tmp/md_styled.html" 2>/dev/null
 
 # Debug: Keep the HTML file for inspection

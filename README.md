@@ -3,7 +3,33 @@
 </p></div>
 -->
 
+<!--
+
 # Markdown to PDF Converter
+
+# Headline One
+
+## Headline Two
+
+## Headline Two
+
+### Headline Three
+
+### Headline Three
+
+#### Headline Four
+
+#### Headline Four
+
+##### Headline Five
+
+##### Headline Five
+
+###### Headline Six
+
+###### Headline Six
+
+-->
 
 A portable, self-contained script that converts Markdown files to beautifully formatted PDFs with no headers or footers.
 
@@ -15,7 +41,7 @@ A portable, self-contained script that converts Markdown files to beautifully fo
 - 🔧 **Portable** - works from any project directory
 - 📱 **Print-optimized** - responsive layout that looks great in PDF format
 - 🎯 **Icon processing** - handles complex HTML icons and converts them to simple colored squares
-- 📖 **Page breaks** - supports manual page break comments (`<!--| PAGE-BREAK -->`)
+- 📖 **Page breaks** - supports manual page break comments (`<!-- PAGE-BREAK -->`)
 - 🏷️ **PDF-only content** - special tags for content that only appears in PDF (`<!-- PDF-ONLY` or `<!-- PDF ONLY`)
 - 📊 **Table column widths** - precise control over table column sizing with comments (`<!--! col-widths:`)
 
@@ -30,8 +56,6 @@ A portable, self-contained script that converts Markdown files to beautifully fo
 # Convert a specific markdown file
 ./md-to-pdf.sh myfile.md
 ```
-
-<!--| PAGE-BREAK -->
 
 ### Installation in New Projects
 
