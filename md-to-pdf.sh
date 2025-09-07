@@ -226,50 +226,13 @@ function forceLato() {
 
 // Convert complex HTML div icons to simple colored squares
 (function() {
-    // Add column groups to enforce widths immediately
+    // Generic table processing - no special cases
     document.querySelectorAll('table').forEach(table => {
-        // Check if this is the z-index reference table
-        const isZIndexTable = table.querySelector('th') &&
-            Array.from(table.querySelectorAll('th')).some(th =>
-                th.textContent.includes('Z-Index') || th.textContent.includes('Element') || th.textContent.includes('Purpose')
-            );
-
-
-
-        if (isZIndexTable) {
-            // Z-index table - replace existing colgroup or create new one
-            const existingColgroup = table.querySelector('colgroup');
-            if (existingColgroup) {
-                existingColgroup.remove();
-            }
-
+        // Ensure all tables have proper structure but no forced styling
+        if (!table.querySelector('colgroup')) {
             const colgroup = document.createElement('colgroup');
-            colgroup.innerHTML = '<col><col><col><col>'; // No fixed widths
+            // Let CSS handle the styling - no inline width constraints
             table.insertBefore(colgroup, table.firstChild);
-
-            // Add z-index-table class for CSS targeting
-            table.classList.add('z-index-table');
-            // Make text smaller
-            table.style.fontSize = '0.75em';
-            // Set table layout to auto for content-based sizing
-            table.style.tableLayout = 'auto';
-        } else if (!table.querySelector('colgroup')) {
-            // Default table widths for non-z-index tables
-            const colgroup = document.createElement('colgroup');
-            colgroup.innerHTML = '<col style="width: 80px !important;"><col style="width: 200px !important;"><col style="width: 400px !important;">';
-            table.insertBefore(colgroup, table.firstChild);
-        }
-
-        // Only add inline styles for non-z-index tables
-        if (!isZIndexTable) {
-            const rows = table.querySelectorAll('tr');
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td, th');
-                // Default table cell styling
-                if (cells[0]) cells[0].style.cssText = 'width: 80px !important; min-width: 80px !important; max-width: 80px !important; text-align: center !important;';
-                if (cells[1]) cells[1].style.cssText = 'width: 200px !important; min-width: 200px !important; max-width: 200px !important; font-weight: 600;';
-                if (cells[2]) cells[2].style.cssText = 'width: 400px !important; min-width: 400px !important; max-width: 400px !important;';
-            });
         }
     });
     // Handle complex clip-path icons
@@ -346,16 +309,7 @@ function forceLato() {
         console.log('Live site shield styling applied');
     }
 
-    // Process z-index-table comments
-    // Look for <!-- z-index-table --> comments and add class to next table
-    const zIndexTableRegex = /<!--[!?~\/\\*|—\^\^@#\[\s]*z-index-table\s*-->\s*<table>/gi;
-    if (zIndexTableRegex.test(htmlContent)) {
-        htmlContent = htmlContent.replace(
-            zIndexTableRegex,
-            '<table class="z-index-table">'
-        );
-        console.log('Z-index table styling applied');
-    }
+
 
 
 
