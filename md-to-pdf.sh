@@ -413,6 +413,7 @@ echo "📄 Converting to PDF (no headers/footers)..."
     --font-render-hinting=none \
     --disable-font-subpixel-positioning \
     --disable-lcd-text \
+    --force-color-profile=srgb \
     --print-to-pdf="$OUTPUT_FILE" \
     --print-to-pdf-no-header \
     --no-pdf-header-footer \

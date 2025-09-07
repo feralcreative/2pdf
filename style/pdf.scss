@@ -98,6 +98,27 @@ footer {
   display: none !important;
 }
 
+// Base styles that apply regardless of media type (fallback for PDF generation)
+html {
+  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+  line-height: 1.1em;
+  color: #111 !important;
+  font-size: 18px;
+}
+
+body {
+  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+  background: white !important;
+  padding: 15px;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
+  font-size: 0.75rem;
+  color: #111 !important;
+}
+
 // All styles for PDF generation
 @media print {
   html {
@@ -369,97 +390,97 @@ footer {
       }
     }
   }
-}
 
-// Manual page break support - works in both screen and print
-.page-break {
-  page-break-before: always !important;
-  break-before: page !important;
-  height: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-  visibility: hidden;
-}
+  // Manual page break support - works in both screen and print
+  .page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    visibility: hidden;
+  }
 
-// Convert complex HTML icons to simple colored squares
-.icon-placeholder {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 3px;
-  margin: 2px;
-}
+  // Convert complex HTML icons to simple colored squares
+  .icon-placeholder {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    margin: 2px;
+  }
 
-// Icon color classes
-.icon-5g {
-  background-color: #006400;
-}
-.icon-1gig {
-  background-color: #ff8c00;
-}
-.icon-10gig {
-  background-color: #cc4400;
-}
-.icon-sonic {
-  background-color: #27aae1;
-}
+  // Icon color classes
+  .icon-5g {
+    background-color: #006400;
+  }
+  .icon-1gig {
+    background-color: #ff8c00;
+  }
+  .icon-10gig {
+    background-color: #cc4400;
+  }
+  .icon-sonic {
+    background-color: #27aae1;
+  }
 
-// PDF source styling
-.pdf-source {
-  width: 100% !important;
-  display: block !important;
-  border: 0.5px solid #ccc !important;
-  padding: 0.25em !important;
-  border-radius: 2em !important;
-  background-color: #f7f7f7 !important;
-  color: #333 !important;
-  margin: -1em auto 3em auto !important;
-  text-align: center !important;
-  box-sizing: border-box !important;
-
-  p {
-    margin: 0 !important;
+  // PDF source styling
+  .pdf-source {
+    width: 100% !important;
+    display: block !important;
+    border: 0.5px solid #ccc !important;
+    padding: 0.25em !important;
+    border-radius: 2em !important;
+    background-color: #f7f7f7 !important;
+    color: #333 !important;
+    margin: -1em auto 3em auto !important;
     text-align: center !important;
+    box-sizing: border-box !important;
+
+    p {
+      margin: 0 !important;
+      text-align: center !important;
+      padding: 0 !important;
+      font: 600 0.6rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+        sans-serif !important;
+    }
+  }
+
+  // Live Site Shield styling - targets paragraph after live-site-shield comment
+  .live-site-shield {
+    display: inline-block !important;
+    background: linear-gradient(90deg, #555 0%, #555 35%, #808 35%, #808 100%) !important;
+    color: white !important;
     padding: 0 !important;
-    font: 600 0.6rem/1.2 "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-      sans-serif !important;
-  }
-}
-
-// Live Site Shield styling - targets paragraph after live-site-shield comment
-.live-site-shield {
-  display: inline-block !important;
-  background: linear-gradient(90deg, #555 0%, #555 35%, #808 35%, #808 100%) !important;
-  color: white !important;
-  padding: 0 !important;
-  margin: 1em 0 !important;
-  border-radius: 4px !important;
-  font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-  font-size: 1.1em !important;
-  font-weight: 400 !important;
-  text-align: left !important;
-  overflow: hidden !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-
-  strong {
-    background: #555 !important;
-    color: white !important;
-    padding: 8px 12px !important;
-    margin: 0 !important;
-    display: inline-block !important;
-    font-weight: 600 !important;
-  }
-
-  a {
-    background: #808 !important;
-    color: white !important;
-    text-decoration: none !important;
+    margin: 1em 0 !important;
+    border-radius: 4px !important;
     font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+    font-size: 1.1em !important;
+    font-weight: 400 !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 
-    padding: 8px 12px !important;
-    margin: 0 !important;
-    display: inline-block !important;
-    font-weight: 700 !important;
+    strong {
+      background: #555 !important;
+      color: white !important;
+      padding: 8px 12px !important;
+      margin: 0 !important;
+      display: inline-block !important;
+      font-weight: 600 !important;
+    }
+
+    a {
+      background: #808 !important;
+      color: white !important;
+      text-decoration: none !important;
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+
+      padding: 8px 12px !important;
+      margin: 0 !important;
+      display: inline-block !important;
+      font-weight: 700 !important;
+    }
   }
 }

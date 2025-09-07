@@ -1,7 +1,6 @@
 <!-- PDF-ONLY
-<span style="font-size: 10px; font-weight: 500; color: #333; margin:-2em 0 4em 0 ; display:block; padding:0.25em 1em; border:1px solid #808;border-radius: 2em; text-align:center; background-color:#F2E6F2">
-<strong>Note:</strong> This PDF was generated automagically from [README.md](https://github.com/feralcreative/md-to-pdf/blob/main/README.md).
-</span>
+<div class="pdf-source"><p>This PDF was generated automatically from [README.md](https://github.com/feralcreative/md-to-pdf/blob/main/README.md) in my [private Git repo](https://github.com/feralcreative/md-to-odf/). For access, please [contact me](mailto:ziad@feralcreative.co) or [contact me](https://feral.ly/signal).
+</p></div>
 -->
 
 # Markdown to PDF Converter
@@ -10,15 +9,19 @@ A portable, self-contained script that converts Markdown files to beautifully fo
 
 ## Features
 
+- 🎨 **Beautiful styling** with Lato font and professional layout
 - 🖼️ **Image support** - automatically converts SVG icons to PNG when available
+- 📄 **Clean PDFs** - no headers, footers, or browser chrome
 - 🔧 **Portable** - works from any project directory
 - 📱 **Print-optimized** - responsive layout that looks great in PDF format
+- 🎯 **Icon processing** - handles complex HTML icons and converts them to simple colored squares
 - 📖 **Page breaks** - supports manual page break comments (`<!--| PAGE-BREAK -->`)
-- 🏷️ **PDF-only content** - special tags for content that only appears in PDF
-- 📊 **Table column widths** - precise control over table column sizing with comments
-- 🎨 **Professional styling** - clean typography with Lato fonts and consistent borders
+- 🏷️ **PDF-only content** - special tags for content that only appears in PDF (`<!-- PDF-ONLY` or `<!-- PDF ONLY`)
+- 📊 **Table column widths** - precise control over table column sizing with comments (`<!--! col-widths:`)
 
-## Quick Start
+## Usage
+
+### Basic Usage
 
 ```bash
 # Convert README.md in current directory
@@ -28,22 +31,45 @@ A portable, self-contained script that converts Markdown files to beautifully fo
 ./md-to-pdf.sh myfile.md
 ```
 
-## Installation
+<!--| PAGE-BREAK -->
 
-**Option 1: Manual Copy**
-Copy the entire `md-to-pdf` folder to your project root, then run `./md-to-pdf/md-to-pdf.sh`
+### Installation in New Projects
 
-**Option 2: Using Install Script**
-From within the `md-to-pdf` directory, run `./install.sh /path/to/your/project` to automatically copy and set up everything
+#### Option 1: Manual Copy
+
+1. Copy the entire `md-to-pdf` folder to your project root
+2. Run from your project directory:
+   ```bash
+   ./md-to-pdf/md-to-pdf.sh
+   ```
+
+#### Option 2: Using Install Script
+
+1. From within the `md-to-pdf` directory:
+   ```bash
+   ./install.sh /path/to/your/project
+   ```
+2. The script will copy everything needed and make it executable
 
 ## Dependencies
 
-The script automatically handles dependencies on macOS. For manual installation:
+The script automatically handles dependencies:
 
-- **Pandoc** - Auto-installed via Homebrew on macOS (`brew install pandoc`)
-- **Google Chrome or Chromium** - Download from https://www.google.com/chrome/
+- **Pandoc** - Auto-installed via Homebrew on macOS
+- **Google Chrome or Chromium** - Used for PDF generation
 
-**Linux:**
+### Manual Installation
+
+If auto-installation fails:
+
+#### macOS:
+
+```bash
+brew install pandoc
+# Chrome: Download from https://www.google.com/chrome/
+```
+
+#### Linux:
 
 ```bash
 # Ubuntu/Debian
@@ -53,97 +79,7 @@ sudo apt-get install pandoc google-chrome-stable
 sudo yum install pandoc google-chrome-stable
 ```
 
-## Advanced Features
-
-### Manual Page Breaks
-
-Add page breaks in your Markdown:
-
-```markdown
-## Section 1
-
-Content here...
-
 <!--| PAGE-BREAK -->
-
-## Section 2
-
-Content on new page...
-```
-
-<!--| PAGE-BREAK -->
-
-### PDF-Only Content
-
-Include content that only appears in the PDF using either format:
-
-```markdown
-<!-- PDF ONLY
-This content will only appear in the PDF, not in web/GitHub rendering.
-
-- Perfect for print-specific instructions
-- Copyright notices for printed versions
--->
-
-<!-- PDF-ONLY (alternative format)
-Same functionality with dash instead of space
--->
-```
-
-### Table Column Width Control
-
-Control precise column widths in tables using special comments:
-
-```markdown
-<!--! col-widths: 50px, 150px, auto -->
-
-| Icon | Name   | Description |
-| ---- | ------ | ----------- |
-| 🎯   | Target | Example row |
-```
-
-**Supported width formats:**
-
-- **Fixed pixels**: `50px`, `150px`, `200px`
-- **Percentages**: `10%`, `30%`, `60%`
-- **Auto sizing**: `auto` (takes remaining space)
-
-**Usage notes:**
-
-- Place the comment directly above the table
-- Widths are applied left-to-right to columns
-- Use `<!--!` (exclamation) instead of `<!--~` (tilde) for the comment
-- All tables get consistent border styling with `border-collapse: collapse`
-
-### Image Processing
-
-- **SVG Support**: Automatically converts to PNG when available
-- **Icon Processing**: Complex HTML icons become simple colored squares
-- **Responsive**: Images scale appropriately for print
-
-## Styling Features
-
-### Typography
-
-- **Headers**: Purple H1 with underline, clean hierarchy for H2-H6
-- **Body text**: Lato font family with optimized line spacing for print
-- **Code blocks**: Syntax highlighting with rounded corners and monospace fonts
-- **Tables**: Professional styling with consistent borders and proper cell padding
-
-### Table Styling
-
-- **Consistent borders**: All tables use `border-collapse: collapse` for clean lines
-- **Header styling**: Solid bottom borders (`#999`) with proper padding
-- **Cell styling**: Dotted bottom borders (`#ccc`) for subtle row separation
-- **Column control**: Precise width control via HTML colgroup elements
-- **Font consistency**: Lato font family applied to all table content
-
-### Print Optimization
-
-- **Page margins**: 0.5 inch on all sides
-- **Font scaling**: Optimized sizes for print readability
-- **Table formatting**: Fixed table layout with controlled column widths
-- **Border consistency**: No gaps between table cell borders
 
 ## Output
 
@@ -151,7 +87,101 @@ Control precise column widths in tables using special comments:
 - Input: `myfile.md` → Output: `myfile.pdf`
 - PDFs are created in the same directory as the input file
 
+## Styling Features
+
+### Typography
+
+- **Headers**: Purple H1 with underline, clean hierarchy for H2-H6
+- **Body text**: Inter font family with optimized line spacing
+- **Code blocks**: Syntax highlighting with rounded corners
+- **Tables**: Professional styling with alternating row colors
+
+### Images & Icons
+
+- **SVG Support**: Automatically converts to PNG when available
+- **Icon Processing**: Complex HTML icons become simple colored squares
+- **Responsive**: Images scale appropriately for print
+
+### Print Optimization
+
+- **Page margins**: 0.5 inch on all sides
+- **Font scaling**: Optimized sizes for print readability
+- **Table formatting**: Fixed column widths for consistent layout
+- **Page breaks**: Manual control with HTML comments
+
+## Advanced Features
+
+### Manual Page Breaks
+
+Add page breaks in your Markdown by including HTML comments:
+
+```markdown
+## Section 1
+
+Content here...
+
+<!-- PAGE-BREAK -->
+
+## Section 2
+
+Content on new page...
+```
+
+### PDF-Only Content Tags
+
+You can include content that only appears in the PDF version using special HTML comments:
+
+```markdown
+<!-- PDF-ONLY
+This content will only appear in the PDF, not in web/GitHub rendering.
+
+- Perfect for print-specific instructions
+- Copyright notices for printed versions
+- Page-specific formatting notes
+-->
+
+<!-- PDF ONLY
+Alternative format with space instead of dash - both work identically
+-->
+```
+
+The script automatically processes these tags:
+
+- `<!-- PDF-ONLY` - Content block that only appears in PDF (with dash)
+- `<!-- PDF ONLY` - Alternative format with space instead of dash
+- Content is processed as **both HTML and Markdown** during PDF generation
+- Completely invisible in web/GitHub rendering
+- Supports complex formatting including lists, links, and styling
+
+**Common Use Cases:**
+
+```markdown
+<!-- PDF-ONLY
+**Print Version - Generated:** January 2025
+**Copyright:** © 2025 Your Company Name
+**Internal Use Only** - Not for distribution
+-->
+
+## Project Documentation
+
+Regular content here...
+
+<!-- PDF ONLY
+> 📄 **Note for printed version:** This document contains interactive links
+> that are not clickable in print. See the digital version for full functionality.
+
+For technical support, contact: support@company.com
+-->
+```
+
 <!--| PAGE-BREAK -->
+
+**Advanced Features:**
+
+- **Dual processing**: Content is converted from Markdown to HTML, then embedded in PDF
+- **Rich formatting**: Supports all Markdown features including tables, code blocks, and links
+- **Flexible syntax**: Use either `PDF-ONLY` or `PDF ONLY` - both formats work identically
+- **Clean integration**: No impact on web rendering or GitHub display
 
 ## Troubleshooting
 
@@ -176,41 +206,18 @@ Control precise column widths in tables using special comments:
 
 The script saves the intermediate HTML file at `/tmp/md_styled.html` for inspection if issues occur.
 
-## Technical Details
+## Portability
 
-### Architecture
+This script is designed to be completely portable:
 
-- ✅ **Portable** - No Node.js dependencies, works from any directory
-- ✅ **Self-contained** - All styling and logic included
-- ✅ **Cross-platform** - macOS and Linux support
-- ✅ **Modular processing** - Separate stages for content, styling, and PDF generation
+- ✅ No Node.js dependencies
+- ✅ No project-specific configurations
+- ✅ Works from any directory
+- ✅ Self-contained styling and logic
+- ✅ Cross-platform (macOS, Linux)
 
-### Processing Pipeline
-
-1. **Content Processing**: PDF-only tags and page breaks
-2. **Markdown Conversion**: Pandoc converts MD to HTML
-3. **Image Processing**: SVG to PNG conversion when available
-4. **Table Enhancement**: Column width processing with HTML colgroup injection
-5. **Style Application**: SCSS-compiled CSS with Lato fonts
-6. **PDF Generation**: Puppeteer/Chrome headless rendering
-
-### Column Width System
-
-- **Regex matching**: Flexible pattern matching for table comments with attributes
-- **HTML manipulation**: Direct colgroup injection with `!important` CSS
-- **Conflict resolution**: Removes conflicting CSS rules that override column widths
-- **Cross-table consistency**: Unified `border-collapse: collapse` for all tables
-
-## Files
-
-- `md-to-pdf.sh` - Main conversion script with column width processing
-- `install.sh` - Installation helper for other projects
-- `style/pdf.scss` - SCSS source for PDF styling (compiled to CSS)
-- `style/pdf.min.css` - Compiled and minified CSS for PDF generation
-- `fonts/` - Lato font family files for consistent typography
-- `README.md` - This documentation
+Simply copy the `md-to-pdf` folder to any project and run the script.
 
 ## License
 
-©2025 [Feral Creative](https://feralcreative.co)/ [@feralcreative](https://github.com/feralcreative)
-All rights reserved.
+This script is provided as-is for personal or commercial use or whatever.
