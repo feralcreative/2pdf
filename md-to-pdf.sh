@@ -28,6 +28,7 @@ MARKDOWN_FILE="${1:-README.md}"
 
 echo "🔄 Converting $MARKDOWN_FILE to beautiful PDF..."
 echo "📁 Working directory: $CURRENT_DIR"
+echo "📁 Script directory: $SCRIPT_DIR"
 
 # Check if markdown file exists in current directory
 if [ ! -f "$MARKDOWN_FILE" ]; then
@@ -67,10 +68,13 @@ CSS_FILE="$SCRIPT_DIR/style/pdf.min.css"
 
 if [ -f "$CSS_FILE" ]; then
     echo "🎨 Using minimized CSS from IDE compilation..."
+    echo "🔍 CSS file path: $CSS_FILE"
 
     # Create a temporary directory for fonts and copy them there
     TEMP_FONTS_DIR="/tmp/md_to_pdf_fonts"
     mkdir -p "$TEMP_FONTS_DIR"
+    echo "🔍 Copying fonts from: $SCRIPT_DIR/fonts/Lato"
+    echo "🔍 Copying fonts to: $TEMP_FONTS_DIR/"
     cp -r "$SCRIPT_DIR/fonts/Lato" "$TEMP_FONTS_DIR/"
 
     # Replace relative font paths with absolute file:// URLs for Chrome
