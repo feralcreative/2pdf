@@ -67,18 +67,25 @@ CSS_FILE="$SCRIPT_DIR/style/pdf.min.css"
 
 if [ -f "$CSS_FILE" ]; then
     echo "🎨 Using minimized CSS from IDE compilation..."
+
+    # Create a temporary directory for fonts and copy them there
+    TEMP_FONTS_DIR="/tmp/md_to_pdf_fonts"
+    mkdir -p "$TEMP_FONTS_DIR"
+    cp -r "$SCRIPT_DIR/fonts/Lato" "$TEMP_FONTS_DIR/"
+
     # Replace relative font paths with absolute file:// URLs for Chrome
-    sed "s|url(\"../fonts/|url(\"file://$SCRIPT_DIR/fonts/|g" "$CSS_FILE" > /tmp/pdf_absolute.css
+    sed "s|url(\"../fonts/|url(\"file://$TEMP_FONTS_DIR/|g" "$CSS_FILE" > /tmp/pdf_absolute.css
     CSS_FILE="/tmp/pdf_absolute.css"
 
     # Debug: Show font paths being used
     echo "🔍 Font paths in CSS:"
-    grep -o "file://[^)]*\.ttf" "$CSS_FILE" | head -3
+    grep -o "file://[^)]*\.\(woff2\|woff\|ttf\)" "$CSS_FILE" | head -5
 
     # Debug: Verify font files exist
     echo "🔍 Checking font files:"
-    ls -la "$SCRIPT_DIR/fonts/Lato-Regular.ttf" 2>/dev/null && echo "✅ Lato-Regular.ttf found" || echo "❌ Lato-Regular.ttf missing"
-    ls -la "$SCRIPT_DIR/fonts/Lato-Bold.ttf" 2>/dev/null && echo "✅ Lato-Bold.ttf found" || echo "❌ Lato-Bold.ttf missing"
+    ls -la "$TEMP_FONTS_DIR/Lato/ttf/lato-regular.ttf" 2>/dev/null && echo "✅ lato-regular.ttf found" || echo "❌ lato-regular.ttf missing"
+    ls -la "$TEMP_FONTS_DIR/Lato/ttf/lato-bold.ttf" 2>/dev/null && echo "✅ lato-bold.ttf found" || echo "❌ lato-bold.ttf missing"
+    ls -la "$TEMP_FONTS_DIR/Lato/woff2/lato-regular.woff2" 2>/dev/null && echo "✅ lato-regular.woff2 found" || echo "❌ lato-regular.woff2 missing"
 else
     echo "❌ Minimized CSS file not found: $CSS_FILE"
     echo "💡 Make sure your IDE has compiled pdf.scss to pdf.min.css"
@@ -363,8 +370,8 @@ function forceLato() {
         document.documentElement.innerHTML = htmlContent;
     }
 
-    // Force Lato font after all other processing - DISABLED FOR DEBUGGING
-    // setTimeout(forceLato, 100);
+    // Force Lato font after all other processing
+    setTimeout(forceLato, 1000);
 })();
 </script>
 </body>
@@ -413,19 +420,20 @@ echo "📄 Converting to PDF (no headers/footers)..."
     --disable-renderer-backgrounding \
     --disable-features=TranslateUI,VizDisplayCompositor \
     --disable-component-extensions-with-background-pages \
-    --font-render-hinting=none \
-    --disable-font-subpixel-positioning \
-    --disable-lcd-text \
+    --allow-file-access-from-files \
+    --disable-web-security \
     --force-color-profile=srgb \
     --print-to-pdf="$OUTPUT_FILE" \
     --print-to-pdf-no-header \
     --no-pdf-header-footer \
     --disable-pdf-tagging \
-    --virtual-time-budget=15000 \
+    --virtual-time-budget=30000 \
     --run-all-compositor-stages-before-draw \
-    --disable-font-subpixel-positioning \
-    --disable-features=FontAccess \
+    --enable-font-antialiasing \
     "file:///tmp/md_styled.html" 2>/dev/null
+
+# Clean up temporary fonts directory
+rm -rf "$TEMP_FONTS_DIR" 2>/dev/null
 
 # Debug: Keep the HTML file for inspection
 echo "🔍 Debug: HTML file saved as /tmp/md_styled.html for inspection"

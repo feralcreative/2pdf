@@ -1,214 +1,61 @@
 // =============================================================================
-// FONT DEFINITIONS
+// FONT DEFINITIONS - SIMPLIFIED FOR PDF RELIABILITY
 // =============================================================================
-// Load Lato fonts from local workspace files for reliable PDF generation
-// Updated for new organized font structure with lowercase filenames and complete font family
-// Using progressive enhancement: woff2 (best compression) → woff (good support) → ttf (fallback)
+// Load only essential Lato fonts using TTF format for maximum PDF compatibility
+// This approach reduces font loading complexity and improves PDF generation reliability
 
-// Hairline weight (100) - Ultra thin
+// Regular weight (400/normal) - Most important
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-hairline.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-hairline.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-hairline.ttf") format("truetype");
-  font-weight: 100;
+  src: url("../fonts/Lato/ttf/lato-regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
-  font-display: swap;
 }
 
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-hairlineitalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-hairlineitalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-hairlineitalic.ttf") format("truetype");
-  font-weight: 100;
+  src: url("../fonts/Lato/ttf/lato-italic.ttf") format("truetype");
+  font-weight: 400;
   font-style: italic;
-  font-display: swap;
 }
 
-// Thin weight (200)
+// Bold weight (700/bold) - Second most important
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-thin.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-thin.woff") format("woff"), url("../fonts/Lato/ttf/lato-thin.ttf") format("truetype");
-  font-weight: 200;
+  src: url("../fonts/Lato/ttf/lato-bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
-  font-display: swap;
 }
 
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-thinitalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-thinitalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-thinitalic.ttf") format("truetype");
-  font-weight: 200;
+  src: url("../fonts/Lato/ttf/lato-bolditalic.ttf") format("truetype");
+  font-weight: 700;
   font-style: italic;
-  font-display: swap;
 }
 
-// Extra Light weight (250)
+// Medium weight (500) - For headings
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-extralight.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-extralight.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-extralight.ttf") format("truetype");
-  font-weight: 250;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-extralightitalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-extralightitalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-extralightitalic.ttf") format("truetype");
-  font-weight: 250;
-  font-style: italic;
-  font-display: swap;
-}
-
-// Light weight (300)
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-light.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-light.woff") format("woff"), url("../fonts/Lato/ttf/lato-light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-lightitalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-lightitalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-lightitalic.ttf") format("truetype");
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
-
-// Regular weight (400/normal)
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-regular.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-regular.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-italic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-italic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-italic.ttf") format("truetype");
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
-
-// Medium weight (500)
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-medium.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-medium.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-medium.ttf") format("truetype");
+  src: url("../fonts/Lato/ttf/lato-medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
 }
 
+// Semi-bold weight (600) - For emphasis
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-mediumitalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-mediumitalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-mediumitalic.ttf") format("truetype");
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-
-// Semi-bold weight (600)
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-semibold.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-semibold.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-semibold.ttf") format("truetype");
+  src: url("../fonts/Lato/ttf/lato-semibold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
 }
 
+// Extra bold weight (800) - For strong headings
 @font-face {
   font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-semibolditalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-semibolditalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-semibolditalic.ttf") format("truetype");
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-}
-
-// Bold weight (700/bold)
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-bold.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-bold.woff") format("woff"), url("../fonts/Lato/ttf/lato-bold.ttf") format("truetype");
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-bolditalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-bolditalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-bolditalic.ttf") format("truetype");
-  font-weight: bold;
-  font-style: italic;
-  font-display: swap;
-}
-
-// Extra bold weight (800)
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-extrabold.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-extrabold.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-extrabold.ttf") format("truetype");
+  src: url("../fonts/Lato/ttf/lato-extrabold.ttf") format("truetype");
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-extrabolditalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-extrabolditalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-extrabolditalic.ttf") format("truetype");
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
-}
-
-// Black weight (900)
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-black.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-black.woff") format("woff"), url("../fonts/Lato/ttf/lato-black.ttf") format("truetype");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("../fonts/Lato/woff2/lato-blackitalic.woff2") format("woff2"),
-    url("../fonts/Lato/woff/lato-blackitalic.woff") format("woff"),
-    url("../fonts/Lato/ttf/lato-blackitalic.ttf") format("truetype");
-  font-weight: 900;
-  font-style: italic;
-  font-display: swap;
 }
 
 // =============================================================================
@@ -237,17 +84,28 @@ footer {
 }
 
 // Base styles that apply regardless of media type (fallback for PDF generation)
+// Force Lato font on all elements immediately - don't rely on @media print
+* {
+  font-family: "Lato" !important;
+}
+
+// Override only monospace elements
+code,
+pre,
+code *,
+pre * {
+  font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+}
+
 html {
-  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+  font-family: "Lato" !important;
   line-height: 1.3em;
   color: #111 !important;
   font-size: 14px;
 }
 
 body {
-  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+  font-family: "Lato" !important;
   background: white !important;
   padding: 15px;
   max-width: 800px;
@@ -261,18 +119,7 @@ body {
 // =============================================================================
 
 @media print {
-  // Universal font setting - Lato ONLY (no fallbacks to avoid confusion)
-  * {
-    font-family: "Lato" !important;
-  }
-
-  // Override only monospace elements
-  code,
-  pre,
-  code *,
-  pre * {
-    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-  }
+  // Print-specific styles only (fonts are handled globally above)
 
   // Base HTML and body styles for print
   html {
@@ -293,7 +140,8 @@ body {
 
   h1 {
     font-size: 2rem;
-    font-weight: normal;
+    font-weight: 400 !important;
+    font-family: "Lato" !important;
     color: #880088;
     margin: 0 0 0.5em 0;
     border-bottom: 0.25pt solid #880088;
@@ -302,7 +150,8 @@ body {
 
   h2 {
     font-size: 1.5rem;
-    font-weight: 500;
+    font-weight: 400 !important;
+    font-family: "Lato" !important;
     color: #222;
     margin: 0.5em 0 0.5em 0;
     border-bottom: 0.5px solid #ccc;
@@ -311,7 +160,8 @@ body {
 
   h3 {
     font-size: 1.25rem;
-    font-weight: 800;
+    font-weight: 700 !important;
+    font-family: "Lato" !important;
     color: #808;
     border-bottom: 0.25px solid #808;
     padding: 1em 0 0.5em 0;
@@ -319,14 +169,16 @@ body {
 
   h4 {
     font-size: 1.25rem;
-    font-weight: bold;
+    font-weight: 700 !important;
+    font-family: "Lato" !important;
     color: #444;
     margin: 1em 0 0.1em 0;
   }
 
   h5 {
     font-size: 1rem;
-    font-weight: 800;
+    font-weight: 700 !important;
+    font-family: "Lato" !important;
     color: #808;
     margin: 24px 0 4px 0;
     padding-bottom: 0.25em;
@@ -334,7 +186,8 @@ body {
 
   h6 {
     font-size: 0.7rem;
-    font-weight: 800;
+    font-weight: 700 !important;
+    font-family: "Lato" !important;
     color: #222;
     margin: 1em 0 0.25em 0;
     padding-bottom: 0.25em;
@@ -373,7 +226,7 @@ body {
   a {
     color: #880088;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 700;
   }
 
   // -------------------------------------------------------------------------
@@ -385,7 +238,7 @@ body {
     border: 1px solid #e7e7e7;
     border-radius: 4px;
     padding: 2px 4px;
-    font-weight: bold;
+    font-weight: 700;
     color: #d73a49;
     font-size: 0.75em !important;
   }
@@ -526,7 +379,7 @@ body {
     border-radius: 4px !important;
     font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
     font-size: 0.9em !important;
-    font-weight: normal !important;
+    font-weight: 400 !important;
     text-align: left !important;
     overflow: hidden !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
@@ -548,7 +401,7 @@ body {
       padding: 8px 12px !important;
       margin: 0 !important;
       display: inline-block !important;
-      font-weight: bold !important;
+      font-weight: 700 !important;
     }
   }
 }
