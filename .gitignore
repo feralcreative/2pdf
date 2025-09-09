@@ -2,4 +2,5 @@
 househunt.*
 img/
 *.css
-*.map.css
+*.css.map
+*.config
