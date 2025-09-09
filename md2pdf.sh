@@ -2,7 +2,7 @@
 # Markdown to PDF converter with image support and no headers/footers
 # Portable script that works from any project - always processes README.md in current directory
 # 
-# Usage: ./md-to-pdf.sh [markdown-file]
+# Usage: ./md2pdf.sh [markdown-file]
 # If no file specified, defaults to README.md in current directory
 #
 # Dependencies:
@@ -30,11 +30,143 @@ echo "🔄 Converting $MARKDOWN_FILE to beautiful PDF..."
 echo "📁 Working directory: $CURRENT_DIR"
 echo "📁 Script directory: $SCRIPT_DIR"
 
-# Check if markdown file exists in current directory
-if [ ! -f "$MARKDOWN_FILE" ]; then
-    echo "❌ $MARKDOWN_FILE not found in current directory: $CURRENT_DIR"
-    echo "💡 Make sure you have a $MARKDOWN_FILE file in your current directory"
-    echo "💡 Or specify a different markdown file: ./md-to-pdf.sh myfile.md"
+# =============================================================================
+# TOKEN REPLACEMENT SYSTEM
+# =============================================================================
+
+# Function to load configuration and replace tokens
+process_tokens() {
+    local input_file="$1"
+    local output_file="$2"
+
+    echo "🏷️ Processing tokens in markdown file..."
+
+    # Look for config file in script directory first, then current directory
+    CONFIG_FILE=""
+    if [ -f "$SCRIPT_DIR/md2pdf.config" ]; then
+        CONFIG_FILE="$SCRIPT_DIR/md2pdf.config"
+        echo "📋 Using config file: $CONFIG_FILE"
+    elif [ -f "$CURRENT_DIR/md2pdf.config" ]; then
+        CONFIG_FILE="$CURRENT_DIR/md2pdf.config"
+        echo "📋 Using config file: $CONFIG_FILE"
+    else
+        echo "ℹ️ No config file found (looked for md2pdf.config in script and current directories)"
+        echo "💡 Create md2pdf.config to use token replacement features"
+        cp "$input_file" "$output_file"
+        return 0
+    fi
+
+    # Start with the original file
+    cp "$input_file" "$output_file"
+
+    # Generate automatic date/time tokens
+    DATE_TODAY=$(date '+%Y-%m-%d')
+    DATE_TODAY_LONG=$(date '+%B %d, %Y')
+    TIME_NOW=$(date '+%H:%M')
+    DATETIME_NOW=$(date '+%Y-%m-%d %H:%M')
+    TIMESTAMP=$(date '+%s')
+    YEAR=$(date '+%Y')
+    MONTH=$(date '+%m')
+    DAY=$(date '+%d')
+
+    # Generate system information tokens
+    HOSTNAME=$(hostname)
+    USERNAME=$(whoami)
+    PWD="$CURRENT_DIR"
+    SCRIPT_DIR_TOKEN="$SCRIPT_DIR"
+
+    # Auto-generate project name from directory if not set in config
+    PROJECT_NAME_AUTO=$(basename "$CURRENT_DIR")
+
+    # Store automatic tokens for later processing (after config file tokens)
+    # This allows config file tokens to contain automatic tokens
+
+    # Process config file tokens (multiple passes to handle nested tokens)
+    local token_count=0
+    local pass=1
+    local max_passes=3
+
+    while [ $pass -le $max_passes ]; do
+        local pass_replacements=0
+        echo "   🔄 Token replacement pass $pass..."
+
+        while IFS='=' read -r key value || [ -n "$key" ]; do
+            # Skip empty lines and comments
+            [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
+
+            # Trim whitespace
+            key=$(echo "$key" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            value=$(echo "$value" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+            # Skip if key is empty
+            [[ -z "$key" ]] && continue
+
+            # Handle PROJECT_NAME special case - use auto-generated if empty
+            if [[ "$key" == "PROJECT_NAME" && -z "$value" ]]; then
+                value="$PROJECT_NAME_AUTO"
+            fi
+
+            # Check if this token exists in the file before attempting replacement
+            if grep -q "{{$key}}" "$output_file" 2>/dev/null; then
+                # Replace token in file (escape special characters in value for sed)
+                escaped_value=$(printf '%s\n' "$value" | sed 's/[[\.*^$()+?{|\/]/\\&/g')
+                sed -i '' "s/{{$key}}/$escaped_value/g" "$output_file"
+
+                if [ $pass -eq 1 ]; then
+                    echo "   🔄 Replaced {{$key}} with: $value"
+                fi
+                ((pass_replacements++))
+                ((token_count++))
+            fi
+        done < "$CONFIG_FILE"
+
+        # If no replacements were made in this pass, we're done
+        if [ $pass_replacements -eq 0 ]; then
+            break
+        fi
+
+        ((pass++))
+    done
+
+    echo "✅ Processed $token_count total token replacements"
+
+    # Now process automatic date/time and system tokens (after config tokens to handle nesting)
+    echo "🕒 Processing automatic date/time and system tokens..."
+    sed -i '' "s/{{DATE_TODAY}}/$DATE_TODAY/g" "$output_file"
+    sed -i '' "s/{{DATE_TODAY_LONG}}/$DATE_TODAY_LONG/g" "$output_file"
+    sed -i '' "s/{{TIME_NOW}}/$TIME_NOW/g" "$output_file"
+    sed -i '' "s/{{DATETIME_NOW}}/$DATETIME_NOW/g" "$output_file"
+    sed -i '' "s/{{TIMESTAMP}}/$TIMESTAMP/g" "$output_file"
+    sed -i '' "s/{{YEAR}}/$YEAR/g" "$output_file"
+    sed -i '' "s/{{MONTH}}/$MONTH/g" "$output_file"
+    sed -i '' "s/{{DAY}}/$DAY/g" "$output_file"
+    sed -i '' "s/{{HOSTNAME}}/$HOSTNAME/g" "$output_file"
+    sed -i '' "s/{{USERNAME}}/$USERNAME/g" "$output_file"
+    sed -i '' "s|{{PWD}}|$PWD|g" "$output_file"
+    sed -i '' "s|{{SCRIPT_DIR}}|$SCRIPT_DIR_TOKEN|g" "$output_file"
+
+    # Check for any remaining unprocessed tokens and warn
+    remaining_tokens=$(grep -o '{{[^}]*}}' "$output_file" 2>/dev/null || true)
+    if [ -n "$remaining_tokens" ]; then
+        echo "⚠️ Warning: Found unprocessed tokens:"
+        echo "$remaining_tokens" | sort -u | sed 's/^/   /'
+        echo "💡 Add these tokens to your md2pdf.config file if needed"
+    fi
+}
+
+# Process tokens in the markdown file
+PROCESSED_MARKDOWN="/tmp/md_with_tokens.md"
+process_tokens "$MARKDOWN_FILE" "$PROCESSED_MARKDOWN"
+
+# Update MARKDOWN_FILE to point to the processed version
+MARKDOWN_FILE="$PROCESSED_MARKDOWN"
+
+# Check if original markdown file exists in current directory
+ORIGINAL_MARKDOWN_FILE="${1:-README.md}"
+if [ ! -f "$ORIGINAL_MARKDOWN_FILE" ]; then
+    echo "❌ $ORIGINAL_MARKDOWN_FILE not found in current directory: $CURRENT_DIR"
+    echo "💡 Make sure you have a $ORIGINAL_MARKDOWN_FILE file in your current directory"
+    echo "💡 Or specify a different markdown file: ./md2pdf.sh myfile.md"
     exit 1
 fi
 
@@ -103,7 +235,7 @@ cat > /tmp/md_styled.html << EOF
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Markdown to PDF</title>
+    <title>md2pdf</title>
     <style>
 $(cat "$CSS_FILE")
     </style>
@@ -359,8 +491,8 @@ if [ -z "$CHROME_PATH" ]; then
     exit 1
 fi
 
-# Generate output filename based on input filename
-OUTPUT_FILE="${MARKDOWN_FILE%.*}.pdf"
+# Generate output filename based on original input filename
+OUTPUT_FILE="${ORIGINAL_MARKDOWN_FILE%.*}.pdf"
 
 # Convert to PDF with no headers/footers
 echo "📄 Converting to PDF (no headers/footers)..."
@@ -396,8 +528,9 @@ rm -rf "$TEMP_FONTS_DIR" 2>/dev/null
 # Debug: Keep the HTML file for inspection
 echo "🔍 Debug: HTML file saved as /tmp/md_styled.html for inspection"
 
-# Clean up (but keep the styled HTML for debugging)
-rm -f /tmp/md_base.html /tmp/md_temp.html
+# Clean up (but keep the styled HTML and processed markdown for debugging)
+echo "🔍 Debug: Processed markdown saved as /tmp/md_with_tokens.md for inspection"
+rm -f /tmp/md_base.html /tmp/md_temp.html /tmp/md_with_placeholders.md /tmp/md_processed.html /tmp/md_colwidths.html
 
 # Check result
 if [ -f "$OUTPUT_FILE" ]; then
