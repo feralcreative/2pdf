@@ -46,6 +46,8 @@ DOCUMENT_TYPE=Technical Specification
 CUSTOM_FOOTER=Confidential - Internal Use Only
 ```
 
+<!--| PAGE-BREAK -->
+
 ### Using tokens in markdown
 
 Tokens are replaced everywhere they appear in your markdown:
@@ -66,7 +68,7 @@ Tokens are replaced everywhere they appear in your markdown:
 
 These tokens are always available without defining them:
 
-**Date and time:**
+#### Date and time:
 - `{{DATE_TODAY}}` - Current date (2024-01-15)
 - `{{DATE_TODAY_LONG}}` - Current date (January 15, 2024)
 - `{{TIME_NOW}}` - Current time (14:30)
@@ -76,12 +78,12 @@ These tokens are always available without defining them:
 - `{{DAY}}` - Current day (15)
 - `{{TIMESTAMP}}` - Unix timestamp (1705123456)
 
-**System info:**
+#### System info:
 - `{{HOSTNAME}}` - System hostname (MacBook-Pro.local)
 - `{{USERNAME}}` - Current user (john)
 - `{{PWD}}` - Current working directory (/Users/john/projects)
 
-**Project info:**
+#### Project info:
 - `{{PROJECT_NAME}}` - Auto-generated from directory name
 
 ### Token processing
@@ -91,6 +93,8 @@ These tokens are always available without defining them:
 - **Whitespace matters** - `{{ NAME }}` won't work, use `{{NAME}}`
 - **Nested replacement** - If `GREETING=Hello {{USERNAME}}`, it becomes "Hello john"
 - **Missing tokens** are left as-is (useful for debugging)
+
+<!--| PAGE-BREAK -->
 
 ### Config file locations
 
@@ -129,13 +133,19 @@ Content that only shows up in the PDF:
 
 Force a page break:
 
-```markdownSome content here...<!-- PAGE-BREAK -->This will be on the next page.```
+```markdown
+Some content here...<!-- PAGE-BREAK -->
+This will be on the next page.
+```
+
+<!--| PAGE-BREAK -->
 
 ### Live site shields
 
 Style a paragraph as a badge/shield:
 
-```markdown<!-- live-site-shield -->
+```markdown
+<!-- live-site-shield -->
 Live Site: https://example.com
 ```
 

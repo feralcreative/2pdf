@@ -10,7 +10,11 @@
 // PAGE SETUP & GLOBAL STYLES
 // =============================================================================
 
-// Page setup for PDF generation
+$feral-lt: #a0a;
+$feral: #808;
+$feral-dk: #606;
+$text: #222;
+
 @page {
   margin: 0.5in;
   size: letter;
@@ -41,8 +45,8 @@ footer {
 
 html {
   font-family: "Inter", sans-serif !important;
-  line-height: 1.4em;
-  color: #111 !important;
+  line-height: 1.3em;
+  color: $text !important;
   font-size: 13px;
 }
 
@@ -53,7 +57,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   text-align: left;
-  color: #111 !important;
+  color: $text !important;
 }
 
 code,
@@ -74,7 +78,7 @@ pre * {
 
   // Base HTML and body styles for print
   html {
-    color: #111;
+    color: $text;
   }
 
   body {
@@ -90,31 +94,31 @@ pre * {
   // -------------------------------------------------------------------------
 
   h1 {
-    font-size: 3rem;
-    font-weight: 200 !important;
+    font-size: 4rem;
+    font-weight: 400 !important;
     font-family: "Inter", sans-serif !important;
-    color: #880088;
-    margin: 0 0 0.5em 0;
-    border-bottom: 0.25pt solid #880088;
-    padding: 0.5em 0 0.5em 0;
+    color: $feral;
+    margin: 0 0 0.25em 0;
+    border-bottom: 0.25pt solid $feral;
+    padding: 0.5em 0 0.25em 0;
   }
 
   h2 {
     font-size: 1.75rem;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     font-family: "Inter", sans-serif !important;
-    color: #303;
+    color: $feral;
     margin: 0.5em 0 0.5em 0;
-    border-bottom: 0.5px solid #ccc;
+    border-bottom: 0.25px solid $feral;
     padding: 0.75em 0 0.4em 0;
   }
 
   h3 {
     font-size: 1.5rem;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     font-family: "Inter", sans-serif !important;
-    color: #606;
-    border-bottom: 0.25px solid #606;
+    color: $feral;
+    border-bottom: 0.25px solid $feral;
     padding: 1em 0 0.5em 0;
   }
 
@@ -122,24 +126,24 @@ pre * {
     font-size: 1.25rem;
     font-weight: 600 !important;
     font-family: "Inter", sans-serif !important;
-    color: #303;
+    color: $feral;
     margin: 1em 0 0.1em 0;
   }
 
   h5 {
     font-size: 1rem;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     font-family: "Inter", sans-serif !important;
-    color: #808;
+    color: $feral;
     margin: 24px 0 4px 0;
     padding-bottom: 0.25em;
   }
 
   h6 {
     font-size: 0.7rem;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     font-family: "Inter", sans-serif !important;
-    color: #404;
+    color: $feral;
     margin: 1em 0 0.25em 0;
     padding-bottom: 0.25em;
     text-transform: uppercase;
@@ -181,12 +185,12 @@ pre * {
   }
 
   blockquote {
-    border-left: 4px solid #880088;
+    border-left: 4px solid #808;
     background: #f2e6f2;
     margin: 16px 0;
     padding: 0.25em 0.5em;
     font-style: italic;
-    color: #222;
+    color: $text;
     border-radius: 0 4px 4px 0;
   }
 
@@ -218,7 +222,8 @@ pre * {
     border-radius: 4px;
     padding: 2px 4px;
     font-weight: 700;
-    color: #d73a49;
+    // color: #d73a49;
+    color: #a0a;
     font-size: 0.75em !important;
   }
 
@@ -339,7 +344,7 @@ pre * {
     padding: 0.25em !important;
     border-radius: 2em !important;
     background-color: #f7f7f7 !important;
-    color: #333 !important;
+    color: $text !important;
     margin: -1em auto 3em auto !important;
     text-align: center !important;
     box-sizing: border-box !important;
@@ -386,7 +391,7 @@ pre * {
     }
 
     .url {
-      background: #808 !important;
+      background: $feral !important;
       color: #ffffff !important;
       padding: 8px 12px !important;
       font-weight: bold !important;
