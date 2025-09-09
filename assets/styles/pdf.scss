@@ -10,7 +10,11 @@
 // PAGE SETUP & GLOBAL STYLES
 // =============================================================================
 
-// Page setup for PDF generation
+$feral-lt: #a0a;
+$feral: #808;
+$feral-dk: #606;
+$text: #222;
+
 @page {
   margin: 0.5in;
   size: letter;
@@ -41,8 +45,8 @@ footer {
 
 html {
   font-family: "Inter", sans-serif !important;
-  line-height: 1.4em;
-  color: #111 !important;
+  line-height: 1.3em;
+  color: $text !important;
   font-size: 13px;
 }
 
@@ -53,7 +57,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   text-align: left;
-  color: #111 !important;
+  color: $text !important;
 }
 
 code,
@@ -74,7 +78,7 @@ pre * {
 
   // Base HTML and body styles for print
   html {
-    color: #111;
+    color: $text;
   }
 
   body {
@@ -90,56 +94,56 @@ pre * {
   // -------------------------------------------------------------------------
 
   h1 {
-    font-size: 2rem;
+    font-size: 4rem;
     font-weight: 400 !important;
     font-family: "Inter", sans-serif !important;
-    color: #880088;
-    margin: 0 0 0.5em 0;
-    border-bottom: 0.25pt solid #880088;
-    padding: 0.5em 0 0.5em 0;
+    color: $feral;
+    margin: 0 0 0.25em 0;
+    border-bottom: 0.25pt solid $feral;
+    padding: 0.5em 0 0.25em 0;
   }
 
   h2 {
     font-size: 1.75rem;
     font-weight: 600 !important;
     font-family: "Inter", sans-serif !important;
-    color: #222;
+    color: $feral;
     margin: 0.5em 0 0.5em 0;
-    border-bottom: 0.5px solid #ccc;
+    border-bottom: 0.25px solid $feral;
     padding: 0.75em 0 0.4em 0;
   }
 
   h3 {
     font-size: 1.5rem;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     font-family: "Inter", sans-serif !important;
-    color: #808;
-    border-bottom: 0.25px solid #808;
+    color: $feral;
+    border-bottom: 0.25px solid $feral;
     padding: 1em 0 0.5em 0;
   }
 
   h4 {
     font-size: 1.25rem;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     font-family: "Inter", sans-serif !important;
-    color: #444;
+    color: $feral;
     margin: 1em 0 0.1em 0;
   }
 
   h5 {
     font-size: 1rem;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     font-family: "Inter", sans-serif !important;
-    color: #808;
+    color: $feral;
     margin: 24px 0 4px 0;
     padding-bottom: 0.25em;
   }
 
   h6 {
     font-size: 0.7rem;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     font-family: "Inter", sans-serif !important;
-    color: #222;
+    color: $feral;
     margin: 1em 0 0.25em 0;
     padding-bottom: 0.25em;
     text-transform: uppercase;
@@ -181,12 +185,12 @@ pre * {
   }
 
   blockquote {
-    border-left: 4px solid #880088;
+    border-left: 4px solid #808;
     background: #f2e6f2;
     margin: 16px 0;
     padding: 0.25em 0.5em;
     font-style: italic;
-    color: #222;
+    color: $text;
     border-radius: 0 4px 4px 0;
   }
 
@@ -218,7 +222,8 @@ pre * {
     border-radius: 4px;
     padding: 2px 4px;
     font-weight: 700;
-    color: #d73a49;
+    // color: #d73a49;
+    color: #a0a;
     font-size: 0.75em !important;
   }
 
@@ -237,6 +242,11 @@ pre * {
       border: none;
       padding: 0;
       color: #24292e;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.4;
     }
   }
 
@@ -334,7 +344,7 @@ pre * {
     padding: 0.25em !important;
     border-radius: 2em !important;
     background-color: #f7f7f7 !important;
-    color: #333 !important;
+    color: $text !important;
     margin: -1em auto 3em auto !important;
     text-align: center !important;
     box-sizing: border-box !important;
@@ -347,39 +357,59 @@ pre * {
     }
   }
 
-  // Live Site Shield styling - targets paragraph after live-site-shield comment
-  .live-site-shield {
+  // Live Site Shield styling - clean badge design
+  p.live-site-shield {
     display: inline-block !important;
-    background: linear-gradient(90deg, #555 0%, #555 35%, #808 35%, #808 100%) !important;
-    color: white !important;
+    background: none !important;
     padding: 0 !important;
     margin: 1em 0 !important;
-    border-radius: 4px !important;
-    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-    font-size: 0.9em !important;
-    font-weight: 400 !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
     text-align: left !important;
     overflow: hidden !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    white-space: nowrap !important;
+    font-family: "Inter", sans-serif !important;
+    line-height: 1 !important;
 
-    strong {
+    .label {
       background: #555 !important;
       color: white !important;
       padding: 8px 12px !important;
-      margin: 0 !important;
+      font-weight: 500 !important;
       display: inline-block !important;
-      font-weight: 600 !important;
+      margin: 0 !important;
+      vertical-align: baseline !important;
+      border-radius: 6px 0 0 6px !important;
+      line-height: 1.2 !important;
+
+      &::before {
+        content: "🌐 ";
+        margin-right: 6px !important;
+        vertical-align: baseline !important;
+        display: inline-block !important;
+      }
     }
 
-    a {
-      background: #808 !important;
-      color: white !important;
-      text-decoration: none !important;
-      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+    .url {
+      background: $feral !important;
+      color: #ffffff !important;
       padding: 8px 12px !important;
-      margin: 0 !important;
+      font-weight: bold !important;
       display: inline-block !important;
-      font-weight: 700 !important;
+      margin: 0 !important;
+      vertical-align: baseline !important;
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+      border-radius: 0 6px 6px 0 !important;
+      line-height: 1.2 !important;
+      font-size: 13px !important;
+    }
+
+    // Extra specificity to ensure white text and monospace font on Feral background
+    .url,
+    .url * {
+      color: #ffffff !important;
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+      font-weight: bold !important;
     }
   }
 }
