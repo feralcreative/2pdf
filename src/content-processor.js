@@ -1,0 +1,187 @@
+/**
+ * Content Processor
+ *
+ * Handles markdown processing and special content tags
+ * Processes PDF-only content, page breaks, and other special features
+ */
+
+const { marked } = require("marked");
+const chalk = require("chalk");
+
+class ContentProcessor {
+  constructor() {
+    // Configure marked options
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+      headerIds: false,
+      mangle: false,
+    });
+  }
+
+  async processContent(markdownContent) {
+    console.log(chalk.blue("🏷️ Processing special content tags..."));
+
+    let processedContent = markdownContent;
+
+    // Process PDF-only content tags
+    processedContent = this.processPdfOnlyContent(processedContent);
+
+    // Process page break comments
+    processedContent = this.processPageBreaks(processedContent);
+
+    // Process live-site-shield comments
+    processedContent = this.processLiveSiteShield(processedContent);
+
+    return processedContent;
+  }
+
+  processPdfOnlyContent(content) {
+    // Extract PDF-ONLY content and process it as Markdown
+    // Supports both "PDF ONLY" and "PDF-ONLY" formats
+    const pdfOnlyRegex = /<!--\s*PDF[-\s]+ONLY\s*\n([\s\S]*?)\n-->/g;
+
+    let processedContent = content.replace(pdfOnlyRegex, (match, pdfContent) => {
+      // Replace with placeholder markers that will be cleaned up later
+      return `PDFONLY_PLACEHOLDER_START\n${pdfContent}\nPDFONLY_PLACEHOLDER_END`;
+    });
+
+    return processedContent;
+  }
+
+  processPageBreaks(content) {
+    // Convert manual page break comments to markdown that will become HTML page breaks
+    // Supports Better Comments plugin tags and various formats
+    // Skip content inside code blocks (``` or ` delimited)
+
+    const pageBreakRegex = /<!--[!?~\/\\*|—\^\^@#\[\s]*PAGE-?BREAK\s*-->/gi;
+
+    // Split content by code blocks to avoid processing inside them
+    const parts = this.splitByCodeBlocks(content);
+
+    return parts
+      .map((part, index) => {
+        // Only process parts that are NOT code blocks (even indices)
+        if (index % 2 === 0) {
+          return part.replace(pageBreakRegex, '\n\n<div class="page-break"></div>\n\n');
+        }
+        return part; // Return code blocks unchanged
+      })
+      .join("");
+  }
+
+  processLiveSiteShield(content) {
+    // Process live-site-shield comments
+    // Look for <!-- live-site-shield --> comments and mark the next paragraph
+    // Skip content inside code blocks
+    const liveShieldRegex = /<!--\s*live-site-shield\s*-->\s*\n/gi;
+
+    // Split content by code blocks to avoid processing inside them
+    const parts = this.splitByCodeBlocks(content);
+
+    return parts
+      .map((part, index) => {
+        // Only process parts that are NOT code blocks (even indices)
+        if (index % 2 === 0) {
+          return part.replace(liveShieldRegex, '\n\n<div class="live-site-shield-marker"></div>\n\n');
+        }
+        return part; // Return code blocks unchanged
+      })
+      .join("");
+  }
+
+  async markdownToHtml(markdownContent) {
+    console.log(chalk.blue("📝 Converting markdown to HTML..."));
+
+    try {
+      // Convert markdown to HTML
+      let htmlContent = marked(markdownContent);
+
+      // Post-process the HTML
+      htmlContent = this.postProcessHtml(htmlContent);
+
+      return htmlContent;
+    } catch (error) {
+      throw new Error(`Failed to convert markdown to HTML: ${error.message}`);
+    }
+  }
+
+  postProcessHtml(htmlContent) {
+    // Clean up PDF-only placeholder markers
+    htmlContent = htmlContent.replace(/PDFONLY_PLACEHOLDER_START/g, "");
+    htmlContent = htmlContent.replace(/PDFONLY_PLACEHOLDER_END/g, "");
+
+    // Process live-site-shield markers
+    // Find the marker and apply the class to the next paragraph, then structure the content
+    htmlContent = htmlContent.replace(
+      /<div class="live-site-shield-marker"><\/div>\s*<p>(.*?)<\/p>/gi,
+      (match, content) => {
+        // Parse "Live Site: https://example.com" format
+        const colonMatch = content.match(/^(.*?):\s*(.+)$/);
+        if (colonMatch) {
+          const [, label, url] = colonMatch;
+          return `<p class="live-site-shield"><span class="label">${label}</span><span class="url">${url}</span></p>`;
+        }
+        return `<p class="live-site-shield">${content}</p>`;
+      }
+    );
+
+    // Remove any remaining markers
+    htmlContent = htmlContent.replace(/<div class="live-site-shield-marker"><\/div>/gi, "");
+
+    // Process table column widths if present
+    htmlContent = this.processTableColumnWidths(htmlContent);
+
+    return htmlContent;
+  }
+
+  processTableColumnWidths(htmlContent) {
+    // Process table column width specifications
+    // Look for comments like <!-- col-widths: 30% 70% -->
+    const colWidthRegex = /<!--\s*col-widths:\s*([^-]+)\s*-->/gi;
+
+    return htmlContent.replace(colWidthRegex, (match, widths) => {
+      const widthArray = widths.trim().split(/\s+/);
+      let styleTag = "<style>\n";
+
+      widthArray.forEach((width, index) => {
+        styleTag += `table tr td:nth-child(${index + 1}) { width: ${width}; }\n`;
+      });
+
+      styleTag += "</style>\n";
+      return styleTag;
+    });
+  }
+
+  splitByCodeBlocks(content) {
+    // Split content by code blocks to avoid processing inside them
+    // Handles both ``` fenced blocks and ` inline code
+    const parts = [];
+    let currentPos = 0;
+
+    // Find all code blocks (both ``` and ` delimited)
+    const codeBlockRegex = /(```[\s\S]*?```|`[^`\n]*?`)/g;
+    let match;
+
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      // Add content before the code block
+      if (match.index > currentPos) {
+        parts.push(content.slice(currentPos, match.index));
+      }
+
+      // Add the code block itself
+      parts.push(match[0]);
+
+      currentPos = match.index + match[0].length;
+    }
+
+    // Add remaining content after the last code block
+    if (currentPos < content.length) {
+      parts.push(content.slice(currentPos));
+    }
+
+    return parts;
+  }
+}
+
+module.exports = ContentProcessor;

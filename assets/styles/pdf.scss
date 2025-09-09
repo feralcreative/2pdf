@@ -90,8 +90,8 @@ pre * {
   // -------------------------------------------------------------------------
 
   h1 {
-    font-size: 2rem;
-    font-weight: 400 !important;
+    font-size: 3rem;
+    font-weight: 200 !important;
     font-family: "Inter", sans-serif !important;
     color: #880088;
     margin: 0 0 0.5em 0;
@@ -101,9 +101,9 @@ pre * {
 
   h2 {
     font-size: 1.75rem;
-    font-weight: 600 !important;
+    font-weight: 500 !important;
     font-family: "Inter", sans-serif !important;
-    color: #222;
+    color: #303;
     margin: 0.5em 0 0.5em 0;
     border-bottom: 0.5px solid #ccc;
     padding: 0.75em 0 0.4em 0;
@@ -111,18 +111,18 @@ pre * {
 
   h3 {
     font-size: 1.5rem;
-    font-weight: 700 !important;
+    font-weight: 500 !important;
     font-family: "Inter", sans-serif !important;
-    color: #808;
-    border-bottom: 0.25px solid #808;
+    color: #606;
+    border-bottom: 0.25px solid #606;
     padding: 1em 0 0.5em 0;
   }
 
   h4 {
     font-size: 1.25rem;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     font-family: "Inter", sans-serif !important;
-    color: #444;
+    color: #303;
     margin: 1em 0 0.1em 0;
   }
 
@@ -139,7 +139,7 @@ pre * {
     font-size: 0.7rem;
     font-weight: 700 !important;
     font-family: "Inter", sans-serif !important;
-    color: #222;
+    color: #404;
     margin: 1em 0 0.25em 0;
     padding-bottom: 0.25em;
     text-transform: uppercase;
@@ -237,6 +237,11 @@ pre * {
       border: none;
       padding: 0;
       color: #24292e;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.4;
     }
   }
 
@@ -347,39 +352,59 @@ pre * {
     }
   }
 
-  // Live Site Shield styling - targets paragraph after live-site-shield comment
-  .live-site-shield {
+  // Live Site Shield styling - clean badge design
+  p.live-site-shield {
     display: inline-block !important;
-    background: linear-gradient(90deg, #555 0%, #555 35%, #808 35%, #808 100%) !important;
-    color: white !important;
+    background: none !important;
     padding: 0 !important;
     margin: 1em 0 !important;
-    border-radius: 4px !important;
-    font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-    font-size: 0.9em !important;
-    font-weight: 400 !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
     text-align: left !important;
     overflow: hidden !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    white-space: nowrap !important;
+    font-family: "Inter", sans-serif !important;
+    line-height: 1 !important;
 
-    strong {
+    .label {
       background: #555 !important;
       color: white !important;
       padding: 8px 12px !important;
-      margin: 0 !important;
+      font-weight: 500 !important;
       display: inline-block !important;
-      font-weight: 600 !important;
+      margin: 0 !important;
+      vertical-align: baseline !important;
+      border-radius: 6px 0 0 6px !important;
+      line-height: 1.2 !important;
+
+      &::before {
+        content: "🌐 ";
+        margin-right: 6px !important;
+        vertical-align: baseline !important;
+        display: inline-block !important;
+      }
     }
 
-    a {
+    .url {
       background: #808 !important;
-      color: white !important;
-      text-decoration: none !important;
-      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+      color: #ffffff !important;
       padding: 8px 12px !important;
-      margin: 0 !important;
+      font-weight: bold !important;
       display: inline-block !important;
-      font-weight: 700 !important;
+      margin: 0 !important;
+      vertical-align: baseline !important;
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+      border-radius: 0 6px 6px 0 !important;
+      line-height: 1.2 !important;
+      font-size: 13px !important;
+    }
+
+    // Extra specificity to ensure white text and monospace font on Feral background
+    .url,
+    .url * {
+      color: #ffffff !important;
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
+      font-weight: bold !important;
     }
   }
 }

@@ -1,6 +1,7 @@
+_*
 .DS_Store
-househunt.*
-img/
 *.css
 *.css.map
 *.config
+node_modules
+README.pdf
