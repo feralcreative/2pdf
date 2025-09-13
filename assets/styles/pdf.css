@@ -7,7 +7,8 @@
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .header,
@@ -57,13 +58,15 @@ pre * {
     text-align: left;
   }
   h1 {
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: 300 !important;
     font-family: "Inter", sans-serif !important;
     color: #808;
-    margin: 0 0 0.25em 0;
+    margin: 0 0 0.75em 0;
     border-bottom: 0.25pt solid #808;
-    padding: 0.5em 0 0.25em 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.25em;
+    line-height: 1.1;
   }
   h2 {
     font-size: 1.75rem;
@@ -213,7 +216,9 @@ pre * {
   }
   .page-break {
     page-break-before: always !important;
-    break-before: page !important;
+    -webkit-column-break-before: page !important;
+       -moz-column-break-before: page !important;
+            break-before: page !important;
     height: 0;
     margin: 0;
     padding: 0;
@@ -249,13 +254,14 @@ pre * {
     color: #222 !important;
     margin: -1em auto 3em auto !important;
     text-align: center !important;
-    box-sizing: border-box !important;
+    -webkit-box-sizing: border-box !important;
+            box-sizing: border-box !important;
   }
   .pdf-source p {
     margin: 0 !important;
     text-align: center !important;
     padding: 0 !important;
-    font: 600 0.75rem/1.2 "Inter", sans-serif !important;
+    font: 600 0.8rem/1.2 "Inter", sans-serif !important;
   }
   p.live-site-shield {
     display: inline-block !important;

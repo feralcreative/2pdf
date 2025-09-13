@@ -6,10 +6,13 @@
  */
 
 const { marked } = require("marked");
+const markedFootnote = require("marked-footnote");
 const chalk = require("chalk");
 
 class ContentProcessor {
-  constructor() {
+  constructor(inputDir = null) {
+    this.inputDir = inputDir;
+
     // Configure marked options
     marked.setOptions({
       breaks: true,
@@ -17,6 +20,9 @@ class ContentProcessor {
       headerIds: false,
       mangle: false,
     });
+
+    // Add footnote extension
+    marked.use(markedFootnote());
   }
 
   async processContent(markdownContent) {
@@ -137,6 +143,11 @@ class ContentProcessor {
     // Process table column widths if present
     htmlContent = this.processTableColumnWidths(htmlContent);
 
+    // Process image paths to make them absolute
+    if (this.inputDir) {
+      htmlContent = this.processImagePaths(htmlContent);
+    }
+
     return htmlContent;
   }
 
@@ -186,6 +197,22 @@ class ContentProcessor {
     }
 
     return parts;
+  }
+
+  processImagePaths(htmlContent) {
+    const path = require("path");
+
+    // Convert relative image paths to absolute file:// URLs
+    return htmlContent.replace(/<img([^>]*)\ssrc=["']([^"']+)["']/gi, (match, attributes, src) => {
+      // Skip if already absolute (http://, https://, file://, or data:)
+      if (src.match(/^(https?:|file:|data:)/i)) {
+        return match;
+      }
+
+      // Convert relative path to absolute file:// URL
+      const absolutePath = path.resolve(this.inputDir, src);
+      return `<img${attributes} src="file://${absolutePath}"`;
+    });
   }
 }
 

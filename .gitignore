@@ -3,3 +3,5 @@ _*
 *.config
 node_modules
 README.pdf
+**/img/*
+househunt*

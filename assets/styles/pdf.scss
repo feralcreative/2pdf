@@ -10,6 +10,8 @@
 // PAGE SETUP & GLOBAL STYLES
 // =============================================================================
 
+// wat
+
 $feral-lt: #a0a;
 $feral: #808;
 $feral-dk: #606;
@@ -98,9 +100,11 @@ pre * {
     font-weight: 300 !important;
     font-family: "Inter", sans-serif !important;
     color: $feral;
-    margin: 0 0 0.25em 0;
+    margin: 0 0 0.75em 0;
     border-bottom: 0.25pt solid $feral;
-    padding: 0.5em 0 0.25em 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.25em;
+    line-height: 1.1;
   }
 
   h2 {
@@ -129,7 +133,6 @@ pre * {
     color: $feral;
     margin: 1em 0 0.1em 0;
   }
-
   h5 {
     font-size: 1rem;
     font-weight: 800 !important;
@@ -353,7 +356,7 @@ pre * {
       margin: 0 !important;
       text-align: center !important;
       padding: 0 !important;
-      font: 600 0.75rem/1.2 "Inter", sans-serif !important;
+      font: 600 0.8rem/1.2 "Inter", sans-serif !important;
     }
   }
 

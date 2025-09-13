@@ -43,6 +43,7 @@
   "dependencies": {
     "puppeteer": "^21.0.0",
     "marked": "^9.0.0",
+    "marked-footnote": "^1.2.2",
     "commander": "^11.0.0",
     "chalk": "^4.1.2",
     "fs-extra": "^11.0.0",

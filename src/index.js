@@ -38,7 +38,7 @@ class Md2Pdf {
     this.configManager = new ConfigManager(this.scriptDir, this.currentDir);
     this.tokenProcessor = new TokenProcessor(this.configManager);
     this.styleManager = new StyleManager(this.scriptDir);
-    this.contentProcessor = new ContentProcessor();
+    this.contentProcessor = null; // Will be initialized with input directory
     this.pdfGenerator = new PdfGenerator();
 
     if (this.options.verbose) {
@@ -64,6 +64,9 @@ class Md2Pdf {
       if (this.options.verbose) {
         console.log(chalk.gray("📄 Input file:"), inputPath);
       }
+
+      // Initialize content processor with input directory for image path resolution
+      this.contentProcessor = new ContentProcessor(path.dirname(inputPath));
 
       // Load configuration
       const config = await this.configManager.loadConfig(this.options.configPath);
