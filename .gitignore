@@ -1,7 +1,5 @@
 _*
 .DS_Store
-*.css
-*.css.map
 *.config
 node_modules
 README.pdf
