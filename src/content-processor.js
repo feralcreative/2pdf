@@ -1,7 +1,7 @@
 /**
  * Content Processor
  *
- * Handles markdown processing and special content tags
+ * Handles markdown and HTML processing and special content tags
  * Processes PDF-only content, page breaks, and other special features
  */
 
@@ -213,6 +213,50 @@ class ContentProcessor {
       const absolutePath = path.resolve(this.inputDir, src);
       return `<img${attributes} src="file://${absolutePath}"`;
     });
+  }
+
+  async processHtmlContent(htmlContent) {
+    console.log(chalk.blue("🏷️ Processing special content tags in HTML..."));
+
+    let processedContent = htmlContent;
+
+    // Process PDF-only content tags (same as markdown)
+    processedContent = this.processPdfOnlyContentInHtml(processedContent);
+
+    // Process page break comments
+    processedContent = this.processPageBreaksInHtml(processedContent);
+
+    // Process live-site-shield comments
+    processedContent = this.processLiveSiteShieldInHtml(processedContent);
+
+    // Fix relative image paths
+    if (this.inputDir) {
+      processedContent = this.processImagePaths(processedContent);
+    }
+
+    return processedContent;
+  }
+
+  processPdfOnlyContentInHtml(content) {
+    // Extract PDF-ONLY content in HTML comments
+    const pdfOnlyRegex = /<!--\s*PDF[-\s]+ONLY\s*\n([\s\S]*?)\n-->/g;
+
+    return content.replace(pdfOnlyRegex, (match, pdfContent) => {
+      // Return the content directly since it's already HTML
+      return pdfContent.trim();
+    });
+  }
+
+  processPageBreaksInHtml(content) {
+    // Convert page break comments to div elements
+    const pageBreakRegex = /<!--\|\s*PAGE-BREAK\s*-->/g;
+    return content.replace(pageBreakRegex, '<div class="page-break"></div>');
+  }
+
+  processLiveSiteShieldInHtml(content) {
+    // Convert live site shield comments to div elements
+    const liveSiteShieldRegex = /<!--\|\s*LIVE-SITE-SHIELD\s*-->/g;
+    return content.replace(liveSiteShieldRegex, '<div class="live-site-shield"></div>');
   }
 }
 

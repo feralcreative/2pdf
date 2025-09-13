@@ -1,10 +1,10 @@
-# MD<sub>2</sub>PDF
+# 2PDF
 
-Converts Markdown files to PDFs with token replacement, styling, and some handy content processing features.
+Converts Markdown and HTML files to PDFs with token replacement, styling, and some handy content processing features.
 
 ## What it does
 
-- Converts Markdown to PDF using Chrome/Puppeteer
+- Converts Markdown and HTML to PDF using Chrome/Puppeteer
 - Replaces tokens like `{{DATE_TODAY}}` and `{{DEVELOPER_NAME}}`
 - Applies Inter font styling and consistent layout
 - Handles PDF-only content sections
@@ -18,14 +18,15 @@ Converts Markdown files to PDFs with token replacement, styling, and some handy 
 npm install
 
 # Basic usage
-node bin/md2pdf.js                      # converts README.md
-node bin/md2pdf.js myfile.md            # converts specific file
-node bin/md2pdf.js myfile.md -o out.pdf # custom output name
+node bin/2pdf.js                      # converts README.md
+node bin/2pdf.js myfile.md            # converts specific markdown file
+node bin/2pdf.js myfile.html          # converts specific HTML file
+node bin/2pdf.js myfile.md -o out.pdf # custom output name
 
 # Other options
-node bin/md2pdf.js myfile.md -s custom.css  # custom CSS
-node bin/md2pdf.js myfile.md --debug        # keep temp files
-node bin/md2pdf.js myfile.md --verbose      # more output
+node bin/2pdf.js myfile.md -s custom.css  # custom CSS
+node bin/2pdf.js myfile.md --debug        # keep temp files
+node bin/2pdf.js myfile.md --verbose      # more output
 ```
 
 ## Token replacement
@@ -34,10 +35,10 @@ The token system lets you insert dynamic content into your markdown files using 
 
 ### Configuration file
 
-Create a `md2pdf.config` file in your project root or the md2pdf directory:
+Create a `2pdf.config` file in your project root or the 2pdf directory:
 
 ```bash
-# md2pdf.config - key=value pairs, one per line
+# 2pdf.config - key=value pairs, one per line
 DEVELOPER_NAME=John Doe
 COMPANY_NAME=Acme Corp
 PROJECT_VERSION=1.0.0
@@ -98,23 +99,23 @@ These tokens are always available without defining them:
 
 ### Config file locations
 
-The system looks for `md2pdf.config` in this order:
-1. Same directory as the markdown file being converted
+The system looks for `2pdf.config` in this order:
+1. Same directory as the markdown/HTML file being converted
 2. Current working directory
-3. md2pdf installation directory
+3. 2pdf installation directory
 
 ### Example workflow
 
 ```bash
 # 1. Create config file
-echo "PROJECT_VERSION=2.1.0" > md2pdf.config
-echo "DEVELOPER_NAME=Jane Smith" >> md2pdf.config
+echo "PROJECT_VERSION=2.1.0" > 2pdf.config
+echo "DEVELOPER_NAME=Jane Smith" >> 2pdf.config
 
 # 2. Use in markdown
 echo "# Project v{{PROJECT_VERSION}} by {{DEVELOPER_NAME}}" > doc.md
 
 # 3. Convert
-node bin/md2pdf.js doc.md
+node bin/2pdf.js doc.md
 
 # Result: "Project v2.1.0 by Jane Smith" in the PDF
 ```

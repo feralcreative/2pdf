@@ -1,8 +1,8 @@
-# md2pdf Token Configuration File
-# This file defines tokens that can be used in your markdown files
+# 2PDF Token Configuration File
+# This file defines tokens that can be used in your markdown and HTML files
 # Tokens are replaced with their values during PDF generation
 #
-# Usage in markdown: {{TOKEN_NAME}}
+# Usage in markdown/HTML: {{TOKEN_NAME}}
 # Example: "Created by {{DEVELOPER_NAME}} on {{DATE_TODAY}}"
 #
 # Token format: TOKEN_NAME=value
@@ -39,10 +39,10 @@ PROJECT_NAME=
 PROJECT_VERSION=2.0.0
 
 # Project description
-PROJECT_DESCRIPTION=A powerful Markdown to PDF converter with token replacement, beautiful styling, and advanced features
+PROJECT_DESCRIPTION=A powerful Markdown and HTML to PDF converter with token replacement, beautiful styling, and advanced features
 
 # Project repository URL
-PROJECT_REPO=https://github.com/feralcreative/md2pdf
+PROJECT_REPO=https://github.com/feralcreative/md-to-pdf
 
 # =============================================================================
 # DATE AND TIME TOKENS
@@ -66,7 +66,7 @@ PROJECT_REPO=https://github.com/feralcreative/md2pdf
 # {{HOSTNAME}} - System hostname
 # {{USERNAME}} - Current system username
 # {{PWD}} - Current working directory
-# {{SCRIPT_DIR}} - Directory where md2pdf is located
+# {{SCRIPT_DIR}} - Directory where 2pdf is located
 
 # =============================================================================
 # CUSTOM TOKENS

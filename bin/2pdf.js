@@ -1,25 +1,24 @@
 #!/usr/bin/env node
 
 /**
- * md2pdf CLI Entry Point
+ * 2PDF CLI Entry Point
  *
- * Command-line interface for the md2pdf converter
- * Maintains compatibility with the original shell script usage
+ * Command-line interface for converting Markdown and HTML files to PDF
+ * Supports both markdown processing and direct HTML conversion
  */
 
 const { program } = require("commander");
 const chalk = require("chalk");
-const path = require("path");
-const { Md2Pdf } = require("../src/index.js");
+const { ToPdf } = require("../src/index.js");
 
 // Package info
 const packageJson = require("../package.json");
 
 program
-  .name("md2pdf")
-  .description("Convert Markdown files to styled PDFs")
+  .name("2pdf")
+  .description("Convert Markdown and HTML files to styled PDFs")
   .version(packageJson.version)
-  .argument("[file]", "Markdown file to convert (defaults to README.md)", "README.md")
+  .argument("[file]", "Markdown or HTML file to convert (defaults to README.md)", "README.md")
   .option("-c, --config <path>", "Path to configuration file")
   .option("-o, --output <path>", "Output PDF file path")
   .option("-s, --style <path>", "Path to custom CSS file")
@@ -28,10 +27,10 @@ program
   .option("--verbose", "Enable verbose logging")
   .action(async (file, options) => {
     try {
-      console.log(chalk.blue("🔄 md2pdf v" + packageJson.version));
+      console.log(chalk.blue("🔄 2pdf v" + packageJson.version));
       console.log(chalk.blue("🔄 Converting"), chalk.cyan(file), chalk.blue("to PDF..."));
 
-      const converter = new Md2Pdf({
+      const converter = new ToPdf({
         configPath: options.config,
         outputPath: options.output,
         stylePath: options.style,
