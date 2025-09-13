@@ -120,8 +120,8 @@ class ConfigManager {
     const username = os.userInfo().username;
 
     return {
-      DATE_TODAY: dateToday,
-      DATE_TODAY_LONG: dateTodayLong,
+      DATE: dateToday,
+      DATE_LONG: dateTodayLong,
       TIME_NOW: timeNow,
       DATETIME_NOW: datetimeNow,
       TIMESTAMP: timestamp,

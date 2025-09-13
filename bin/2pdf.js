@@ -22,6 +22,7 @@ program
   .option("-c, --config <path>", "Path to configuration file")
   .option("-o, --output <path>", "Output PDF file path")
   .option("-s, --style <path>", "Path to custom CSS file")
+  .option("--color <color>", "Theme color (predefined name or hex code)")
   .option("--no-open", "Don't open the PDF after generation (macOS only)")
   .option("--debug", "Enable debug mode (keeps temporary files)")
   .option("--verbose", "Enable verbose logging")
@@ -34,6 +35,7 @@ program
         configPath: options.config,
         outputPath: options.output,
         stylePath: options.style,
+        themeColor: options.color,
         openAfterGeneration: options.open !== false,
         debug: options.debug || false,
         verbose: options.verbose || false,

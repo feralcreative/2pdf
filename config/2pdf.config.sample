@@ -3,7 +3,7 @@
 # Tokens are replaced with their values during PDF generation
 #
 # Usage in markdown/HTML: {{TOKEN_NAME}}
-# Example: "Created by {{DEVELOPER_NAME}} on {{DATE_TODAY}}"
+# Example: "Created by {{DEVELOPER_NAME}} on {{DATE}}"
 #
 # Token format: TOKEN_NAME=value
 # Lines starting with # are comments and will be ignored
@@ -49,8 +49,8 @@ PROJECT_REPO=https://github.com/feralcreative/md-to-pdf
 # =============================================================================
 # These are automatically generated - no need to set values
 # Available tokens:
-# {{DATE_TODAY}} - Current date in YYYY-MM-DD format
-# {{DATE_TODAY_LONG}} - Current date in "Month DD, YYYY" format
+# {{DATE}} - Current date in YYYY-MM-DD format
+# {{DATE_LONG}} - Current date in "Month DD, YYYY" format
 # {{TIME_NOW}} - Current time in HH:MM format
 # {{DATETIME_NOW}} - Current date and time in "YYYY-MM-DD HH:MM" format
 # {{TIMESTAMP}} - Unix timestamp
@@ -69,6 +69,21 @@ PROJECT_REPO=https://github.com/feralcreative/md-to-pdf
 # {{SCRIPT_DIR}} - Directory where 2pdf is located
 
 # =============================================================================
+# COLOR THEMES
+# =============================================================================
+# Predefined color schemes for headers and accents
+# Use with --color flag: node bin/2pdf.js file.md --color blue
+
+COLOR_BLUE=#1434cb
+COLOR_RED=#e74c3c
+COLOR_GREEN=#27ae60
+COLOR_CORPORATE=#2c3e50
+COLOR_ORANGE=#ff6b35
+COLOR_PURPLE=#9b59b6
+COLOR_TEAL=#1abc9c
+COLOR_DARK=#34495e
+
+# =============================================================================
 # CUSTOM TOKENS
 # =============================================================================
 # Add your own custom tokens here
@@ -83,4 +98,4 @@ LICENSE=MIT License
 CONTACT_INFO=For questions, contact {{DEVELOPER_EMAIL}}
 
 # Default footer text
-FOOTER_TEXT=Generated on {{DATE_TODAY}} by {{DEVELOPER_NAME}}
+FOOTER_TEXT=Generated on {{DATE}} by {{DEVELOPER_NAME}}

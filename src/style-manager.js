@@ -16,7 +16,7 @@ class StyleManager {
     this.fontsDir = path.join(scriptDir, "assets", "fonts");
   }
 
-  async applyStyles(htmlContent, customStylePath = null, isHtmlFile = false) {
+  async applyStyles(htmlContent, customStylePath = null, isHtmlFile = false, themeColor = null, config = {}) {
     let cssContent = "";
 
     if (isHtmlFile && !customStylePath) {
@@ -25,8 +25,9 @@ class StyleManager {
 
       if (hasExistingCss) {
         console.log(chalk.blue("🎨 Using existing CSS from HTML file..."));
-        // Return HTML as-is since it already has styling
-        return htmlContent;
+        // Apply theme color override (use default #808 if not specified)
+        const effectiveThemeColor = themeColor || "808";
+        return this.applyThemeColorToHtml(htmlContent, effectiveThemeColor, config);
       } else {
         console.log(chalk.blue("🎨 No CSS found in HTML file, applying default styles..."));
         // Fall through to apply our default CSS
@@ -64,6 +65,10 @@ class StyleManager {
 
     // Handle font paths - convert relative paths to absolute file:// URLs for Chrome
     cssContent = await this.processFontPaths(cssContent);
+
+    // Apply theme color (use default #808 if not specified)
+    const effectiveThemeColor = themeColor || "808";
+    cssContent = this.applyThemeColor(cssContent, effectiveThemeColor, config);
 
     // Create complete HTML document with embedded CSS
     const styledHtml = this.createStyledHtml(htmlContent, cssContent);
@@ -169,6 +174,55 @@ ${htmlContent}
       /style=["'][^"']*(?:color|background|font|margin|padding|border|width|height)[^"']*["']/i.test(htmlContent);
 
     return hasStyleTags || hasExternalCss || hasInlineStyles;
+  }
+
+  resolveThemeColor(themeColor, config) {
+    if (!themeColor) return null;
+
+    // If it's a predefined color name, look it up in config
+    const colorKey = `COLOR_${themeColor.toUpperCase()}`;
+    if (config[colorKey]) {
+      console.log(chalk.blue(`🎨 Using predefined color '${themeColor}':`, config[colorKey]));
+      return config[colorKey];
+    }
+
+    // If it looks like a hex color, use it directly (support both 3 and 6 character hex)
+    const hexColor = themeColor.startsWith("#") ? themeColor : `#${themeColor}`;
+    if (/^#[0-9A-Fa-f]{3}$/.test(hexColor) || /^#[0-9A-Fa-f]{6}$/.test(hexColor)) {
+      console.log(chalk.blue(`🎨 Using custom hex color:`, hexColor));
+      return hexColor;
+    }
+
+    // Invalid color format
+    console.log(chalk.yellow(`⚠️ Invalid color format '${themeColor}', using default`));
+    return null;
+  }
+
+  applyThemeColor(cssContent, themeColor, config) {
+    const resolvedColor = this.resolveThemeColor(themeColor, config);
+    if (!resolvedColor) return cssContent;
+
+    // Inject CSS custom property at the beginning of the CSS
+    const themeColorRule = `:root { --theme-color: ${resolvedColor}; }\n`;
+    return themeColorRule + cssContent;
+  }
+
+  applyThemeColorToHtml(htmlContent, themeColor, config) {
+    const resolvedColor = this.resolveThemeColor(themeColor, config);
+    if (!resolvedColor) return htmlContent;
+
+    // Inject CSS custom property into existing HTML
+    const themeColorStyle = `<style>:root { --theme-color: ${resolvedColor}; }</style>`;
+
+    // Try to inject after existing <style> tags, or before </head>
+    if (htmlContent.includes("</style>")) {
+      return htmlContent.replace(/(<\/style>)/, `$1\n${themeColorStyle}`);
+    } else if (htmlContent.includes("</head>")) {
+      return htmlContent.replace(/(<\/head>)/, `${themeColorStyle}\n$1`);
+    } else {
+      // Fallback: add at the beginning of body
+      return htmlContent.replace(/(<body[^>]*>)/, `$1\n${themeColorStyle}`);
+    }
   }
 }
 
