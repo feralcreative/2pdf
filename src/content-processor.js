@@ -42,8 +42,8 @@ class ContentProcessor {
     const pdfOnlyRegex = /<!--\s*PDF[-\s]+ONLY\s*\n([\s\S]*?)\n-->/g;
 
     let processedContent = content.replace(pdfOnlyRegex, (match, pdfContent) => {
-      // Replace with placeholder markers that will be cleaned up later
-      return `PDFONLY_PLACEHOLDER_START\n${pdfContent}\nPDFONLY_PLACEHOLDER_END`;
+      // Store the PDF-only content with special markers for later processing
+      return `PDFONLY_PLACEHOLDER_START${pdfContent}PDFONLY_PLACEHOLDER_END`;
     });
 
     return processedContent;
@@ -107,9 +107,14 @@ class ContentProcessor {
   }
 
   postProcessHtml(htmlContent) {
-    // Clean up PDF-only placeholder markers
-    htmlContent = htmlContent.replace(/PDFONLY_PLACEHOLDER_START/g, "");
-    htmlContent = htmlContent.replace(/PDFONLY_PLACEHOLDER_END/g, "");
+    // Process PDF-only content - convert markdown inside placeholders to HTML
+    htmlContent = htmlContent.replace(
+      /PDFONLY_PLACEHOLDER_START([\s\S]*?)PDFONLY_PLACEHOLDER_END/g,
+      (match, pdfContent) => {
+        // Convert the PDF-only markdown content to HTML
+        return marked(pdfContent.trim());
+      }
+    );
 
     // Process live-site-shield markers
     // Find the marker and apply the class to the next paragraph, then structure the content
