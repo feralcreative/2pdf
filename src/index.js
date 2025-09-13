@@ -1,8 +1,8 @@
 /**
- * md2pdf - Markdown to PDF Converter
+ * 2PDF - Markdown and HTML to PDF Converter
  *
- * Main entry point for the md2pdf converter
- * Provides a Node.js implementation of the original shell script functionality
+ * Main entry point for the 2pdf converter
+ * Provides a Node.js implementation for converting both Markdown and HTML files to PDF
  */
 
 const fs = require("fs-extra");
@@ -17,7 +17,7 @@ const StyleManager = require("./style-manager");
 const ContentProcessor = require("./content-processor");
 const PdfGenerator = require("./pdf-generator");
 
-class Md2Pdf {
+class ToPdf {
   constructor(options = {}) {
     this.options = {
       configPath: options.configPath || null,
@@ -32,7 +32,7 @@ class Md2Pdf {
     // Set up paths
     this.currentDir = process.cwd();
     this.scriptDir = path.dirname(path.dirname(__filename)); // Go up from src/ to root
-    this.tempDir = path.join(os.tmpdir(), "md2pdf-" + Date.now());
+    this.tempDir = path.join(os.tmpdir(), "2pdf-" + Date.now());
 
     // Initialize components
     this.configManager = new ConfigManager(this.scriptDir, this.currentDir);
@@ -71,21 +71,43 @@ class Md2Pdf {
       // Load configuration
       const config = await this.configManager.loadConfig(this.options.configPath);
 
-      // Process tokens in markdown
-      console.log(chalk.blue("🏷️ Processing tokens in markdown file..."));
-      const processedMarkdown = await this.tokenProcessor.processTokens(inputPath, config);
+      // Determine file type and process accordingly
+      const fileExtension = path.extname(inputPath).toLowerCase();
+      let htmlContent;
 
-      // Process special content (PDF-only, page breaks, etc.)
-      console.log(chalk.blue("🏷️ Processing special content tags..."));
-      const processedContent = await this.contentProcessor.processContent(processedMarkdown);
+      if (fileExtension === ".html" || fileExtension === ".htm") {
+        // Process HTML file directly
+        console.log(chalk.blue("📄 Processing HTML file..."));
+        let htmlFileContent = await fs.readFile(inputPath, "utf8");
 
-      // Convert markdown to HTML
-      console.log(chalk.blue("📝 Converting markdown to HTML..."));
-      const htmlContent = await this.contentProcessor.markdownToHtml(processedContent);
+        // Process tokens in HTML
+        console.log(chalk.blue("🏷️ Processing tokens in HTML file..."));
+        htmlFileContent = await this.tokenProcessor.processTokensInContent(htmlFileContent, config);
 
-      // Apply styling
+        // Process special content tags in HTML
+        console.log(chalk.blue("🏷️ Processing special content tags..."));
+        htmlContent = await this.contentProcessor.processHtmlContent(htmlFileContent);
+      } else {
+        // Process markdown file (default behavior)
+        console.log(chalk.blue("📄 Processing Markdown file..."));
+
+        // Process tokens in markdown
+        console.log(chalk.blue("🏷️ Processing tokens in markdown file..."));
+        const processedMarkdown = await this.tokenProcessor.processTokens(inputPath, config);
+
+        // Process special content (PDF-only, page breaks, etc.)
+        console.log(chalk.blue("🏷️ Processing special content tags..."));
+        const processedContent = await this.contentProcessor.processContent(processedMarkdown);
+
+        // Convert markdown to HTML
+        console.log(chalk.blue("📝 Converting markdown to HTML..."));
+        htmlContent = await this.contentProcessor.markdownToHtml(processedContent);
+      }
+
+      // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
-      const styledHtml = await this.styleManager.applyStyles(htmlContent, this.options.stylePath);
+      const isHtmlFile = fileExtension === ".html" || fileExtension === ".htm";
+      const styledHtml = await this.styleManager.applyStyles(htmlContent, this.options.stylePath, isHtmlFile);
 
       // Save styled HTML to temp file
       const htmlPath = path.join(this.tempDir, "styled.html");
@@ -153,4 +175,4 @@ class Md2Pdf {
   }
 }
 
-module.exports = { Md2Pdf };
+module.exports = { ToPdf };

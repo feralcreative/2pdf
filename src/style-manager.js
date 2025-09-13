@@ -1,89 +1,100 @@
 /**
  * Style Manager
- * 
+ *
  * Handles CSS loading and HTML styling
  * Manages font loading and CSS compilation
  */
 
-const fs = require('fs-extra');
-const path = require('path');
-const chalk = require('chalk');
+const fs = require("fs-extra");
+const path = require("path");
+const chalk = require("chalk");
 
 class StyleManager {
   constructor(scriptDir) {
     this.scriptDir = scriptDir;
-    this.stylesDir = path.join(scriptDir, 'assets', 'styles');
-    this.fontsDir = path.join(scriptDir, 'assets', 'fonts');
+    this.stylesDir = path.join(scriptDir, "assets", "styles");
+    this.fontsDir = path.join(scriptDir, "assets", "fonts");
   }
-  
-  async applyStyles(htmlContent, customStylePath = null) {
-    let cssContent = '';
-    
+
+  async applyStyles(htmlContent, customStylePath = null, isHtmlFile = false) {
+    let cssContent = "";
+
+    if (isHtmlFile && !customStylePath) {
+      // For HTML files, check if they already have CSS
+      const hasExistingCss = this.hasExistingCss(htmlContent);
+
+      if (hasExistingCss) {
+        console.log(chalk.blue("🎨 Using existing CSS from HTML file..."));
+        // Return HTML as-is since it already has styling
+        return htmlContent;
+      } else {
+        console.log(chalk.blue("🎨 No CSS found in HTML file, applying default styles..."));
+        // Fall through to apply our default CSS
+      }
+    }
+
     if (customStylePath) {
       // Use custom CSS file
       const customCssPath = path.resolve(customStylePath);
       if (await fs.pathExists(customCssPath)) {
-        console.log(chalk.blue('🎨 Using custom CSS:'), customCssPath);
-        cssContent = await fs.readFile(customCssPath, 'utf8');
+        console.log(chalk.blue("🎨 Using custom CSS:"), customCssPath);
+        cssContent = await fs.readFile(customCssPath, "utf8");
       } else {
         throw new Error(`Custom CSS file not found: ${customCssPath}`);
       }
     } else {
       // Use default CSS
-      const defaultCssPath = path.join(this.stylesDir, 'pdf.min.css');
-      
+      const defaultCssPath = path.join(this.stylesDir, "pdf.min.css");
+
       if (await fs.pathExists(defaultCssPath)) {
-        console.log(chalk.blue('🎨 Using minimized CSS from compilation...'));
-        console.log(chalk.gray('🔍 CSS file path:'), defaultCssPath);
-        cssContent = await fs.readFile(defaultCssPath, 'utf8');
+        console.log(chalk.blue("🎨 Using minimized CSS from compilation..."));
+        console.log(chalk.gray("🔍 CSS file path:"), defaultCssPath);
+        cssContent = await fs.readFile(defaultCssPath, "utf8");
       } else {
         // Fallback to regular CSS
-        const fallbackCssPath = path.join(this.stylesDir, 'pdf.css');
+        const fallbackCssPath = path.join(this.stylesDir, "pdf.css");
         if (await fs.pathExists(fallbackCssPath)) {
-          console.log(chalk.blue('🎨 Using regular CSS file...'));
-          cssContent = await fs.readFile(fallbackCssPath, 'utf8');
+          console.log(chalk.blue("🎨 Using regular CSS file..."));
+          cssContent = await fs.readFile(fallbackCssPath, "utf8");
         } else {
-          throw new Error('No CSS file found. Expected pdf.min.css or pdf.css in assets/styles/');
+          throw new Error("No CSS file found. Expected pdf.min.css or pdf.css in assets/styles/");
         }
       }
     }
-    
+
     // Handle font paths - convert relative paths to absolute file:// URLs for Chrome
     cssContent = await this.processFontPaths(cssContent);
-    
+
     // Create complete HTML document with embedded CSS
     const styledHtml = this.createStyledHtml(htmlContent, cssContent);
-    
+
     return styledHtml;
   }
-  
+
   async processFontPaths(cssContent) {
     // Check if fonts directory exists
     if (await fs.pathExists(this.fontsDir)) {
-      console.log(chalk.gray('🔍 Processing font paths...'));
-      
+      console.log(chalk.gray("🔍 Processing font paths..."));
+
       // Replace relative font paths with absolute file:// URLs for Chrome
       const absoluteFontsPath = this.fontsDir;
-      cssContent = cssContent.replace(
-        /url\(["']?\.\.\/fonts\//g,
-        `url("file://${absoluteFontsPath}/`
-      );
-      
+      cssContent = cssContent.replace(/url\(["']?\.\.\/fonts\//g, `url("file://${absoluteFontsPath}/`);
+
       // Debug: Show font paths being used
       const fontPaths = cssContent.match(/file:\/\/[^)]*\.(woff2|woff|ttf)/g);
       if (fontPaths) {
-        console.log(chalk.gray('🔍 Font paths in CSS:'));
-        fontPaths.slice(0, 5).forEach(fontPath => {
+        console.log(chalk.gray("🔍 Font paths in CSS:"));
+        fontPaths.slice(0, 5).forEach((fontPath) => {
           console.log(chalk.gray(`   ${fontPath}`));
         });
       }
     } else {
-      console.log(chalk.yellow('⚠️ Fonts directory not found, using web fonts'));
+      console.log(chalk.yellow("⚠️ Fonts directory not found, using web fonts"));
     }
-    
+
     return cssContent;
   }
-  
+
   createStyledHtml(htmlContent, cssContent) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -144,6 +155,20 @@ ${htmlContent}
 </script>
 </body>
 </html>`;
+  }
+
+  hasExistingCss(htmlContent) {
+    // Check for internal CSS (style tags)
+    const hasStyleTags = /<style[^>]*>[\s\S]*?<\/style>/i.test(htmlContent);
+
+    // Check for external CSS (link tags with rel="stylesheet")
+    const hasExternalCss = /<link[^>]*rel=["']stylesheet["'][^>]*>/i.test(htmlContent);
+
+    // Check for inline styles (style attributes with meaningful content)
+    const hasInlineStyles =
+      /style=["'][^"']*(?:color|background|font|margin|padding|border|width|height)[^"']*["']/i.test(htmlContent);
+
+    return hasStyleTags || hasExternalCss || hasInlineStyles;
   }
 }
 
