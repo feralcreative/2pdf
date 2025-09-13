@@ -23,6 +23,7 @@ class ToPdf {
       configPath: options.configPath || null,
       outputPath: options.outputPath || null,
       stylePath: options.stylePath || null,
+      themeColor: options.themeColor || null,
       openAfterGeneration: options.openAfterGeneration !== false,
       debug: options.debug || false,
       verbose: options.verbose || false,
@@ -107,7 +108,13 @@ class ToPdf {
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
       const isHtmlFile = fileExtension === ".html" || fileExtension === ".htm";
-      const styledHtml = await this.styleManager.applyStyles(htmlContent, this.options.stylePath, isHtmlFile);
+      const styledHtml = await this.styleManager.applyStyles(
+        htmlContent,
+        this.options.stylePath,
+        isHtmlFile,
+        this.options.themeColor,
+        config
+      );
 
       // Save styled HTML to temp file
       const htmlPath = path.join(this.tempDir, "styled.html");

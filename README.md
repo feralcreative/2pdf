@@ -1,111 +1,165 @@
-# 2PDF
+# 2pdf
 
-Converts Markdown and HTML files to PDFs with token replacement, styling, and some handy content processing features.
+Converts Markdown and HTML files to PDFs with token replacement, styling, and content processing features.
 
 ## What it does
 
 - Converts Markdown and HTML to PDF using Chrome/Puppeteer
-- Replaces tokens like `{{DATE_TODAY}}` and `{{DEVELOPER_NAME}}`
+- Replaces tokens like `{{DATE}}` and `{{DEVELOPER_NAME}}`
 - Applies Inter font styling and consistent layout
 - Handles PDF-only content sections
 - Supports page breaks and special formatting
 - Works on macOS, Linux, and Windows
 
-## Usage
+## Quick start
 
 ```bash
-# Install dependencies first
+# Install dependencies
 npm install
 
-# Basic usage
-node bin/2pdf.js                      # converts README.md
-node bin/2pdf.js myfile.md            # converts specific markdown file
-node bin/2pdf.js myfile.html          # converts specific HTML file
-node bin/2pdf.js myfile.md -o out.pdf # custom output name
-
-# Other options
-node bin/2pdf.js myfile.md -s custom.css  # custom CSS
-node bin/2pdf.js myfile.md --debug        # keep temp files
-node bin/2pdf.js myfile.md --verbose      # more output
+# Convert files
+node bin/2pdf.js README.md           # converts README.md to README.pdf
+node bin/2pdf.js document.md         # converts any markdown file
+node bin/2pdf.js webpage.html        # converts HTML files too
+node bin/2pdf.js file.md -o out.pdf  # custom output name
 ```
 
-## Token replacement
+## File types supported
 
-The token system lets you insert dynamic content into your markdown files using `{{TOKEN_NAME}}` placeholders.
+### Markdown files (.md)
+- Always uses 2pdf's Inter font styling and layout
+- Supports all markdown features (headers, lists, code blocks, etc.)
+- Token replacement and special content features
 
-### Configuration file
-
-Create a `2pdf.config` file in your project root or the 2pdf directory:
-
-```bash
-# 2pdf.config - key=value pairs, one per line
-DEVELOPER_NAME=John Doe
-COMPANY_NAME=Acme Corp
-PROJECT_VERSION=1.0.0
-CLIENT_NAME=Big Corp Inc
-DOCUMENT_TYPE=Technical Specification
-CUSTOM_FOOTER=Confidential - Internal Use Only
-```
+### HTML files (.html, .htm)
+- **With existing CSS**: Preserves your styles (internal, external, inline)
+- **Without CSS**: Falls back to 2pdf's default styling
+- Token replacement works the same way
+- Color theming injects CSS custom properties
 
 <!--| PAGE-BREAK -->
 
-### Using tokens in markdown
+## Core features
 
-Tokens are replaced everywhere they appear in your markdown:
+### Token replacement
+Insert dynamic content using `{{TOKEN_NAME}}` placeholders:
 
 ```markdown
-# {{PROJECT_NAME}} {{DOCUMENT_TYPE}}
-
+# {{PROJECT_NAME}} Documentation
 **Version:** {{PROJECT_VERSION}}
-**Created by:** {{DEVELOPER_NAME}} at {{COMPANY_NAME}}
-**Client:** {{CLIENT_NAME}}
-**Generated:** {{DATE_TODAY_LONG}} at {{TIME_NOW}}
-
----
-{{CUSTOM_FOOTER}}
+**Generated:** {{DATE}} by {{DEVELOPER_NAME}}
 ```
 
-### Automatic tokens
-
-These tokens are always available without defining them:
-
-#### Date and time:
-- `{{DATE_TODAY}}` - Current date (2024-01-15)
-- `{{DATE_TODAY_LONG}}` - Current date (January 15, 2024)
+#### Automatic tokens (always available):
+- `{{DATE}}` - Current date (2024-01-15)
+- `{{DATE_LONG}}` - Current date (January 15, 2024)  
 - `{{TIME_NOW}}` - Current time (14:30)
-- `{{DATETIME_NOW}}` - Date and time (2024-01-15 14:30)
-- `{{YEAR}}` - Current year (2024)
-- `{{MONTH}}` - Current month (01)
-- `{{DAY}}` - Current day (15)
-- `{{TIMESTAMP}}` - Unix timestamp (1705123456)
-
-#### System info:
-- `{{HOSTNAME}}` - System hostname (MacBook-Pro.local)
-- `{{USERNAME}}` - Current user (john)
-- `{{PWD}}` - Current working directory (/Users/john/projects)
-
-#### Project info:
+- `{{YEAR}}`, `{{MONTH}}`, `{{DAY}}` - Date components
+- `{{USERNAME}}`, `{{HOSTNAME}}` - System info
 - `{{PROJECT_NAME}}` - Auto-generated from directory name
 
-### Token processing
+#### Custom tokens from config file:
+Create `2pdf.config` with your own tokens:
+```bash
+DEVELOPER_NAME=John Doe
+PROJECT_VERSION=2.1.0
+COMPANY_NAME=Acme Corp
+```
+<!--| PAGE-BREAK -->
 
-- Tokens are processed in **multiple passes**, so you can reference other tokens
-- **Case sensitive** - `{{name}}` and `{{NAME}}` are different
-- **Whitespace matters** - `{{ NAME }}` won't work, use `{{NAME}}`
-- **Nested replacement** - If `GREETING=Hello {{USERNAME}}`, it becomes "Hello john"
-- **Missing tokens** are left as-is (useful for debugging)
+### Special content features
+
+#### PDF-only content
+Content that only appears in the PDF:
+```markdown
+<!-- PDF ONLY This text only appears in the PDF version -->
+```
+
+#### Page breaks
+Force a new page:
+```markdown
+Content here...
+<!-- PAGE-BREAK -->
+Content on next page...
+```
+
+#### Live site shields
+Style a paragraph as a badge:
+```markdown
+<!-- live-site-shield -->
+Live Site: https://example.com
+```
 
 <!--| PAGE-BREAK -->
 
-### Config file locations
+## Advanced options
 
-The system looks for `2pdf.config` in this order:
-1. Same directory as the markdown/HTML file being converted
+### Color theming
+Customize header and accent colors with the `--color` flag:
+
+```bash
+# Predefined colors (from config file)
+node bin/2pdf.js doc.md --color blue
+node bin/2pdf.js doc.md --color corporate
+
+# Custom hex colors  
+node bin/2pdf.js doc.md --color 1434cb
+node bin/2pdf.js doc.md --color "#ff6b35"
+```
+
+Add predefined colors to your `2pdf.config`:
+```bash
+COLOR_BLUE=#1434cb
+COLOR_RED=#e74c3c
+COLOR_GREEN=#27ae60
+COLOR_CORPORATE=#2c3e50
+COLOR_ORANGE=#ff6b35
+```
+
+### Other options
+```bash
+node bin/2pdf.js file.md -s custom.css  # custom CSS file
+node bin/2pdf.js file.md --debug        # keep temp files  
+node bin/2pdf.js file.md --verbose      # detailed output
+```
+
+<!--| PAGE-BREAK -->
+
+## Configuration
+
+### Config file format
+Create `2pdf.config` with key=value pairs:
+```bash
+# Project info
+PROJECT_VERSION=2.1.0
+DEVELOPER_NAME=Jane Smith
+COMPANY_NAME=Acme Corp
+
+# Color themes  
+COLOR_BRAND=#1434cb
+COLOR_ACCENT=#ff6b35
+
+# Custom content
+FOOTER_TEXT=Generated on {{DATE}} by {{DEVELOPER_NAME}}
+```
+
+### Config file locations
+2pdf searches for `2pdf.config` in this order:
+1. Same directory as the input file
 2. Current working directory
-3. 2pdf installation directory
+3. 2pdf installation directory  
+4. `config/` subdirectory in any of the above
+
+### Token processing details
+- **Multiple passes**: Tokens can reference other tokens
+- **Case sensitive**: `{{NAME}}` ≠ `{{name}}`
+- **No whitespace**: Use `{{TOKEN}}`, not `{{ TOKEN }}`
+- **Nested replacement**: `GREETING=Hello {{USERNAME}}` works
+- **Missing tokens**: Left unchanged for debugging
+
+<!--| PAGE-BREAK -->
 
 ### Example workflow
-
 ```bash
 # 1. Create config file
 echo "PROJECT_VERSION=2.1.0" > 2pdf.config
@@ -120,38 +174,6 @@ node bin/2pdf.js doc.md
 # Result: "Project v2.1.0 by Jane Smith" in the PDF
 ```
 
-## Special content features
-
-### PDF-only content
-
-Content that only shows up in the PDF:
-
-```markdown
-<!-- PDF ONLY This text will only appear in the PDF version. You can put multiple lines here.-->
-```
-
-### Page breaks
-
-Force a page break:
-
-```markdown
-Some content here...<!-- PAGE-BREAK -->
-This will be on the next page.
-```
-
-<!--| PAGE-BREAK -->
-
-### Live site shields
-
-Style a paragraph as a badge/shield:
-
-```markdown
-<!-- live-site-shield -->
-Live Site: https://example.com
-```
-
-<!-- live-site-shield -->
-Live Site: https://example.com
 ## License
 
-© 2025 Feral Creative • [MIT License](LICENSE)
+© {{YEAR}} {{COMPANY_NAME}} • [MIT License](LICENSE)

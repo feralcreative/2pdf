@@ -83,14 +83,106 @@ class TokenProcessor {
   }
 
   hasToken(content, tokenName) {
-    return content.includes(`{{${tokenName}}}`);
+    const tokenPattern = `{{${tokenName}}}`;
+    return content.includes(tokenPattern) && this.hasTokenOutsideCode(content, tokenName);
   }
 
   replaceToken(content, tokenName, value) {
-    // Escape special regex characters in the value
-    const escapedValue = value.toString().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const tokenRegex = new RegExp(`\\{\\{${tokenName}\\}\\}`, "g");
-    return content.replace(tokenRegex, value);
+    // Only replace tokens that are outside of code blocks/inline code
+    return this.replaceTokenOutsideCode(content, tokenName, value);
+  }
+
+  /**
+   * Check if a token exists outside of code blocks and inline code
+   */
+  hasTokenOutsideCode(content, tokenName) {
+    const tokenPattern = `{{${tokenName}}}`;
+    const codeRanges = this.getCodeRanges(content);
+
+    let index = content.indexOf(tokenPattern);
+    while (index !== -1) {
+      // Check if this token occurrence is outside all code ranges
+      const isInCode = codeRanges.some((range) => index >= range.start && index < range.end);
+      if (!isInCode) {
+        return true; // Found at least one token outside code
+      }
+      index = content.indexOf(tokenPattern, index + 1);
+    }
+
+    return false; // All tokens are inside code blocks
+  }
+
+  /**
+   * Replace tokens only when they're outside of code blocks and inline code
+   */
+  replaceTokenOutsideCode(content, tokenName, value) {
+    const tokenPattern = `{{${tokenName}}}`;
+    const codeRanges = this.getCodeRanges(content);
+
+    let result = "";
+    let lastIndex = 0;
+    let index = content.indexOf(tokenPattern);
+
+    while (index !== -1) {
+      // Add content up to this token
+      result += content.substring(lastIndex, index);
+
+      // Check if this token is inside a code block
+      const isInCode = codeRanges.some((range) => index >= range.start && index < range.end);
+
+      if (isInCode) {
+        // Keep the token as-is if it's in code
+        result += tokenPattern;
+      } else {
+        // Replace the token if it's outside code
+        result += value;
+      }
+
+      lastIndex = index + tokenPattern.length;
+      index = content.indexOf(tokenPattern, lastIndex);
+    }
+
+    // Add remaining content
+    result += content.substring(lastIndex);
+    return result;
+  }
+
+  /**
+   * Get ranges of all code blocks (triple backticks) and inline code (single backticks)
+   */
+  getCodeRanges(content) {
+    const ranges = [];
+
+    // Find code blocks (triple backticks)
+    const codeBlockRegex = /```[\s\S]*?```/g;
+    let match;
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      ranges.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        type: "block",
+      });
+    }
+
+    // Find inline code (single backticks) - but not inside code blocks
+    const inlineCodeRegex = /`[^`\n]+`/g;
+    while ((match = inlineCodeRegex.exec(content)) !== null) {
+      const start = match.index;
+      const end = match.index + match[0].length;
+
+      // Check if this inline code is inside a code block
+      const isInsideBlock = ranges.some((range) => range.type === "block" && start >= range.start && end <= range.end);
+
+      if (!isInsideBlock) {
+        ranges.push({
+          start: start,
+          end: end,
+          type: "inline",
+        });
+      }
+    }
+
+    return ranges.sort((a, b) => a.start - b.start);
   }
 
   findRemainingTokens(content) {
