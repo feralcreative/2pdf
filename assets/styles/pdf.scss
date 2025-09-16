@@ -22,6 +22,7 @@ $text: #222;
   --theme-color: #{$feral}; // Default to current $feral color
   --theme-color-light: #{$feral-lt};
   --theme-color-dark: #{$feral-dk};
+  --theme-color-10: rgba(136, 0, 136, 0.1); // 10% opacity version of default feral color
 }
 
 @page {
@@ -195,8 +196,8 @@ pre * {
   }
 
   blockquote {
-    border-left: 4px solid #808;
-    background: #f2e6f2;
+    border-left: 4px solid var(--theme-color);
+    background: var(--theme-color-10);
     margin: 16px 0;
     padding: 0.25em 0.5em;
     font-style: italic;
@@ -217,7 +218,7 @@ pre * {
   }
 
   a {
-    color: #880088;
+    color: var(--theme-color);
     text-decoration: none;
     font-weight: 700;
   }
@@ -233,7 +234,7 @@ pre * {
     padding: 2px 4px;
     font-weight: 700;
     // color: #d73a49;
-    color: #808;
+    color: var(--theme-color);
     font-size: 0.75em !important;
   }
 

@@ -152,6 +152,8 @@ class ToPdf {
       // Clean up temp directory unless in debug mode
       if (!this.options.debug) {
         await fs.remove(this.tempDir);
+      } else {
+        console.log(chalk.gray("🔍 Debug files kept in:"), this.tempDir);
       }
 
       return {

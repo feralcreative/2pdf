@@ -207,14 +207,53 @@ ${htmlContent}
     // This regex handles various whitespace and formatting variations
     const rootRuleRegex = /(:root\s*\{[^}]*--theme-color:\s*)[^;}]+([^}]*\})/;
 
-    if (rootRuleRegex.test(cssContent)) {
+    let updatedCss = cssContent;
+
+    if (rootRuleRegex.test(updatedCss)) {
       // Replace the existing --theme-color value in the :root rule
-      return cssContent.replace(rootRuleRegex, `$1${resolvedColor}$2`);
+      updatedCss = updatedCss.replace(rootRuleRegex, `$1${resolvedColor}$2`);
     } else {
       // Fallback: inject CSS custom property at the beginning if no :root rule found
       const themeColorRule = `:root { --theme-color: ${resolvedColor}; }\n`;
-      return themeColorRule + cssContent;
+      updatedCss = themeColorRule + updatedCss;
     }
+
+    // Replace CSS custom properties with actual color values for better print compatibility
+    // CSS custom properties can sometimes fail in print contexts, so we use direct color values
+
+    // Generate 10% opacity version of the theme color for backgrounds
+    const themeColor10 = this.hexToRgba(resolvedColor, 0.1);
+
+    updatedCss = updatedCss.replace(/var\(--theme-color-10\)/g, themeColor10);
+    updatedCss = updatedCss.replace(/var\(--theme-color\)/g, resolvedColor);
+
+    // Also replace any remaining hardcoded Feral magenta colors
+    updatedCss = updatedCss.replace(/color:#808/g, `color:${resolvedColor}`);
+    updatedCss = updatedCss.replace(/color:#880088/g, `color:${resolvedColor}`);
+    updatedCss = updatedCss.replace(/solid #808/g, `solid ${resolvedColor}`);
+    updatedCss = updatedCss.replace(/solid #880088/g, `solid ${resolvedColor}`);
+
+    return updatedCss;
+  }
+
+  hexToRgba(hex, alpha) {
+    // Remove # if present
+    hex = hex.replace("#", "");
+
+    // Handle 3-character hex codes
+    if (hex.length === 3) {
+      hex = hex
+        .split("")
+        .map((char) => char + char)
+        .join("");
+    }
+
+    // Parse RGB values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
   applyThemeColorToHtml(htmlContent, themeColor, config) {
