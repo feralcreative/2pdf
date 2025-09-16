@@ -202,9 +202,19 @@ ${htmlContent}
     const resolvedColor = this.resolveThemeColor(themeColor, config);
     if (!resolvedColor) return cssContent;
 
-    // Inject CSS custom property at the beginning of the CSS
-    const themeColorRule = `:root { --theme-color: ${resolvedColor}; }\n`;
-    return themeColorRule + cssContent;
+    // Replace existing :root rule with the new theme color
+    // Look for the existing :root rule and replace the --theme-color value
+    // This regex handles various whitespace and formatting variations
+    const rootRuleRegex = /(:root\s*\{[^}]*--theme-color:\s*)[^;}]+([^}]*\})/;
+
+    if (rootRuleRegex.test(cssContent)) {
+      // Replace the existing --theme-color value in the :root rule
+      return cssContent.replace(rootRuleRegex, `$1${resolvedColor}$2`);
+    } else {
+      // Fallback: inject CSS custom property at the beginning if no :root rule found
+      const themeColorRule = `:root { --theme-color: ${resolvedColor}; }\n`;
+      return themeColorRule + cssContent;
+    }
   }
 
   applyThemeColorToHtml(htmlContent, themeColor, config) {

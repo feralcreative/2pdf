@@ -42,7 +42,7 @@ PROJECT_VERSION=2.0.0
 PROJECT_DESCRIPTION=A powerful Markdown and HTML to PDF converter with token replacement, beautiful styling, and advanced features
 
 # Project repository URL
-PROJECT_REPO=https://github.com/feralcreative/md-to-pdf
+PROJECT_REPO=https://github.com/feralcreative/2pdf
 
 # =============================================================================
 # DATE AND TIME TOKENS
