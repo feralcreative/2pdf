@@ -16,7 +16,14 @@ class StyleManager {
     this.fontsDir = path.join(scriptDir, "assets", "fonts");
   }
 
-  async applyStyles(htmlContent, customStylePath = null, isHtmlFile = false, themeColor = null, config = {}) {
+  async applyStyles(
+    htmlContent,
+    customStylePath = null,
+    isHtmlFile = false,
+    themeColor = null,
+    config = {},
+    singlePage = false
+  ) {
     let cssContent = "";
 
     if (isHtmlFile && !customStylePath) {
@@ -69,6 +76,11 @@ class StyleManager {
     // Apply theme color (use default #808 if not specified)
     const effectiveThemeColor = themeColor || "808";
     cssContent = this.applyThemeColor(cssContent, effectiveThemeColor, config);
+
+    // Apply single-page modifications if requested
+    if (singlePage) {
+      cssContent = this.applySinglePageMode(cssContent);
+    }
 
     // Create complete HTML document with embedded CSS
     const styledHtml = this.createStyledHtml(htmlContent, cssContent);
@@ -254,6 +266,47 @@ ${htmlContent}
     const b = parseInt(hex.substring(4, 6), 16);
 
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  applySinglePageMode(cssContent) {
+    // Remove existing @page rules completely - we'll let Puppeteer handle page size
+    cssContent = cssContent.replace(/@page\s*\{[^}]*\}/g, "");
+
+    // Add CSS that works with custom page dimensions
+    const singlePageCSS = `
+/* Single-page mode: let Puppeteer control page size, prevent breaks */
+html, body {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Prevent all page breaks */
+* {
+  page-break-before: avoid !important;
+  page-break-after: avoid !important;
+  page-break-inside: avoid !important;
+  break-before: avoid !important;
+  break-after: avoid !important;
+  break-inside: avoid !important;
+}
+
+/* Completely hide page break elements */
+.page-break {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+`;
+
+    cssContent = singlePageCSS + cssContent;
+
+    // Remove any remaining page break CSS rules from the original CSS
+    cssContent = cssContent.replace(/page-break-[^:]*:[^;]*;/g, "");
+    cssContent = cssContent.replace(/break-[^:]*:[^;]*;/g, "");
+
+    return cssContent;
   }
 
   applyThemeColorToHtml(htmlContent, themeColor, config) {

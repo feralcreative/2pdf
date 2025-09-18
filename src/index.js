@@ -24,6 +24,7 @@ class ToPdf {
       outputPath: options.outputPath || null,
       stylePath: options.stylePath || null,
       themeColor: options.themeColor || null,
+      singlePage: options.singlePage || false,
       openAfterGeneration: options.openAfterGeneration !== false,
       debug: options.debug || false,
       verbose: options.verbose || false,
@@ -113,7 +114,8 @@ class ToPdf {
         this.options.stylePath,
         isHtmlFile,
         this.options.themeColor,
-        config
+        config,
+        this.options.singlePage
       );
 
       // Save styled HTML to temp file
@@ -130,7 +132,7 @@ class ToPdf {
         this.options.outputPath ||
         path.join(path.dirname(inputPath), path.basename(inputFile, path.extname(inputFile)) + ".pdf");
 
-      await this.pdfGenerator.generatePdf(htmlPath, outputPath);
+      await this.pdfGenerator.generatePdf(htmlPath, outputPath, this.options.singlePage);
 
       // Get file stats
       const stats = await fs.stat(outputPath);

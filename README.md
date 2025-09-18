@@ -91,6 +91,26 @@ Style a paragraph as a badge:
 Live Site: https://example.com
 ```
 
+#### Table column widths
+
+Control table column widths with HTML comments:
+
+```markdown
+<!-- col-widths: 30% 70% -->
+| Name | Description |
+|------|-------------|
+| Item | Long description text that needs more space |
+```
+
+You can use any CSS width values:
+
+```markdown
+<!-- col-widths: 100px 200px 50% -->
+| ID | Name | Notes |
+|----|------|-------|
+| 1  | Test | Some notes |
+```
+
 <!--| PAGE-BREAK -->
 
 ## Advanced options
@@ -117,11 +137,35 @@ COLOR_CORPORATE=#2c3e50
 COLOR_ORANGE=#ff6b35
 ```
 
+### Single-page mode
+Generate PDFs as one continuous page instead of multiple US Letter pages:
+```bash
+node bin/2pdf.js file.md --single-page
+node bin/2pdf.js file.md --single-page --color blue
+```
+
+This is perfect for:
+- Web page captures
+- Long documents that look better as continuous scrolls
+- Documents with content that shouldn't be split across pages
+
 ### Other options
+
 ```bash
 node bin/2pdf.js file.md -s custom.css  # custom CSS file
-node bin/2pdf.js file.md --debug        # keep temp files  
+node bin/2pdf.js file.md --debug        # keep temp files
 node bin/2pdf.js file.md --verbose      # detailed output
+```
+
+### Quick reference
+
+**Special comments for enhanced formatting:**
+
+```markdown
+<!-- PDF ONLY Content only in PDF -->
+<!-- PAGE-BREAK -->
+<!-- live-site-shield -->
+<!-- col-widths: 30% 70% -->
 ```
 
 <!--| PAGE-BREAK -->

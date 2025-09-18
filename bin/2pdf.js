@@ -23,6 +23,7 @@ program
   .option("-o, --output <path>", "Output PDF file path")
   .option("-s, --style <path>", "Path to custom CSS file")
   .option("--color <color>", "Theme color (predefined name or hex code)")
+  .option("--single-page", "Generate single continuous page instead of multiple pages")
   .option("--no-open", "Don't open the PDF after generation (macOS only)")
   .option("--debug", "Enable debug mode (keeps temporary files)")
   .option("--verbose", "Enable verbose logging")
@@ -36,6 +37,7 @@ program
         outputPath: options.output,
         stylePath: options.style,
         themeColor: options.color,
+        singlePage: options.singlePage || false,
         openAfterGeneration: options.open !== false,
         debug: options.debug || false,
         verbose: options.verbose || false,

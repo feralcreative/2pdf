@@ -49,7 +49,7 @@ class PdfGenerator {
     }
   }
 
-  async generatePdf(htmlPath, outputPath) {
+  async generatePdf(htmlPath, outputPath, singlePage = false) {
     let browser = null;
 
     try {
@@ -91,21 +91,72 @@ class PdfGenerator {
       // Generate PDF with options matching the shell script
       console.log(chalk.blue("📄 Generating PDF..."));
 
-      const pdfOptions = {
-        path: outputPath,
-        format: "Letter",
-        margin: {
-          top: "0.5in",
-          right: "0.5in",
-          bottom: "0.5in",
-          left: "0.5in",
-        },
-        printBackground: true,
-        preferCSSPageSize: false,
-        displayHeaderFooter: false,
-        headerTemplate: "",
-        footerTemplate: "",
-      };
+      let pdfOptions;
+
+      if (singlePage) {
+        // Single-page mode: Force a truly single page using custom page size
+        const contentHeight = await page.evaluate(() => {
+          return Math.max(
+            document.body.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.clientHeight,
+            document.documentElement.scrollHeight,
+            document.documentElement.offsetHeight
+          );
+        });
+
+        // Calculate page dimensions in points (72 points = 1 inch)
+        const widthPoints = 8.5 * 72; // 8.5 inches
+        const heightPoints = Math.max(11 * 72, ((contentHeight + 200) * 72) / 96); // Convert px to points, minimum 11"
+
+        console.log(
+          chalk.gray(`📏 Single-page mode: ${contentHeight}px content → ${(heightPoints / 72).toFixed(1)}" page`)
+        );
+
+        // Set viewport to match the page size
+        await page.setViewport({
+          width: Math.round((widthPoints * 96) / 72), // Convert points to pixels for viewport
+          height: Math.round((heightPoints * 96) / 72),
+          deviceScaleFactor: 1,
+        });
+
+        // Wait for re-render with new viewport
+        await page.waitForTimeout(1000);
+
+        pdfOptions = {
+          path: outputPath,
+          width: `${widthPoints / 72}in`, // Convert points to inches
+          height: `${heightPoints / 72}in`,
+          margin: {
+            top: "0.5in",
+            right: "0.5in",
+            bottom: "0.5in",
+            left: "0.5in",
+          },
+          printBackground: true,
+          preferCSSPageSize: false, // Use our custom dimensions
+          displayHeaderFooter: false,
+          headerTemplate: "",
+          footerTemplate: "",
+        };
+      } else {
+        // Standard multi-page mode
+        pdfOptions = {
+          path: outputPath,
+          format: "Letter",
+          margin: {
+            top: "0.5in",
+            right: "0.5in",
+            bottom: "0.5in",
+            left: "0.5in",
+          },
+          printBackground: true,
+          preferCSSPageSize: false,
+          displayHeaderFooter: false,
+          headerTemplate: "",
+          footerTemplate: "",
+        };
+      }
 
       await page.pdf(pdfOptions);
 
