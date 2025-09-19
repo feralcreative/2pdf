@@ -22,7 +22,7 @@ program
   .option("-c, --config <path>", "Path to configuration file")
   .option("-o, --output <path>", "Output PDF file path")
   .option("-s, --style <path>", "Path to custom CSS file")
-  .option("--color <color>", "Theme color (predefined name or hex code)")
+  .option("--color <color>", "Theme color (predefined name or hex code) - overridden by document settings")
   .option("--single-page", "Generate single continuous page instead of multiple pages")
   .option("--no-open", "Don't open the PDF after generation (macOS only)")
   .option("--debug", "Enable debug mode (keeps temporary files)")

@@ -12,6 +12,7 @@ const chalk = require("chalk");
 class ContentProcessor {
   constructor(inputDir = null) {
     this.inputDir = inputDir;
+    this.documentSettings = {}; // Store extracted document settings
 
     // Configure marked options
     marked.setOptions({
@@ -30,6 +31,9 @@ class ContentProcessor {
 
     let processedContent = markdownContent;
 
+    // Extract document settings (theme color, font size) from comments
+    const documentSettings = this.extractDocumentSettings(processedContent);
+
     // Process PDF-only content tags
     processedContent = this.processPdfOnlyContent(processedContent);
 
@@ -39,7 +43,38 @@ class ContentProcessor {
     // Process live-site-shield comments
     processedContent = this.processLiveSiteShield(processedContent);
 
+    // Store document settings for later use
+    this.documentSettings = documentSettings;
+
     return processedContent;
+  }
+
+  extractDocumentSettings(content) {
+    const settings = {};
+
+    // Extract theme color from comments like <!-- theme-color: #ff6b35 -->
+    const themeColorRegex = /<!--\s*theme-color:\s*([^-]+?)\s*-->/i;
+    const themeColorMatch = content.match(themeColorRegex);
+    if (themeColorMatch) {
+      const color = themeColorMatch[1].trim();
+      settings.themeColor = color;
+      console.log(chalk.blue(`🎨 Found theme color in document:`, color));
+    }
+
+    // Extract base font size from comments like <!-- font-size: 1.2em -->
+    const fontSizeRegex = /<!--\s*font-size:\s*([^-]+?)\s*-->/i;
+    const fontSizeMatch = content.match(fontSizeRegex);
+    if (fontSizeMatch) {
+      const fontSize = fontSizeMatch[1].trim();
+      settings.baseFontSize = fontSize;
+      console.log(chalk.blue(`📏 Found base font size in document:`, fontSize));
+    }
+
+    return settings;
+  }
+
+  getDocumentSettings() {
+    return this.documentSettings || {};
   }
 
   processPdfOnlyContent(content) {

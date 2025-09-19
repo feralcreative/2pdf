@@ -1,3 +1,6 @@
+<!-- theme-color: #D95512 -->
+<!-- font-size: 1em -->
+
 # 2pdf
 
 Converts Markdown and HTML files to PDFs with token replacement, styling, and content processing features.
@@ -111,6 +114,26 @@ You can use any CSS width values:
 | 1  | Test | Some notes |
 ```
 
+#### Document styling
+
+Set theme colors and font sizes directly in your document:
+
+```markdown
+<!-- theme-color: #ff6b35 -->
+<!-- font-size: 1.2em -->
+
+# Your Document Title
+Content with custom orange theme and larger font size...
+```
+
+**Theme color options:**
+- Hex colors: `#ff6b35`, `#1434cb`, `#27ae60`
+- Short hex: `#f60`, `#14c`, `#2a6`
+
+**Font size options:**
+- Relative units: `1.2em`, `0.9em`, `110%`, `90%`
+- Absolute units: `14px`, `16px`, `12pt`
+
 <!--| PAGE-BREAK -->
 
 ## Advanced options
@@ -166,6 +189,8 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- PAGE-BREAK -->
 <!-- live-site-shield -->
 <!-- col-widths: 30% 70% -->
+<!-- theme-color: #ff6b35 -->
+<!-- font-size: 1.2em -->
 ```
 
 <!--| PAGE-BREAK -->

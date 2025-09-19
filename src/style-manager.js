@@ -22,7 +22,8 @@ class StyleManager {
     isHtmlFile = false,
     themeColor = null,
     config = {},
-    singlePage = false
+    singlePage = false,
+    baseFontSize = null
   ) {
     let cssContent = "";
 
@@ -76,6 +77,11 @@ class StyleManager {
     // Apply theme color (use default #808 if not specified)
     const effectiveThemeColor = themeColor || "808";
     cssContent = this.applyThemeColor(cssContent, effectiveThemeColor, config);
+
+    // Apply base font size if specified
+    if (baseFontSize) {
+      cssContent = this.applyBaseFontSize(cssContent, baseFontSize);
+    }
 
     // Apply single-page modifications if requested
     if (singlePage) {
@@ -246,6 +252,19 @@ ${htmlContent}
     updatedCss = updatedCss.replace(/solid #880088/g, `solid ${resolvedColor}`);
 
     return updatedCss;
+  }
+
+  applyBaseFontSize(cssContent, baseFontSize) {
+    console.log(chalk.blue(`📏 Applying base font size:`, baseFontSize));
+
+    // Add CSS custom property for base font size and apply it to body
+    const fontSizeRule = `
+/* Base font size override from document settings */
+:root { --base-font-size: ${baseFontSize}; }
+body { font-size: var(--base-font-size) !important; }
+`;
+
+    return fontSizeRule + cssContent;
   }
 
   hexToRgba(hex, alpha) {

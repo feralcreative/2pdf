@@ -106,6 +106,13 @@ class ToPdf {
         htmlContent = await this.contentProcessor.markdownToHtml(processedContent);
       }
 
+      // Get document settings extracted from the content
+      const documentSettings = this.contentProcessor.getDocumentSettings();
+
+      // Use document settings for theme color and font size, with CLI options as fallback
+      const effectiveThemeColor = documentSettings.themeColor || this.options.themeColor;
+      const baseFontSize = documentSettings.baseFontSize;
+
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
       const isHtmlFile = fileExtension === ".html" || fileExtension === ".htm";
@@ -113,9 +120,10 @@ class ToPdf {
         htmlContent,
         this.options.stylePath,
         isHtmlFile,
-        this.options.themeColor,
+        effectiveThemeColor,
         config,
-        this.options.singlePage
+        this.options.singlePage,
+        baseFontSize
       );
 
       // Save styled HTML to temp file
