@@ -1,12 +1,10 @@
-<!-- theme-color: #D95512 -->
+<!-- theme-color: #880088 -->
 <!-- font-size: 1em -->
 
-# 2pdf
+# {{PROJECT_NAME}} <updated>{{DATE}} {{TIME}}{{TIMEZONE}}</updated>
 
 Converts Markdown and HTML files to PDFs with token replacement, styling, and content processing features.
 
-> Note: This is a test.
->
 ## What it does
 
 - Converts Markdown and HTML to PDF using Chrome/Puppeteer
@@ -62,8 +60,9 @@ Insert dynamic content using `{{TOKEN_NAME}}` placeholders:
 
 - `{{DATE}}` - Current date (2024-01-15)
 - `{{DATE_LONG}}` - Current date (January 15, 2024)  
-- `{{TIME_NOW}}` - Current time (14:30)
+- `{{TIME}}` - Current time (14:30)
 - `{{YEAR}}`, `{{MONTH}}`, `{{DAY}}` - Date components
+- `{{TIMEZONE}}` - Current timezone (PST, EST, UTC, etc.)
 - `{{USERNAME}}`, `{{HOSTNAME}}` - System info
 - `{{PROJECT_NAME}}` - Auto-generated from directory name
 
@@ -76,11 +75,10 @@ DEVELOPER_NAME=John Doe
 PROJECT_VERSION=2.1.0
 COMPANY_NAME=Acme Corp
 ```
-<!--| PAGE-BREAK -->
 
-### Special content features
+## Special content features
 
-#### PDF-only content
+### 1. PDF-only content
 
 Content that only appears in the PDF:
 
@@ -88,7 +86,7 @@ Content that only appears in the PDF:
 <!-- PDF ONLY This text only appears in the PDF version -->
 ```
 
-#### Page breaks
+### 2. Page breaks
 
 Force a new page:
 
@@ -97,21 +95,29 @@ Content here...
 <!-- PAGE-BREAK -->
 Content on next page...
 ```
+<!--| PAGE-BREAK -->
 
-#### Live site shields
+### 3. Live site shields
 
 Style a paragraph as a badge:
 
 ```markdown
-
 <!-- live-site-shield -->
 Live Site: https://example.com
-
 ```
 
-#### Table column widths
+<!-- live-site-shield -->
+Live Site: <https://example.com>
+
+### 4. Table column widths
 
 Control table column widths with HTML comments:
+
+#### Example 1
+<!-- col-widths: 30% 70% -->
+| Name | Description |
+|------|-------------|
+| Item | Long description text that needs more space |
 
 ```markdown
 <!-- col-widths: 30% 70% -->
@@ -120,7 +126,7 @@ Control table column widths with HTML comments:
 | Item | Long description text that needs more space |
 ```
 
-You can use any CSS width values:
+#### Example 2
 
 ```markdown
 <!-- col-widths: 100px 200px 50% -->
@@ -128,8 +134,14 @@ You can use any CSS width values:
 |----|------|-------|
 | 1  | Test | Some notes |
 ```
+<!-- col-widths: 100px 200px 50% -->
+| ID | Name | Notes |
+|----|------|-------|
+| 1  | Test | Some notes |
 
-#### Document styling
+<!--| PAGE-BREAK -->
+
+## Document styling
 
 Set theme colors and font sizes directly in your document:
 
@@ -150,8 +162,6 @@ Content with custom orange theme and larger font size...
 
 - Relative units: `1.2em`, `0.9em`, `110%`, `90%`
 - Absolute units: `14px`, `16px`, `12pt`
-
-<!--| PAGE-BREAK -->
 
 ## Advanced options
 
@@ -178,6 +188,8 @@ COLOR_GREEN=#27ae60
 COLOR_CORPORATE=#2c3e50
 COLOR_ORANGE=#ff6b35
 ```
+
+<!--| PAGE-BREAK -->
 
 ### Single-page mode
 

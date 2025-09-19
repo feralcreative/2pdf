@@ -119,15 +119,20 @@ class ConfigManager {
     const hostname = os.hostname();
     const username = os.userInfo().username;
 
+    // Get timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timezoneShort = now.toLocaleString("en", { timeZoneName: "short" }).split(" ").pop();
+
     return {
       DATE: dateToday,
       DATE_LONG: dateTodayLong,
-      TIME_NOW: timeNow,
+      TIME: timeNow,
       DATETIME_NOW: datetimeNow,
       TIMESTAMP: timestamp,
       YEAR: year.toString(),
       MONTH: month,
       DAY: day,
+      TIMEZONE: timezoneShort,
       HOSTNAME: hostname,
       USERNAME: username,
       PWD: this.currentDir,

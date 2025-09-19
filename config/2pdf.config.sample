@@ -51,7 +51,8 @@ PROJECT_REPO=https://github.com/feralcreative/2pdf
 # Available tokens:
 # {{DATE}} - Current date in YYYY-MM-DD format
 # {{DATE_LONG}} - Current date in "Month DD, YYYY" format
-# {{TIME_NOW}} - Current time in HH:MM format
+# {{TIME}} - Current time in HH:MM format
+# {{TIMEZONE}} - Current timezone (PST, EST, UTC, etc.)
 # {{DATETIME_NOW}} - Current date and time in "YYYY-MM-DD HH:MM" format
 # {{TIMESTAMP}} - Unix timestamp
 # {{YEAR}} - Current year (YYYY)
