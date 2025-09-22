@@ -1,7 +1,7 @@
 <!-- theme-color: #880088 -->
 <!-- font-size: 1em -->
 
-# {{PROJECT_NAME}} <updated>{{DATE}} {{TIME}}{{TIMEZONE}}</updated>
+# 2PDF
 
 Converts Markdown and HTML files to PDFs with token replacement, styling, and content processing features.
 
