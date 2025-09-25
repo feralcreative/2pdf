@@ -277,7 +277,7 @@ pre * {
     border: 1px solid #e7e7e7;
     border-radius: 4px;
     padding: 2px 4px;
-    font-weight: 700;
+    font-weight: 700; // Keep inline code at current weight
     // color: #d73a49;
     color: var(--theme-color);
     font-size: 0.75em !important;
@@ -290,7 +290,7 @@ pre * {
     padding: 0.5em;
     margin: 16px 0;
     overflow-x: auto;
-    font-weight: 600;
+    font-weight: 400; // Reduced from 600 to 400 for fenced code blocks
     color: blue;
 
     code {
@@ -298,6 +298,7 @@ pre * {
       border: none;
       padding: 0;
       color: #24292e;
+      font-weight: 400; // Reduced from inherited 600 to 400 for code inside pre blocks
     }
 
     p {

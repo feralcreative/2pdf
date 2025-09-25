@@ -61,6 +61,24 @@ class ContentProcessor {
       console.log(chalk.blue(`🎨 Found theme color in document:`, color));
     }
 
+    // Extract body text color from comments like <!-- body-color: #333333 -->
+    const bodyColorRegex = /<!--\s*body-color:\s*([^-]+?)\s*-->/i;
+    const bodyColorMatch = content.match(bodyColorRegex);
+    if (bodyColorMatch) {
+      const color = bodyColorMatch[1].trim();
+      settings.bodyColor = color;
+      console.log(chalk.blue(`📝 Found body color in document:`, color));
+    }
+
+    // Extract link color from comments like <!-- link-color: #0066cc -->
+    const linkColorRegex = /<!--\s*link-color:\s*([^-]+?)\s*-->/i;
+    const linkColorMatch = content.match(linkColorRegex);
+    if (linkColorMatch) {
+      const color = linkColorMatch[1].trim();
+      settings.linkColor = color;
+      console.log(chalk.blue(`🔗 Found link color in document:`, color));
+    }
+
     // Extract base font size from comments like <!-- font-size: 1.2em -->
     const fontSizeRegex = /<!--\s*font-size:\s*([^-]+?)\s*-->/i;
     const fontSizeMatch = content.match(fontSizeRegex);
@@ -68,6 +86,65 @@ class ContentProcessor {
       const fontSize = fontSizeMatch[1].trim();
       settings.baseFontSize = fontSize;
       console.log(chalk.blue(`📏 Found base font size in document:`, fontSize));
+    }
+
+    // Extract link underline setting from comments like <!-- link-underline: on --> or <!-- link-underline: off -->
+    const linkUnderlineRegex = /<!--\s*link-underline:\s*([^-]+?)\s*-->/i;
+    const linkUnderlineMatch = content.match(linkUnderlineRegex);
+    if (linkUnderlineMatch) {
+      const underlineSetting = linkUnderlineMatch[1].trim().toLowerCase();
+      settings.linkUnderline = underlineSetting === "on" || underlineSetting === "true" || underlineSetting === "yes";
+      console.log(chalk.blue(`🔗 Found link underline setting in document:`, underlineSetting));
+    }
+
+    // Extract header size from comments like <!-- header-size: 1.5em -->
+    const headerSizeRegex = /<!--\s*header-size:\s*([^-]+?)\s*-->/i;
+    const headerSizeMatch = content.match(headerSizeRegex);
+    if (headerSizeMatch) {
+      const headerSize = headerSizeMatch[1].trim();
+      settings.headerSize = headerSize;
+      console.log(chalk.blue(`📏 Found header size in document:`, headerSize));
+    }
+
+    // Extract body size from comments like <!-- body-size: 0.9em -->
+    const bodySizeRegex = /<!--\s*body-size:\s*([^-]+?)\s*-->/i;
+    const bodySizeMatch = content.match(bodySizeRegex);
+    if (bodySizeMatch) {
+      const bodySize = bodySizeMatch[1].trim();
+      settings.bodySize = bodySize;
+      console.log(chalk.blue(`📏 Found body size in document:`, bodySize));
+    }
+
+    // Extract page numbers setting from comments like <!-- page-numbers: on --> or <!-- page-numbers: X --> or <!-- page-numbers: X of Y -->
+    const pageNumbersRegex = /<!--\s*page-numbers:\s*([^-]+?)\s*-->/i;
+    const pageNumbersMatch = content.match(pageNumbersRegex);
+    if (pageNumbersMatch) {
+      const pageNumbersSetting = pageNumbersMatch[1].trim().toLowerCase();
+      if (
+        pageNumbersSetting === "on" ||
+        pageNumbersSetting === "true" ||
+        pageNumbersSetting === "yes" ||
+        pageNumbersSetting === "x of y"
+      ) {
+        settings.pageNumbers = true;
+        settings.pageNumberFormat = pageNumbersSetting === "x" ? "X" : "X of Y";
+      } else if (pageNumbersSetting === "x") {
+        settings.pageNumbers = true;
+        settings.pageNumberFormat = "X";
+      } else {
+        settings.pageNumbers = false;
+        settings.pageNumberFormat = "X of Y";
+      }
+      console.log(chalk.blue(`📄 Found page numbers setting in document:`, pageNumbersSetting));
+    }
+
+    // Extract disclosure from comments like <!-- disclosure: Internal Use Only / CONFIDENTIAL -->
+    const disclosureRegex = /<!--\s*disclosure:\s*([^-]+?)\s*-->/i;
+    const disclosureMatch = content.match(disclosureRegex);
+    if (disclosureMatch) {
+      const disclosure = disclosureMatch[1].trim();
+      settings.disclosure = disclosure;
+      console.log(chalk.blue(`📄 Found disclosure in document:`, disclosure));
     }
 
     return settings;
@@ -135,6 +212,13 @@ class ContentProcessor {
     console.log(chalk.blue("📝 Converting markdown to HTML..."));
 
     try {
+      // Extract document title from first H1 before converting to HTML
+      const h1Match = markdownContent.match(/^#\s+(.+)$/m);
+      if (h1Match) {
+        this.documentSettings.documentTitle = h1Match[1].trim();
+        console.log(chalk.blue(`📄 Found document title:`, this.documentSettings.documentTitle));
+      }
+
       // Convert markdown to HTML
       let htmlContent = marked(markdownContent);
 

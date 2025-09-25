@@ -49,7 +49,15 @@ class PdfGenerator {
     }
   }
 
-  async generatePdf(htmlPath, outputPath, singlePage = false) {
+  async generatePdf(
+    htmlPath,
+    outputPath,
+    singlePage = false,
+    pageNumbers = false,
+    documentTitle = "",
+    disclosure = "",
+    pageNumberFormat = "X of Y"
+  ) {
     let browser = null;
 
     try {
@@ -130,14 +138,26 @@ class PdfGenerator {
           margin: {
             top: "0.5in",
             right: "0.5in",
-            bottom: "0.5in",
+            bottom: pageNumbers ? "0.75in" : "0.5in", // Extra space for page numbers
             left: "0.5in",
           },
           printBackground: true,
           preferCSSPageSize: false, // Use our custom dimensions
-          displayHeaderFooter: false,
-          headerTemplate: "",
-          footerTemplate: "",
+          displayHeaderFooter: pageNumbers,
+          headerTemplate: "<div></div>", // Completely empty header
+          footerTemplate: pageNumbers
+            ? `<div style="font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0 0.5in;">
+                <span style="color: #666; justify-self: start;">${documentTitle || ""}</span>
+                <span style="color: #666; text-transform: uppercase; justify-self: center;">${disclosure || ""}</span>
+                <span style="color: #666; justify-self: end;">${new Date()
+                  .toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                  .replace(/,/g, "")} <span style="color: #ccc;">|</span> ${
+                pageNumberFormat === "X"
+                  ? '<span class="pageNumber"></span>'
+                  : '<span class="pageNumber"></span> of <span class="totalPages"></span>'
+              }</span>
+              </div>`
+            : "",
         };
       } else {
         // Standard multi-page mode
@@ -147,14 +167,26 @@ class PdfGenerator {
           margin: {
             top: "0.5in",
             right: "0.5in",
-            bottom: "0.5in",
+            bottom: pageNumbers ? "0.75in" : "0.5in", // Extra space for page numbers
             left: "0.5in",
           },
           printBackground: true,
           preferCSSPageSize: false,
-          displayHeaderFooter: false,
-          headerTemplate: "",
-          footerTemplate: "",
+          displayHeaderFooter: pageNumbers,
+          headerTemplate: "<div></div>", // Completely empty header
+          footerTemplate: pageNumbers
+            ? `<div style="font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0 0.5in;">
+                <span style="color: #666; justify-self: start;">${documentTitle || ""}</span>
+                <span style="color: #666; text-transform: uppercase; justify-self: center;">${disclosure || ""}</span>
+                <span style="color: #666; justify-self: end;">${new Date()
+                  .toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                  .replace(/,/g, "")} <span style="color: #ccc;">|</span> ${
+                pageNumberFormat === "X"
+                  ? '<span class="pageNumber"></span>'
+                  : '<span class="pageNumber"></span> of <span class="totalPages"></span>'
+              }</span>
+              </div>`
+            : "",
         };
       }
 

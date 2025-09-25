@@ -1,7 +1,31 @@
 <!-- theme-color: #880088 -->
-<!-- font-size: 1em -->
+<!-- Options: any hex color, e.g. #ff6b35, #1434cb, #27ae60 -->
 
-# 2PDF
+<!-- body-color: #222222 -->
+<!-- Options: any hex color, e.g. #333333, #2c3e50 -->
+
+<!-- link-color: #ff00ff -->
+<!-- Options: any hex color, e.g. #0066cc, #3498db, #e74c3c -->
+
+<!-- link-underline: on -->
+<!-- Options: on, off, true, false, yes, no -->
+
+<!-- font-size: 1em -->
+<!-- Options: any CSS size, e.g. 16px, 1.2em, 0.9rem -->
+
+<!-- header-size: 0.9em -->
+<!-- Options: any CSS size, scales all headers proportionally -->
+
+<!-- body-size: 1em -->
+<!-- Options: any CSS size, affects paragraphs, lists, tables -->
+
+<!-- page-numbers: on -->
+<!-- Options: on, off, X, X of Y -->
+
+<!-- disclosure: Internal Use Only -->
+<!-- Options: any text, appears uppercase in center footer -->
+
+# {{PROJECT_NAME}}
 
 Converts Markdown and HTML files to PDFs with token replacement, styling, and content processing features.
 
@@ -143,25 +167,59 @@ Control table column widths with HTML comments:
 
 ## Document styling
 
-Set theme colors and font sizes directly in your document:
+Set theme colors, text colors, and font sizes directly in your document:
 
 ```markdown
 <!-- theme-color: #ff6b35 -->
+<!-- body-color: #2c3e50 -->
+<!-- link-color: #3498db -->
+<!-- link-underline: off -->
 <!-- font-size: 1.2em -->
+<!-- header-size: 1.3em -->
+<!-- body-size: 0.9em -->
+<!-- page-numbers: on -->
 
 # Your Document Title
-Content with custom orange theme and larger font size...
+Content with custom styling...
 ```
 
-**Theme color options:**
+**Color options:**
 
-- Hex colors: `#ff6b35`, `#1434cb`, `#27ae60`
-- Short hex: `#f60`, `#14c`, `#2a6`
+- **theme-color**: Headers, blockquotes, inline code (`#ff6b35`, `#1434cb`, `#27ae60`)
+- **body-color**: All body text, paragraphs, lists (`#2c3e50`, `#333333`)
+- **link-color**: Hyperlinks (`#3498db`, `#e74c3c`)
 
-**Font size options:**
+**Text decoration:**
 
-- Relative units: `1.2em`, `0.9em`, `110%`, `90%`
-- Absolute units: `14px`, `16px`, `12pt`
+- **link-underline**: `on` or `off` - controls link underlines
+
+**Font sizing:**
+
+- **font-size**: Root font size (`1.2em`, `14px`, `16px`)
+- **header-size**: All headers scale from this (`1.3em`, `1.1em`)
+- **body-size**: Paragraphs, lists, tables (`0.9em`, `1.1em`)
+
+**Page features:**
+
+- **page-numbers**: `on`, `off`, `X`, or `X of Y` - controls footer page numbering
+- **disclosure**: Brief text for center footer (e.g., `Internal Use Only`, `CONFIDENTIAL`)
+
+### Footer Layout
+
+When page numbers are enabled, the footer has three sections:
+
+**Left**: Document title (from H1) | Date (DD MMM YYYY format)
+**Center**: Disclosure text (uppercase, optional)
+**Right**: Page numbers (X or X of Y format)
+
+```markdown
+<!-- page-numbers: X -->
+<!-- disclosure: Internal Use Only -->
+
+# My Document Title
+```
+
+Results in footer: `My Document Title | 25 Dec 2024` | `INTERNAL USE ONLY` | `1`
 
 ## Advanced options
 
@@ -224,7 +282,14 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- live-site-shield -->
 <!-- col-widths: 30% 70% -->
 <!-- theme-color: #ff6b35 -->
+<!-- body-color: #2c3e50 -->
+<!-- link-color: #3498db -->
+<!-- link-underline: off -->
 <!-- font-size: 1.2em -->
+<!-- header-size: 1.3em -->
+<!-- body-size: 0.9em -->
+<!-- page-numbers: X of Y -->
+<!-- disclosure: Internal Use Only -->
 ```
 
 <!--| PAGE-BREAK -->

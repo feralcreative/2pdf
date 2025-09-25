@@ -109,9 +109,18 @@ class ToPdf {
       // Get document settings extracted from the content
       const documentSettings = this.contentProcessor.getDocumentSettings();
 
-      // Use document settings for theme color and font size, with CLI options as fallback
+      // Use document settings for colors and font size, with CLI options as fallback
       const effectiveThemeColor = documentSettings.themeColor || this.options.themeColor;
+      const bodyColor = documentSettings.bodyColor;
+      const linkColor = documentSettings.linkColor;
+      const linkUnderline = documentSettings.linkUnderline;
       const baseFontSize = documentSettings.baseFontSize;
+      const headerSize = documentSettings.headerSize;
+      const bodySize = documentSettings.bodySize;
+      const pageNumbers = documentSettings.pageNumbers;
+      const pageNumberFormat = documentSettings.pageNumberFormat || "X of Y";
+      const documentTitle = documentSettings.documentTitle;
+      const disclosure = documentSettings.disclosure;
 
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
@@ -123,7 +132,12 @@ class ToPdf {
         effectiveThemeColor,
         config,
         this.options.singlePage,
-        baseFontSize
+        baseFontSize,
+        bodyColor,
+        linkColor,
+        linkUnderline,
+        headerSize,
+        bodySize
       );
 
       // Save styled HTML to temp file
@@ -140,7 +154,15 @@ class ToPdf {
         this.options.outputPath ||
         path.join(path.dirname(inputPath), path.basename(inputFile, path.extname(inputFile)) + ".pdf");
 
-      await this.pdfGenerator.generatePdf(htmlPath, outputPath, this.options.singlePage);
+      await this.pdfGenerator.generatePdf(
+        htmlPath,
+        outputPath,
+        this.options.singlePage,
+        pageNumbers,
+        documentTitle,
+        disclosure,
+        pageNumberFormat
+      );
 
       // Get file stats
       const stats = await fs.stat(outputPath);

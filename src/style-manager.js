@@ -23,7 +23,12 @@ class StyleManager {
     themeColor = null,
     config = {},
     singlePage = false,
-    baseFontSize = null
+    baseFontSize = null,
+    bodyColor = null,
+    linkColor = null,
+    linkUnderline = null,
+    headerSize = null,
+    bodySize = null
   ) {
     let cssContent = "";
 
@@ -81,6 +86,31 @@ class StyleManager {
     // Apply base font size if specified
     if (baseFontSize) {
       cssContent = this.applyBaseFontSize(cssContent, baseFontSize);
+    }
+
+    // Apply body color if specified
+    if (bodyColor) {
+      cssContent = this.applyBodyColor(cssContent, bodyColor);
+    }
+
+    // Apply link color if specified
+    if (linkColor) {
+      cssContent = this.applyLinkColor(cssContent, linkColor);
+    }
+
+    // Apply link underline setting if specified
+    if (linkUnderline !== null) {
+      cssContent = this.applyLinkUnderline(cssContent, linkUnderline);
+    }
+
+    // Apply header size if specified
+    if (headerSize) {
+      cssContent = this.applyHeaderSize(cssContent, headerSize);
+    }
+
+    // Apply body size if specified
+    if (bodySize) {
+      cssContent = this.applyBodySize(cssContent, bodySize);
     }
 
     // Apply single-page modifications if requested
@@ -265,6 +295,88 @@ body { font-size: var(--base-font-size) !important; }
 `;
 
     return fontSizeRule + cssContent;
+  }
+
+  applyBodyColor(cssContent, bodyColor) {
+    console.log(chalk.blue(`📝 Applying body color:`, bodyColor));
+
+    // Add CSS rule for body text color
+    const bodyColorRule = `
+/* Body text color override from document settings */
+body, p, li, td, th, div, span {
+  color: ${bodyColor} !important;
+}
+`;
+
+    return bodyColorRule + cssContent;
+  }
+
+  applyLinkColor(cssContent, linkColor) {
+    console.log(chalk.blue(`🔗 Applying link color:`, linkColor));
+
+    // Add CSS rule for link colors
+    const linkColorRule = `
+/* Link color override from document settings */
+a, a:link, a:visited {
+  color: ${linkColor} !important;
+}
+a:hover, a:active {
+  color: ${linkColor} !important;
+  opacity: 0.8;
+}
+`;
+
+    return linkColorRule + cssContent;
+  }
+
+  applyLinkUnderline(cssContent, linkUnderline) {
+    const underlineText = linkUnderline ? "on" : "off";
+    console.log(chalk.blue(`🔗 Applying link underline:`, underlineText));
+
+    // Add CSS rule for link text decoration
+    const textDecoration = linkUnderline ? "underline" : "none";
+    const linkUnderlineRule = `
+/* Link underline override from document settings */
+a, a:link, a:visited {
+  text-decoration: ${textDecoration} !important;
+}
+a:hover, a:active {
+  text-decoration: ${textDecoration} !important;
+}
+`;
+
+    return linkUnderlineRule + cssContent;
+  }
+
+  applyHeaderSize(cssContent, headerSize) {
+    console.log(chalk.blue(`📏 Applying header size:`, headerSize));
+
+    // Add CSS rule for header sizes - scale all headers proportionally
+    const headerSizeRule = `
+/* Header size override from document settings */
+h1 { font-size: calc(${headerSize} * 2.5) !important; }
+h2 { font-size: calc(${headerSize} * 2.0) !important; }
+h3 { font-size: calc(${headerSize} * 1.75) !important; }
+h4 { font-size: calc(${headerSize} * 1.5) !important; }
+h5 { font-size: calc(${headerSize} * 1.25) !important; }
+h6 { font-size: calc(${headerSize} * 1.1) !important; }
+`;
+
+    return headerSizeRule + cssContent;
+  }
+
+  applyBodySize(cssContent, bodySize) {
+    console.log(chalk.blue(`📏 Applying body size:`, bodySize));
+
+    // Add CSS rule for body text sizes
+    const bodySizeRule = `
+/* Body text size override from document settings */
+p, li, td, th, div, span, blockquote {
+  font-size: ${bodySize} !important;
+}
+`;
+
+    return bodySizeRule + cssContent;
   }
 
   hexToRgba(hex, alpha) {
