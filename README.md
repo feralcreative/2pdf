@@ -1,29 +1,12 @@
 <!-- theme-color: #880088 -->
-<!-- Options: any hex color, e.g. #ff6b35, #1434cb, #27ae60 -->
-
 <!-- body-color: #222222 -->
-<!-- Options: any hex color, e.g. #333333, #2c3e50 -->
-
-<!-- link-color: #ff00ff -->
-<!-- Options: any hex color, e.g. #0066cc, #3498db, #e74c3c -->
-
+<!-- link-color: #0066cc -->
 <!-- link-underline: on -->
-<!-- Options: on, off, true, false, yes, no -->
-
 <!-- font-size: 1em -->
-<!-- Options: any CSS size, e.g. 16px, 1.2em, 0.9rem -->
-
 <!-- header-size: 0.9em -->
-<!-- Options: any CSS size, scales all headers proportionally -->
-
 <!-- body-size: 1em -->
-<!-- Options: any CSS size, affects paragraphs, lists, tables -->
-
 <!-- page-numbers: on -->
-<!-- Options: on, off, X, X of Y -->
-
 <!-- disclosure: Internal Use Only -->
-<!-- Options: any text, appears uppercase in center footer -->
 
 # {{PROJECT_NAME}}
 
