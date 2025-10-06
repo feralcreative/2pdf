@@ -7,6 +7,8 @@
 <!-- body-size: 1em -->
 <!-- page-numbers: on -->
 <!-- disclosure: Internal Use Only -->
+<!-- sequential-output: on-->
+<!-- version-number: 00.02 -->
 
 # {{PROJECT_NAME}}
 
@@ -187,6 +189,11 @@ Content with custom styling...
 - **page-numbers**: `on`, `off`, `X`, or `X of Y` - controls footer page numbering
 - **disclosure**: Brief text for center footer (e.g., `Internal Use Only`, `CONFIDENTIAL`)
 
+**Output features:**
+
+- **sequential-output**: `on` or `off` - enables versioned output filenames
+- **version-number**: `XX.YY` format - auto-increments with each PDF generation
+
 ### Footer Layout
 
 When page numbers are enabled, the footer has three sections:
@@ -203,6 +210,27 @@ When page numbers are enabled, the footer has three sections:
 ```
 
 Results in footer: `My Document Title | 25 Dec 2024` | `INTERNAL USE ONLY` | `1`
+
+### Sequential Output
+
+Automatically version your PDF outputs with incremental version numbers:
+
+```markdown
+<!-- sequential-output: on -->
+<!-- version-number: 00.00 -->
+
+# My Document
+```
+
+**How it works:**
+
+1. **First run**: Outputs `my-document-v00.00.pdf`, updates version to `00.01`
+2. **Second run**: Outputs `my-document-v00.01.pdf`, updates version to `00.02`
+3. **Continues**: `00.02` → `00.03` → ... → `00.99` → `01.00` → `01.01`
+
+**Version format**: `XX.YY` (major.minor, 00-99 each)
+**Auto-increment**: Source file is automatically updated with new version
+**Filename**: `document-vXX.YY.pdf` format
 
 ## Advanced options
 
@@ -273,6 +301,8 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- body-size: 0.9em -->
 <!-- page-numbers: X of Y -->
 <!-- disclosure: Internal Use Only -->
+<!-- sequential-output: on -->
+<!-- version-number: 00.00 -->
 ```
 
 <!--| PAGE-BREAK -->

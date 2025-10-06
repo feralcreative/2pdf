@@ -147,6 +147,25 @@ class ContentProcessor {
       console.log(chalk.blue(`📄 Found disclosure in document:`, disclosure));
     }
 
+    // Extract sequential output setting from comments like <!-- sequential-output: on -->
+    const sequentialOutputRegex = /<!--\s*sequential-output:\s*([^-]+?)\s*-->/i;
+    const sequentialOutputMatch = content.match(sequentialOutputRegex);
+    if (sequentialOutputMatch) {
+      const sequentialOutputSetting = sequentialOutputMatch[1].trim().toLowerCase();
+      settings.sequentialOutput =
+        sequentialOutputSetting === "on" || sequentialOutputSetting === "true" || sequentialOutputSetting === "yes";
+      console.log(chalk.blue(`📄 Found sequential output setting in document:`, sequentialOutputSetting));
+    }
+
+    // Extract version number from comments like <!-- version-number: 00.01 -->
+    const versionNumberRegex = /<!--\s*version-number:\s*([^-]+?)\s*-->/i;
+    const versionNumberMatch = content.match(versionNumberRegex);
+    if (versionNumberMatch) {
+      const versionNumber = versionNumberMatch[1].trim();
+      settings.versionNumber = versionNumber;
+      console.log(chalk.blue(`📄 Found version number in document:`, versionNumber));
+    }
+
     return settings;
   }
 

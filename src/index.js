@@ -50,6 +50,63 @@ class ToPdf {
     }
   }
 
+  // Version utility functions for sequential output
+  parseVersion(versionString) {
+    const match = versionString.match(/^(\d{2})\.(\d{2})$/);
+    if (!match) return { major: 0, minor: 0 };
+    return { major: parseInt(match[1]), minor: parseInt(match[2]) };
+  }
+
+  incrementVersion(major, minor) {
+    minor++;
+    if (minor > 99) {
+      minor = 0;
+      major++;
+      if (major > 99) {
+        major = 0; // Wrap around to 00.00
+      }
+    }
+    return { major, minor };
+  }
+
+  formatVersion(major, minor) {
+    return `${major.toString().padStart(2, "0")}.${minor.toString().padStart(2, "0")}`;
+  }
+
+  async updateVersionInFile(filePath, newVersion) {
+    try {
+      const content = await fs.readFile(filePath, "utf8");
+      const versionRegex = /<!--\s*version-number:\s*([^-]+?)\s*-->/i;
+
+      if (versionRegex.test(content)) {
+        // Replace existing version
+        const updatedContent = content.replace(versionRegex, `<!-- version-number: ${newVersion} -->`);
+        await fs.writeFile(filePath, updatedContent, "utf8");
+        console.log(chalk.green(`📄 Updated version number to ${newVersion} in ${path.basename(filePath)}`));
+      } else {
+        // Add new version comment after the last HTML comment at the top
+        const lines = content.split("\n");
+        let insertIndex = 0;
+
+        // Find the last HTML comment at the beginning of the file
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].trim().startsWith("<!--") && lines[i].trim().endsWith("-->")) {
+            insertIndex = i + 1;
+          } else if (lines[i].trim() !== "") {
+            break; // Stop at first non-empty, non-comment line
+          }
+        }
+
+        lines.splice(insertIndex, 0, `<!-- version-number: ${newVersion} -->`);
+        const updatedContent = lines.join("\n");
+        await fs.writeFile(filePath, updatedContent, "utf8");
+        console.log(chalk.green(`📄 Added version number ${newVersion} to ${path.basename(filePath)}`));
+      }
+    } catch (error) {
+      console.log(chalk.yellow(`⚠️ Warning: Could not update version number in file: ${error.message}`));
+    }
+  }
+
   async convert(inputFile = "README.md") {
     try {
       // Ensure temp directory exists
@@ -121,6 +178,8 @@ class ToPdf {
       const pageNumberFormat = documentSettings.pageNumberFormat || "X of Y";
       const documentTitle = documentSettings.documentTitle;
       const disclosure = documentSettings.disclosure;
+      const sequentialOutput = documentSettings.sequentialOutput;
+      const versionNumber = documentSettings.versionNumber || "00.00";
 
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
@@ -150,9 +209,11 @@ class ToPdf {
 
       // Generate PDF
       console.log(chalk.blue("📄 Converting to PDF..."));
+      // Generate output path with optional version suffix
+      const baseName = path.basename(inputFile, path.extname(inputFile));
+      const versionSuffix = sequentialOutput ? `-v${versionNumber}` : "";
       const outputPath =
-        this.options.outputPath ||
-        path.join(path.dirname(inputPath), path.basename(inputFile, path.extname(inputFile)) + ".pdf");
+        this.options.outputPath || path.join(path.dirname(inputPath), baseName + versionSuffix + ".pdf");
 
       await this.pdfGenerator.generatePdf(
         htmlPath,
@@ -167,6 +228,14 @@ class ToPdf {
       // Get file stats
       const stats = await fs.stat(outputPath);
       const fileSize = this.formatFileSize(stats.size);
+
+      // Update version number if sequential output is enabled
+      if (sequentialOutput) {
+        const { major, minor } = this.parseVersion(versionNumber);
+        const { major: newMajor, minor: newMinor } = this.incrementVersion(major, minor);
+        const newVersion = this.formatVersion(newMajor, newMinor);
+        await this.updateVersionInFile(inputPath, newVersion);
+      }
 
       // Open PDF if requested (macOS only)
       let opened = false;
