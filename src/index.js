@@ -181,6 +181,8 @@ class ToPdf {
       const sequentialOutput = documentSettings.sequentialOutput;
       const versionNumber = documentSettings.versionNumber || "00.00";
       const lineHeight = documentSettings.lineHeight;
+      const paragraphSpacing = documentSettings.paragraphSpacing;
+      const headerSpacing = documentSettings.headerSpacing;
 
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
@@ -198,7 +200,9 @@ class ToPdf {
         linkUnderline,
         headerSize,
         bodySize,
-        lineHeight
+        lineHeight,
+        paragraphSpacing,
+        headerSpacing
       );
 
       // Save styled HTML to temp file

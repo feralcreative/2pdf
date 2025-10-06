@@ -175,6 +175,24 @@ class ContentProcessor {
       console.log(chalk.blue(`📏 Found line height in document:`, lineHeight));
     }
 
+    // Extract paragraph spacing from comments like <!-- paragraph-spacing: 1em -->
+    const paragraphSpacingRegex = /<!--\s*paragraph-spacing:\s*([^-]+?)\s*-->/i;
+    const paragraphSpacingMatch = content.match(paragraphSpacingRegex);
+    if (paragraphSpacingMatch) {
+      const paragraphSpacing = paragraphSpacingMatch[1].trim();
+      settings.paragraphSpacing = paragraphSpacing;
+      console.log(chalk.blue(`📏 Found paragraph spacing in document:`, paragraphSpacing));
+    }
+
+    // Extract header spacing from comments like <!-- header-spacing: 1.5em -->
+    const headerSpacingRegex = /<!--\s*header-spacing:\s*([^-]+?)\s*-->/i;
+    const headerSpacingMatch = content.match(headerSpacingRegex);
+    if (headerSpacingMatch) {
+      const headerSpacing = headerSpacingMatch[1].trim();
+      settings.headerSpacing = headerSpacing;
+      console.log(chalk.blue(`📏 Found header spacing in document:`, headerSpacing));
+    }
+
     return settings;
   }
 

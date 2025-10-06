@@ -29,7 +29,9 @@ class StyleManager {
     linkUnderline = null,
     headerSize = null,
     bodySize = null,
-    lineHeight = null
+    lineHeight = null,
+    paragraphSpacing = null,
+    headerSpacing = null
   ) {
     let cssContent = "";
 
@@ -117,6 +119,16 @@ class StyleManager {
     // Apply line height if specified
     if (lineHeight) {
       cssContent = this.applyLineHeight(cssContent, lineHeight);
+    }
+
+    // Apply paragraph spacing if specified
+    if (paragraphSpacing) {
+      cssContent = this.applyParagraphSpacing(cssContent, paragraphSpacing);
+    }
+
+    // Apply header spacing if specified
+    if (headerSpacing) {
+      cssContent = this.applyHeaderSpacing(cssContent, headerSpacing);
     }
 
     // Apply single-page modifications if requested
@@ -397,6 +409,70 @@ body, p, li, td, th, div, span, blockquote, h1, h2, h3, h4, h5, h6, pre, code {
 `;
 
     return lineHeightRule + cssContent;
+  }
+
+  applyParagraphSpacing(cssContent, paragraphSpacing) {
+    console.log(chalk.blue(`📏 Applying paragraph spacing:`, paragraphSpacing));
+
+    // Add CSS rule for paragraph margins
+    const paragraphSpacingRule = `
+/* Paragraph spacing override from document settings */
+p, li, blockquote {
+  margin-top: ${paragraphSpacing} !important;
+  margin-bottom: ${paragraphSpacing} !important;
+}
+ul, ol {
+  margin-top: ${paragraphSpacing} !important;
+  margin-bottom: ${paragraphSpacing} !important;
+}
+`;
+
+    return paragraphSpacingRule + cssContent;
+  }
+
+  applyHeaderSpacing(cssContent, headerSpacing) {
+    console.log(chalk.blue(`📏 Applying header spacing:`, headerSpacing));
+
+    // Add CSS rule for header margins - reduced spacing and special cases
+    const headerSpacingRule = `
+/* Header spacing override from document settings */
+h1 {
+  margin-top: 0 !important; /* H1 should abut top margin */
+  margin-bottom: calc(${headerSpacing} * 1.0) !important;
+}
+h2 {
+  margin-top: calc(${headerSpacing} * 1.0) !important;
+  margin-bottom: calc(${headerSpacing} * 0.8) !important;
+}
+h3 {
+  margin-top: calc(${headerSpacing} * 0.9) !important;
+  margin-bottom: calc(${headerSpacing} * 0.6) !important;
+}
+h4 {
+  margin-top: calc(${headerSpacing} * 0.75) !important;
+  margin-bottom: calc(${headerSpacing} * 0.5) !important;
+}
+h5 {
+  margin-top: calc(${headerSpacing} * 0.6) !important;
+  margin-bottom: calc(${headerSpacing} * 0.4) !important;
+}
+h6 {
+  margin-top: calc(${headerSpacing} * 0.5) !important;
+  margin-bottom: calc(${headerSpacing} * 0.3) !important;
+}
+
+/* Headers after page breaks should have no top margin */
+.page-break + h1,
+.page-break + h2,
+.page-break + h3,
+.page-break + h4,
+.page-break + h5,
+.page-break + h6 {
+  margin-top: 0 !important;
+}
+`;
+
+    return headerSpacingRule + cssContent;
   }
 
   hexToRgba(hex, alpha) {

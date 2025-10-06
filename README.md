@@ -1,15 +1,17 @@
 <!-- theme-color: #880088 -->
 <!-- body-color: #222222 -->
 <!-- link-color: #0066cc -->
-<!-- link-underline: on -->
-<!-- font-size: 1em -->
-<!-- header-size: 0.9em -->
+<!-- link-underline: ON -->
+<!-- font-size: 0.9em -->
+<!-- header-size: 0.75em -->
 <!-- body-size: 1em -->
-<!-- line-height: 1.1em -->
-<!-- page-numbers: on -->
+<!-- line-height: 1em -->
+<!-- paragraph-spacing: 0.5em --> <!-- Options: any CSS margin value, e.g. 0.8em, 12px, 1rem -->
+<!-- header-spacing: 0.75em --> <!-- Options: any CSS margin value, scales by header level -->
+<!-- page-numbers: ON -->
 <!-- disclosure: Internal Use Only -->
-<!-- sequential-output: on-->
-<!-- version-number: 00.05 -->
+<!-- sequential-output: OFF-->
+<!-- version-number: 00.24 -->
 
 # {{PROJECT_NAME}}
 
@@ -105,11 +107,10 @@ Content here...
 <!-- PAGE-BREAK -->
 Content on next page...
 ```
-<!--| PAGE-BREAK -->
 
 ### 3. Live site shields
 
-Style a paragraph as a badge:
+Style a paragraph as a compact badge:
 
 ```markdown
 <!-- live-site-shield -->
@@ -119,15 +120,13 @@ Live Site: https://example.com
 <!-- live-site-shield -->
 Live Site: <https://example.com>
 
+<!--| PAGE-BREAK -->
+
 ### 4. Table column widths
 
 Control table column widths with HTML comments:
 
 #### Example 1
-<!-- col-widths: 30% 70% -->
-| Name | Description |
-|------|-------------|
-| Item | Long description text that needs more space |
 
 ```markdown
 <!-- col-widths: 30% 70% -->
@@ -135,6 +134,11 @@ Control table column widths with HTML comments:
 |------|-------------|
 | Item | Long description text that needs more space |
 ```
+
+<!-- col-widths: 30% 70% -->
+| Name | Description |
+|------|-------------|
+| Item | Long description text that needs more space |
 
 #### Example 2
 
@@ -148,8 +152,6 @@ Control table column widths with HTML comments:
 | ID | Name | Notes |
 |----|------|-------|
 | 1  | Test | Some notes |
-
-<!--| PAGE-BREAK -->
 
 ## Document styling
 
@@ -169,34 +171,41 @@ Set theme colors, text colors, and font sizes directly in your document:
 Content with custom styling...
 ```
 
-**Color options:**
+### Color options
 
 - **theme-color**: Headers, blockquotes, inline code (`#ff6b35`, `#1434cb`, `#27ae60`)
 - **body-color**: All body text, paragraphs, lists (`#2c3e50`, `#333333`)
 - **link-color**: Hyperlinks (`#3498db`, `#e74c3c`)
 
-**Text decoration:**
+### Text decoration
 
 - **link-underline**: `on` or `off` - controls link underlines
 
-**Font sizing:**
+<!--| PAGE-BREAK -->
+
+### Font sizing
 
 - **font-size**: Root font size (`1.2em`, `14px`, `16px`)
 - **header-size**: All headers scale from this (`1.3em`, `1.1em`)
 - **body-size**: Paragraphs, lists, tables (`0.9em`, `1.1em`)
 - **line-height**: Line spacing for all text (`1.2em`, `1.5`, `18px`)
+- **paragraph-spacing**: Margin above/below paragraphs (`0.8em`, `12px`, `1rem`)
+- **header-spacing**: Margin above/below headers, scales by level (`1em`, `16px`)
+  - H1 has no top margin (abuts page margin)
+  - Headers after page breaks have no top margin
+  - Spacing scales: H2(1.0×), H3(0.9×), H4(0.75×), H5(0.6×), H6(0.5×)
 
-**Page features:**
+### Page features
 
 - **page-numbers**: `on`, `off`, `X`, or `X of Y` - controls footer page numbering
 - **disclosure**: Brief text for center footer (e.g., `Internal Use Only`, `CONFIDENTIAL`)
 
-**Output features:**
+### Output features
 
 - **sequential-output**: `on` or `off` - enables versioned output filenames
 - **version-number**: `XX.YY` format - auto-increments with each PDF generation
 
-### Footer Layout
+## Footer Layout
 
 When page numbers are enabled, the footer has three sections:
 
@@ -224,7 +233,7 @@ Automatically version your PDF outputs with incremental version numbers:
 # My Document
 ```
 
-**How it works:**
+#### How it works
 
 1. **First run**: Outputs `my-document-v00.00.pdf`, updates version to `00.01`
 2. **Second run**: Outputs `my-document-v00.01.pdf`, updates version to `00.02`
@@ -233,6 +242,8 @@ Automatically version your PDF outputs with incremental version numbers:
 **Version format**: `XX.YY` (major.minor, 00-99 each)
 **Auto-increment**: Source file is automatically updated with new version
 **Filename**: `document-vXX.YY.pdf` format
+
+<!--| PAGE-BREAK -->
 
 ## Advanced options
 
@@ -260,8 +271,6 @@ COLOR_CORPORATE=#2c3e50
 COLOR_ORANGE=#ff6b35
 ```
 
-<!--| PAGE-BREAK -->
-
 ### Single-page mode
 
 Generate PDFs as one continuous page instead of multiple US Letter pages:
@@ -285,6 +294,8 @@ node bin/2pdf.js file.md --debug        # keep temp files
 node bin/2pdf.js file.md --verbose      # detailed output
 ```
 
+<!--| PAGE-BREAK -->
+
 ### Quick reference
 
 **Special comments for enhanced formatting:**
@@ -306,9 +317,9 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- sequential-output: on -->
 <!-- version-number: 00.00 -->
 <!-- line-height: 1.2em -->
+<!-- paragraph-spacing: 0.8em -->
+<!-- header-spacing: 1em -->
 ```
-
-<!--| PAGE-BREAK -->
 
 ## Configuration
 
@@ -339,6 +350,8 @@ FOOTER_TEXT=Generated on {{DATE}} by {{DEVELOPER_NAME}}
 3. 2pdf installation directory  
 4. `config/` subdirectory in any of the above
 
+<!--| PAGE-BREAK -->
+
 ### Token processing details
 
 - **Multiple passes**: Tokens can reference other tokens
@@ -346,8 +359,6 @@ FOOTER_TEXT=Generated on {{DATE}} by {{DEVELOPER_NAME}}
 - **No whitespace**: Use `{{TOKEN}}`, not `{{ TOKEN }}`
 - **Nested replacement**: `GREETING=Hello {{USERNAME}}` works
 - **Missing tokens**: Left unchanged for debugging
-
-<!--| PAGE-BREAK -->
 
 ### Example workflow
 

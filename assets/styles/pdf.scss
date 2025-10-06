@@ -412,35 +412,37 @@ pre * {
     }
   }
 
-  // Live Site Shield styling - clean badge design
+  // Live Site Shield styling - clean badge design (reduced 40% in size)
   p.live-site-shield {
     display: inline-block !important;
     background: none !important;
     padding: 0 !important;
     margin: 1em 0 !important;
-    border-radius: 6px !important;
-    font-size: 13px !important;
+    border-radius: 4px !important;
+    font-size: 8px !important;
     text-align: left !important;
     overflow: hidden !important;
     white-space: nowrap !important;
     font-family: "Inter", sans-serif !important;
     line-height: 1 !important;
+    vertical-align: middle !important;
 
     .label {
       background: #555 !important;
       color: white !important;
-      padding: 8px 12px !important;
+      padding: 5px 7px !important;
       font-weight: 500 !important;
       display: inline-block !important;
       margin: 0 !important;
-      vertical-align: baseline !important;
-      border-radius: 6px 0 0 6px !important;
+      vertical-align: middle !important;
+      border-radius: 4px 0 0 4px !important;
       line-height: 1.2 !important;
+      font-size: 8px !important;
 
       &::before {
         content: "🌐 ";
-        margin-right: 6px !important;
-        vertical-align: baseline !important;
+        margin-right: 4px !important;
+        vertical-align: middle !important;
         display: inline-block !important;
       }
     }
@@ -448,15 +450,15 @@ pre * {
     .url {
       background: var(--theme-color) !important;
       color: #ffffff !important;
-      padding: 8px 12px !important;
+      padding: 5px 7px !important;
       font-weight: bold !important;
       display: inline-block !important;
       margin: 0 !important;
-      vertical-align: baseline !important;
+      vertical-align: middle !important;
       font-family: "SF Mono", Monaco, "Cascadia Code", monospace !important;
-      border-radius: 0 6px 6px 0 !important;
+      border-radius: 0 4px 4px 0 !important;
       line-height: 1.2 !important;
-      font-size: 13px !important;
+      font-size: 8px !important;
     }
 
     // Extra specificity to ensure white text and monospace font on Feral background
