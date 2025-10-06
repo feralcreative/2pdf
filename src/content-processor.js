@@ -166,6 +166,15 @@ class ContentProcessor {
       console.log(chalk.blue(`📄 Found version number in document:`, versionNumber));
     }
 
+    // Extract line height from comments like <!-- line-height: 1.2em -->
+    const lineHeightRegex = /<!--\s*line-height:\s*([^-]+?)\s*-->/i;
+    const lineHeightMatch = content.match(lineHeightRegex);
+    if (lineHeightMatch) {
+      const lineHeight = lineHeightMatch[1].trim();
+      settings.lineHeight = lineHeight;
+      console.log(chalk.blue(`📏 Found line height in document:`, lineHeight));
+    }
+
     return settings;
   }
 

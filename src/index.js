@@ -180,6 +180,7 @@ class ToPdf {
       const disclosure = documentSettings.disclosure;
       const sequentialOutput = documentSettings.sequentialOutput;
       const versionNumber = documentSettings.versionNumber || "00.00";
+      const lineHeight = documentSettings.lineHeight;
 
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
@@ -196,7 +197,8 @@ class ToPdf {
         linkColor,
         linkUnderline,
         headerSize,
-        bodySize
+        bodySize,
+        lineHeight
       );
 
       // Save styled HTML to temp file

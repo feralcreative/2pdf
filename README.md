@@ -5,10 +5,11 @@
 <!-- font-size: 1em -->
 <!-- header-size: 0.9em -->
 <!-- body-size: 1em -->
+<!-- line-height: 1.1em -->
 <!-- page-numbers: on -->
 <!-- disclosure: Internal Use Only -->
 <!-- sequential-output: on-->
-<!-- version-number: 00.02 -->
+<!-- version-number: 00.05 -->
 
 # {{PROJECT_NAME}}
 
@@ -183,6 +184,7 @@ Content with custom styling...
 - **font-size**: Root font size (`1.2em`, `14px`, `16px`)
 - **header-size**: All headers scale from this (`1.3em`, `1.1em`)
 - **body-size**: Paragraphs, lists, tables (`0.9em`, `1.1em`)
+- **line-height**: Line spacing for all text (`1.2em`, `1.5`, `18px`)
 
 **Page features:**
 
@@ -303,6 +305,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- disclosure: Internal Use Only -->
 <!-- sequential-output: on -->
 <!-- version-number: 00.00 -->
+<!-- line-height: 1.2em -->
 ```
 
 <!--| PAGE-BREAK -->

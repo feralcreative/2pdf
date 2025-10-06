@@ -28,7 +28,8 @@ class StyleManager {
     linkColor = null,
     linkUnderline = null,
     headerSize = null,
-    bodySize = null
+    bodySize = null,
+    lineHeight = null
   ) {
     let cssContent = "";
 
@@ -111,6 +112,11 @@ class StyleManager {
     // Apply body size if specified
     if (bodySize) {
       cssContent = this.applyBodySize(cssContent, bodySize);
+    }
+
+    // Apply line height if specified
+    if (lineHeight) {
+      cssContent = this.applyLineHeight(cssContent, lineHeight);
     }
 
     // Apply single-page modifications if requested
@@ -377,6 +383,20 @@ p, li, td, th, div, span, blockquote {
 `;
 
     return bodySizeRule + cssContent;
+  }
+
+  applyLineHeight(cssContent, lineHeight) {
+    console.log(chalk.blue(`📏 Applying line height:`, lineHeight));
+
+    // Add CSS rule for line height on all text elements
+    const lineHeightRule = `
+/* Line height override from document settings */
+body, p, li, td, th, div, span, blockquote, h1, h2, h3, h4, h5, h6, pre, code {
+  line-height: ${lineHeight} !important;
+}
+`;
+
+    return lineHeightRule + cssContent;
   }
 
   hexToRgba(hex, alpha) {
