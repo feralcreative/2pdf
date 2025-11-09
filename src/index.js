@@ -202,7 +202,8 @@ class ToPdf {
         bodySize,
         lineHeight,
         paragraphSpacing,
-        headerSpacing
+        headerSpacing,
+        documentTitle
       );
 
       // Save styled HTML to temp file

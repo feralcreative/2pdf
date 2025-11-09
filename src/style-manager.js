@@ -31,7 +31,8 @@ class StyleManager {
     bodySize = null,
     lineHeight = null,
     paragraphSpacing = null,
-    headerSpacing = null
+    headerSpacing = null,
+    documentTitle = null
   ) {
     let cssContent = "";
 
@@ -137,7 +138,7 @@ class StyleManager {
     }
 
     // Create complete HTML document with embedded CSS
-    const styledHtml = this.createStyledHtml(htmlContent, cssContent);
+    const styledHtml = this.createStyledHtml(htmlContent, cssContent, documentTitle);
 
     return styledHtml;
   }
@@ -166,13 +167,14 @@ class StyleManager {
     return cssContent;
   }
 
-  createStyledHtml(htmlContent, cssContent) {
+  createStyledHtml(htmlContent, cssContent, documentTitle = null) {
+    const title = documentTitle || "Markdown to PDF";
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown to PDF</title>
+    <title>${title}</title>
     <style>
 ${cssContent}
     </style>

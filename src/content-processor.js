@@ -308,6 +308,9 @@ class ContentProcessor {
     // Process table column widths if present
     htmlContent = this.processTableColumnWidths(htmlContent);
 
+    // Apply table classes to actual table elements
+    htmlContent = this.applyTableClasses(htmlContent);
+
     // Process image paths to make them absolute
     if (this.inputDir) {
       htmlContent = this.processImagePaths(htmlContent);
@@ -320,18 +323,65 @@ class ContentProcessor {
     // Process table column width specifications
     // Look for comments like <!-- col-widths: 30% 70% -->
     const colWidthRegex = /<!--\s*col-widths:\s*([^-]+)\s*-->/gi;
+    let tableCounter = 0;
 
     return htmlContent.replace(colWidthRegex, (match, widths) => {
       const widthArray = widths.trim().split(/\s+/);
-      let styleTag = "<style>\n";
+      tableCounter++;
+      const tableClass = `col-width-table-${tableCounter}`;
 
+      let styleTag = `<style>\n`;
+
+      // Generate CSS that targets only the specific table class
       widthArray.forEach((width, index) => {
-        styleTag += `table tr td:nth-child(${index + 1}) { width: ${width}; }\n`;
+        styleTag += `.${tableClass} tr td:nth-child(${index + 1}) { width: ${width}; }\n`;
       });
 
-      styleTag += "</style>\n";
+      styleTag += `</style>\n`;
+
+      // Add a marker that will be replaced with the table class when we find the next table
+      styleTag += `<div class="table-class-marker" data-class="${tableClass}"></div>\n`;
+
       return styleTag;
     });
+  }
+
+  applyTableClasses(htmlContent) {
+    // Find table class markers and apply the classes to the next table element
+    const markerRegex = /<div class="table-class-marker" data-class="([^"]+)"><\/div>/g;
+    let result = htmlContent;
+    let match;
+
+    // Process each marker
+    while ((match = markerRegex.exec(htmlContent)) !== null) {
+      const fullMatch = match[0];
+      const tableClass = match[1];
+      const markerIndex = match.index;
+
+      // Find the next table element after this marker
+      const afterMarker = htmlContent.substring(markerIndex + fullMatch.length);
+      const tableMatch = afterMarker.match(/<table[^>]*>/);
+
+      if (tableMatch) {
+        const originalTable = tableMatch[0];
+        let newTable;
+
+        // Check if table already has a class attribute
+        if (originalTable.includes("class=")) {
+          newTable = originalTable.replace(/class="([^"]*)"/, `class="$1 ${tableClass}"`);
+        } else {
+          newTable = originalTable.replace("<table", `<table class="${tableClass}"`);
+        }
+
+        // Replace the original table with the classed version
+        result = result.replace(originalTable, newTable);
+      }
+
+      // Remove the marker
+      result = result.replace(fullMatch, "");
+    }
+
+    return result;
   }
 
   splitByCodeBlocks(content) {
