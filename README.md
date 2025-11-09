@@ -122,7 +122,135 @@ Live Site: <https://example.com>
 
 <!--| PAGE-BREAK -->
 
-### 4. Table column widths
+### 4. Table of Contents with PDF Navigation
+
+Create a markdown table of contents with links that work in PDFs:
+
+```markdown
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [Usage](#usage)
+
+## Introduction
+
+Your introduction content here...
+
+## Getting Started
+
+### Installation
+
+Installation steps...
+
+### Configuration
+
+Configuration steps...
+
+## Usage
+
+Usage information...
+```
+
+When converted to PDF, all links in the table of contents become clickable internal links that jump to the corresponding sections. PDF viewers will navigate to the correct page automatically.
+
+**How it works:**
+
+- Headers are automatically assigned unique IDs (e.g., `# Introduction` → `id="introduction"`)
+- Markdown links like `[Introduction](#introduction)` are converted to HTML anchor links
+- PDF viewers recognize these internal links and allow navigation between pages
+
+#### Multi-Column Layouts
+
+For long tables of contents or lists, you can display them in multiple columns:
+
+**Two Columns:**
+
+```markdown
+## Table of Contents
+
+<!-- two-columns -->
+
+- [Introduction](#introduction)
+- [Getting Started](#getting-started)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Advanced Features](#advanced-features)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+
+<!-- /two-columns -->
+```
+
+**Three Columns:**
+
+```markdown
+<!-- three-columns -->
+
+- [Item 1](#item-1)
+- [Item 2](#item-2)
+- [Item 3](#item-3)
+- [Item 4](#item-4)
+- [Item 5](#item-5)
+- [Item 6](#item-6)
+- [Item 7](#item-7)
+- [Item 8](#item-8)
+- [Item 9](#item-9)
+
+<!-- /three-columns -->
+```
+
+**Four Columns:**
+
+```markdown
+<!-- four-columns -->
+
+- [Item 1](#item-1)
+- [Item 2](#item-2)
+- [Item 3](#item-3)
+- [Item 4](#item-4)
+- [Item 5](#item-5)
+- [Item 6](#item-6)
+- [Item 7](#item-7)
+- [Item 8](#item-8)
+
+<!-- /four-columns -->
+```
+
+The content between the opening and closing tags will be displayed in the specified number of columns with a subtle divider line between them.
+
+**Manual Column Breaks:**
+
+You can force content to break to the next column using `<!-- column-break -->`:
+
+```markdown
+<!-- three-columns -->
+
+- [Item 1](#item-1)
+- [Item 2](#item-2)
+- [Item 3](#item-3)
+
+<!-- column-break -->
+
+- [Item 4](#item-4)
+- [Item 5](#item-5)
+- [Item 6](#item-6)
+
+<!-- column-break -->
+
+- [Item 7](#item-7)
+- [Item 8](#item-8)
+- [Item 9](#item-9)
+
+<!-- /three-columns -->
+```
+
+This ensures content is distributed exactly as you want across the columns.
+
+### 5. Table column widths
 
 Control table column widths with HTML comments:
 
