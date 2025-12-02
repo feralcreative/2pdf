@@ -12,7 +12,7 @@ const chalk = require("chalk");
 class StyleManager {
   constructor(scriptDir) {
     this.scriptDir = scriptDir;
-    this.stylesDir = path.join(scriptDir, "assets", "styles");
+    this.stylesDir = path.join(scriptDir, "public", "assets", "styles");
     this.fontsDir = path.join(scriptDir, "assets", "fonts");
   }
 

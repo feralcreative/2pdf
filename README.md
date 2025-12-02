@@ -1,4 +1,5 @@
-<!-- theme-color: #880088 -->
+<!-- theme-color-primary: #880088 -->
+<!-- theme-color-secondary: #444444 -->
 <!-- body-color: #222222 -->
 <!-- link-color: #0066cc -->
 <!-- link-underline: ON -->

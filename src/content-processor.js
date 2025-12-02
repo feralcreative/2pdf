@@ -23,7 +23,9 @@ class ContentProcessor {
     });
 
     // Add footnote extension
-    marked.use(markedFootnote());
+    // Set description to empty string to remove the "Footnotes" header
+    // Set footnoteDivider to false to remove the horizontal rule
+    marked.use(markedFootnote({ description: "", footnoteDivider: false }));
   }
 
   async processContent(markdownContent) {
