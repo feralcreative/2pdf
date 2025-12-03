@@ -168,6 +168,8 @@ class ToPdf {
 
       // Use document settings for colors and font size, with CLI options as fallback
       const effectiveThemeColor = documentSettings.themeColor || this.options.themeColor;
+      const themeColorPrimary = documentSettings.themeColorPrimary;
+      const themeColorSecondary = documentSettings.themeColorSecondary;
       const bodyColor = documentSettings.bodyColor;
       const linkColor = documentSettings.linkColor;
       const linkUnderline = documentSettings.linkUnderline;
@@ -203,7 +205,9 @@ class ToPdf {
         lineHeight,
         paragraphSpacing,
         headerSpacing,
-        documentTitle
+        documentTitle,
+        themeColorPrimary,
+        themeColorSecondary
       );
 
       // Save styled HTML to temp file

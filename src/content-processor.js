@@ -63,6 +63,24 @@ class ContentProcessor {
       console.log(chalk.blue(`🎨 Found theme color in document:`, color));
     }
 
+    // Extract theme color primary from comments like <!-- theme-color-primary: #ff6b35 -->
+    const themeColorPrimaryRegex = /<!--\s*theme-color-primary:\s*([^-]+?)\s*-->/i;
+    const themeColorPrimaryMatch = content.match(themeColorPrimaryRegex);
+    if (themeColorPrimaryMatch) {
+      const color = themeColorPrimaryMatch[1].trim();
+      settings.themeColorPrimary = color;
+      console.log(chalk.blue(`🎨 Found theme color primary in document:`, color));
+    }
+
+    // Extract theme color secondary from comments like <!-- theme-color-secondary: #ff6b35 -->
+    const themeColorSecondaryRegex = /<!--\s*theme-color-secondary:\s*([^-]+?)\s*-->/i;
+    const themeColorSecondaryMatch = content.match(themeColorSecondaryRegex);
+    if (themeColorSecondaryMatch) {
+      const color = themeColorSecondaryMatch[1].trim();
+      settings.themeColorSecondary = color;
+      console.log(chalk.blue(`🎨 Found theme color secondary in document:`, color));
+    }
+
     // Extract body text color from comments like <!-- body-color: #333333 -->
     const bodyColorRegex = /<!--\s*body-color:\s*([^-]+?)\s*-->/i;
     const bodyColorMatch = content.match(bodyColorRegex);
@@ -220,7 +238,7 @@ class ContentProcessor {
     // Supports Better Comments plugin tags and various formats
     // Skip content inside code blocks (``` or ` delimited)
 
-    const pageBreakRegex = /<!--[!?~\/\\*|—\^\^@#\[\s]*PAGE-?BREAK\s*-->/gi;
+    const pageBreakRegex = /<!--[!?~/*|—^^@#[\s]*PAGE-?BREAK\s*-->/gi;
 
     // Split content by code blocks to avoid processing inside them
     const parts = this.splitByCodeBlocks(content);

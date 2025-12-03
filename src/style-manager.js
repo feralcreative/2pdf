@@ -32,7 +32,9 @@ class StyleManager {
     lineHeight = null,
     paragraphSpacing = null,
     headerSpacing = null,
-    documentTitle = null
+    documentTitle = null,
+    themeColorPrimary = null,
+    themeColorSecondary = null
   ) {
     let cssContent = "";
 
@@ -86,6 +88,16 @@ class StyleManager {
     // Apply theme color (use default #808 if not specified)
     const effectiveThemeColor = themeColor || "808";
     cssContent = this.applyThemeColor(cssContent, effectiveThemeColor, config);
+
+    // Apply theme color primary if specified
+    if (themeColorPrimary) {
+      cssContent = this.applyThemeColorPrimary(cssContent, themeColorPrimary, config);
+    }
+
+    // Apply theme color secondary if specified
+    if (themeColorSecondary) {
+      cssContent = this.applyThemeColorSecondary(cssContent, themeColorSecondary, config);
+    }
 
     // Apply base font size if specified
     if (baseFontSize) {
@@ -300,6 +312,30 @@ ${htmlContent}
     updatedCss = updatedCss.replace(/color:#880088/g, `color:${resolvedColor}`);
     updatedCss = updatedCss.replace(/solid #808/g, `solid ${resolvedColor}`);
     updatedCss = updatedCss.replace(/solid #880088/g, `solid ${resolvedColor}`);
+
+    return updatedCss;
+  }
+
+  applyThemeColorPrimary(cssContent, themeColorPrimary, config) {
+    const resolvedColor = this.resolveThemeColor(themeColorPrimary, config);
+    if (!resolvedColor) return cssContent;
+
+    console.log(chalk.blue(`🎨 Applying theme color primary:`, resolvedColor));
+
+    // Replace CSS custom property with actual color value
+    let updatedCss = cssContent.replace(/var\(--theme-color-primary\)/g, resolvedColor);
+
+    return updatedCss;
+  }
+
+  applyThemeColorSecondary(cssContent, themeColorSecondary, config) {
+    const resolvedColor = this.resolveThemeColor(themeColorSecondary, config);
+    if (!resolvedColor) return cssContent;
+
+    console.log(chalk.blue(`🎨 Applying theme color secondary:`, resolvedColor));
+
+    // Replace CSS custom property with actual color value
+    let updatedCss = cssContent.replace(/var\(--theme-color-secondary\)/g, resolvedColor);
 
     return updatedCss;
   }
