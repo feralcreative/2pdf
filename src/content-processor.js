@@ -26,6 +26,33 @@ class ContentProcessor {
     // Set description to empty string to remove the "Footnotes" header
     // Set footnoteDivider to false to remove the horizontal rule
     marked.use(markedFootnote({ description: "", footnoteDivider: false }));
+
+    // Add highlight extension for ==text== syntax
+    marked.use({
+      extensions: [
+        {
+          name: "highlight",
+          level: "inline",
+          start(src) {
+            return src.indexOf("==");
+          },
+          tokenizer(src) {
+            const rule = /^==([^=]+)==/;
+            const match = rule.exec(src);
+            if (match) {
+              return {
+                type: "highlight",
+                raw: match[0],
+                text: match[1],
+              };
+            }
+          },
+          renderer(token) {
+            return `<mark>${token.text}</mark>`;
+          },
+        },
+      ],
+    });
   }
 
   async processContent(markdownContent) {
@@ -211,6 +238,28 @@ class ContentProcessor {
       const headerSpacing = headerSpacingMatch[1].trim();
       settings.headerSpacing = headerSpacing;
       console.log(chalk.blue(`📏 Found header spacing in document:`, headerSpacing));
+    }
+
+    // Extract custom filename from comments like <!-- filename: custom-name.pdf -->
+    const filenameRegex = /<!--\s*filename:\s*(.+?)\s*-->/i;
+    const filenameMatch = content.match(filenameRegex);
+    if (filenameMatch) {
+      const filename = filenameMatch[1].trim();
+      if (filename) {
+        settings.customFilename = filename;
+        console.log(chalk.blue(`📄 Found custom filename in document:`, filename));
+      }
+    }
+
+    // Extract highlight color from comments like <!-- highlight-color: #ffff00 -->
+    const highlightColorRegex = /<!--\s*highlight-color:\s*(.+?)\s*-->/i;
+    const highlightColorMatch = content.match(highlightColorRegex);
+    if (highlightColorMatch) {
+      const highlightColor = highlightColorMatch[1].trim();
+      if (highlightColor) {
+        settings.highlightColor = highlightColor;
+        console.log(chalk.blue(`🎨 Found highlight color in document:`, highlightColor));
+      }
     }
 
     return settings;

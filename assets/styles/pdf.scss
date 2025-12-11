@@ -26,6 +26,7 @@ $text: #222;
   --theme-color-05: rgba(136, 0, 136, 0.05); // 5% opacity version of default feral color
   --theme-color-primary: #880088; // Primary theme color
   --theme-color-secondary: #444444; // Secondary theme color
+  --highlight-color: #ffffad; // Default highlight color (yellow)
 }
 
 @page {
@@ -242,6 +243,62 @@ pre * {
   i {
     font-style: italic !important;
     font-family: "Inter", sans-serif !important;
+  }
+
+  // -------------------------------------------------------------------------
+  // HIGHLIGHT - Text highlighting with customizable color
+  // -------------------------------------------------------------------------
+
+  mark {
+    background-color: var(--highlight-color) !important;
+    color: #000 !important;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-family: "Inter", sans-serif !important;
+  }
+
+  // Mark tags inside headers should inherit header styling
+  h1 mark,
+  h2 mark,
+  h3 mark,
+  h4 mark,
+  h5 mark,
+  h6 mark {
+    color: inherit !important;
+    font-weight: inherit !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+  }
+
+  // -------------------------------------------------------------------------
+  // HIGHLIGHT BLOCK - Block-level highlighting using custom <highlight> tag
+  // -------------------------------------------------------------------------
+
+  highlight {
+    display: block !important;
+    background-color: var(--highlight-color) !important;
+    padding: 0.25em !important;
+    margin: 0 !important;
+    border-radius: 4px !important;
+
+    // Ensure child elements maintain proper spacing
+    > *:first-child {
+      margin-top: 0 !important;
+    }
+
+    > *:last-child {
+      margin-bottom: 0 !important;
+    }
+
+    // Headers inside highlight blocks should maintain their color
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: var(--theme-color-primary) !important;
+    }
   }
 
   blockquote {

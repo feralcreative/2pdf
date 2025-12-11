@@ -1,14 +1,16 @@
+<!-- filename:  -->
 <!-- theme-color-primary: #880088 -->
 <!-- theme-color-secondary: #444444 -->
 <!-- body-color: #222222 -->
 <!-- link-color: #0066cc -->
+<!-- highlight-color: #ffff00 -->
 <!-- link-underline: ON -->
 <!-- font-size: 0.9em -->
 <!-- header-size: 0.75em -->
 <!-- body-size: 1em -->
 <!-- line-height: 1em -->
-<!-- paragraph-spacing: 0.5em --> <!-- Options: any CSS margin value, e.g. 0.8em, 12px, 1rem -->
-<!-- header-spacing: 0.75em --> <!-- Options: any CSS margin value, scales by header level -->
+<!-- paragraph-spacing: 0.5em -->
+<!-- header-spacing: 0.75em -->
 <!-- page-numbers: ON -->
 <!-- disclosure: Internal Use Only -->
 <!-- sequential-output: OFF-->
@@ -65,6 +67,7 @@ Insert dynamic content using `{{TOKEN_NAME}}` placeholders:
 
 ```markdown
 # {{PROJECT_NAME}} Documentation
+
 **Version:** {{PROJECT_VERSION}}
 **Generated:** {{DATE}} by {{DEVELOPER_NAME}}
 ```
@@ -72,7 +75,7 @@ Insert dynamic content using `{{TOKEN_NAME}}` placeholders:
 #### Automatic tokens (always available)
 
 - `{{DATE}}` - Current date (2024-01-15)
-- `{{DATE_LONG}}` - Current date (January 15, 2024)  
+- `{{DATE_LONG}}` - Current date (January 15, 2024)
 - `{{TIME}}` - Current time (14:30)
 - `{{YEAR}}`, `{{MONTH}}`, `{{DAY}}` - Date components
 - `{{TIMEZONE}}` - Current timezone (PST, EST, UTC, etc.)
@@ -105,7 +108,9 @@ Force a new page:
 
 ```markdown
 Content here...
+
 <!-- PAGE-BREAK -->
+
 Content on next page...
 ```
 
@@ -115,15 +120,75 @@ Style a paragraph as a compact badge:
 
 ```markdown
 <!-- live-site-shield -->
+
 Live Site: https://example.com
 ```
 
 <!-- live-site-shield -->
+
 Live Site: <https://example.com>
+
+### 4. Text highlighting
+
+#### Inline highlighting
+
+Highlight important text using either HTML `<mark>` tags or the `==highlight==` syntax:
+
+```markdown
+This is <mark>highlighted text using HTML</mark> in a sentence.
+
+This is ==highlighted text using double equals== in a sentence.
+```
+
+Both syntaxes produce identical results and work inline within paragraphs, headers, lists, and other text elements.
+
+#### Block highlighting
+
+Highlight entire sections (headers, paragraphs, lists, etc.) using the `<highlight>` tag:
+
+```markdown
+<highlight>
+
+### Section Title
+
+This entire section is highlighted with a background color.
+
+- List item 1
+- List item 2
+- List item 3
+
+You can include multiple paragraphs, lists, headers, and other elements.
+
+</highlight>
+```
+
+**Important notes about `<highlight>`:**
+
+- It's a custom HTML element that won't render in standard markdown preview
+- It will be properly styled in the generated PDF
+- Use blank lines before and after the opening/closing tags for proper markdown parsing
+- Headers inside highlight blocks maintain their theme colors
+- You can nest inline highlighting (`<mark>` or `==text==`) inside block highlights
+
+#### Custom highlight color
+
+```markdown
+<!-- highlight-color: #e3f2fd -->
+
+This text will be ==highlighted in light blue== instead of the default color.
+
+<highlight>
+
+This entire block will also use the light blue background.
+
+</highlight>
+```
+
+The default highlight color is `#ffffad` (light yellow), but you can customize it per document using the `<!-- highlight-color: -->` setting. This applies to both inline (`<mark>`, `==text==`) and block (`<highlight>`) highlighting.
 
 <!--| PAGE-BREAK -->
 
-### 4. Table of Contents with PDF Navigation
+### 5. Table of Contents with PDF Navigation
 
 Create a markdown table of contents with links that work in PDFs:
 
@@ -251,7 +316,7 @@ You can force content to break to the next column using `<!-- column-break -->`:
 
 This ensures content is distributed exactly as you want across the columns.
 
-### 5. Table column widths
+### 6. Table column widths
 
 Control table column widths with HTML comments:
 
@@ -259,52 +324,71 @@ Control table column widths with HTML comments:
 
 ```markdown
 <!-- col-widths: 30% 70% -->
-| Name | Description |
-|------|-------------|
+
+| Name | Description                                 |
+| ---- | ------------------------------------------- |
 | Item | Long description text that needs more space |
 ```
 
 <!-- col-widths: 30% 70% -->
-| Name | Description |
-|------|-------------|
+
+| Name | Description                                 |
+| ---- | ------------------------------------------- |
 | Item | Long description text that needs more space |
 
 #### Example 2
 
 ```markdown
 <!-- col-widths: 100px 200px 50% -->
-| ID | Name | Notes |
-|----|------|-------|
-| 1  | Test | Some notes |
+
+| ID  | Name | Notes      |
+| --- | ---- | ---------- |
+| 1   | Test | Some notes |
 ```
+
 <!-- col-widths: 100px 200px 50% -->
-| ID | Name | Notes |
-|----|------|-------|
-| 1  | Test | Some notes |
+
+| ID  | Name | Notes      |
+| --- | ---- | ---------- |
+| 1   | Test | Some notes |
 
 ## Document styling
 
 Set theme colors, text colors, and font sizes directly in your document:
 
 ```markdown
+<!-- filename: custom-output-name.pdf -->
 <!-- theme-color: #ff6b35 -->
+<!-- theme-color-primary: #1434cb -->
+<!-- theme-color-secondary: #27ae60 -->
 <!-- body-color: #2c3e50 -->
 <!-- link-color: #3498db -->
 <!-- link-underline: off -->
+<!-- highlight-color: #ffff00 -->
 <!-- font-size: 1.2em -->
 <!-- header-size: 1.3em -->
 <!-- body-size: 0.9em -->
 <!-- page-numbers: on -->
 
 # Your Document Title
+
 Content with custom styling...
 ```
 
+### Output filename
+
+- **filename**: Custom PDF output filename (`report.pdf`, `my-document.pdf`)
+  - If empty or missing, defaults to input filename
+  - CLI `-o` option takes priority over this setting
+
 ### Color options
 
-- **theme-color**: Headers, blockquotes, inline code (`#ff6b35`, `#1434cb`, `#27ae60`)
+- **theme-color**: Primary theme - headers, blockquotes, inline code (`#ff6b35`, `#1434cb`, `#27ae60`)
+- **theme-color-primary**: Primary accent color for specific elements
+- **theme-color-secondary**: Secondary accent color for specific elements
 - **body-color**: All body text, paragraphs, lists (`#2c3e50`, `#333333`)
 - **link-color**: Hyperlinks (`#3498db`, `#e74c3c`)
+- **highlight-color**: Text highlighting background color (`#ffff00`, `#00ff00`, `#ff6b35`)
 
 ### Text decoration
 
@@ -385,7 +469,7 @@ Customize header and accent colors with the `--color` flag:
 node bin/2pdf.js doc.md --color blue
 node bin/2pdf.js doc.md --color corporate
 
-# Custom hex colors  
+# Custom hex colors
 node bin/2pdf.js doc.md --color 1434cb
 node bin/2pdf.js doc.md --color "#ff6b35"
 ```
@@ -434,10 +518,13 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- PAGE-BREAK -->
 <!-- live-site-shield -->
 <!-- col-widths: 30% 70% -->
-<!-- theme-color: #ff6b35 -->
-<!-- body-color: #2c3e50 -->
-<!-- link-color: #3498db -->
+<!-- filename: custom-output.pdf -->
+<!-- theme-color-primary: #880088 -->
+<!-- theme-color-secondary: #666666 -->
+<!-- body-color: #222222 -->
+<!-- link-color: #0000ff -->
 <!-- link-underline: off -->
+<!-- highlight-color: #ffff00 -->
 <!-- font-size: 1.2em -->
 <!-- header-size: 1.3em -->
 <!-- body-size: 0.9em -->
@@ -448,6 +535,12 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- line-height: 1.2em -->
 <!-- paragraph-spacing: 0.8em -->
 <!-- header-spacing: 1em -->
+
+# Text Highlighting
+
+Inline: Use <mark>HTML mark tags</mark> or ==double equals syntax==.
+
+Block: Use <highlight>custom tag</highlight> for entire sections.
 ```
 
 ## Configuration
@@ -462,7 +555,7 @@ PROJECT_VERSION=2.1.0
 DEVELOPER_NAME=Jane Smith
 COMPANY_NAME=Acme Corp
 
-# Color themes  
+# Color themes
 COLOR_BRAND=#1434cb
 COLOR_ACCENT=#ff6b35
 
@@ -476,7 +569,7 @@ FOOTER_TEXT=Generated on {{DATE}} by {{DEVELOPER_NAME}}
 
 1. Same directory as the input file
 2. Current working directory
-3. 2pdf installation directory  
+3. 2pdf installation directory
 4. `config/` subdirectory in any of the above
 
 <!--| PAGE-BREAK -->

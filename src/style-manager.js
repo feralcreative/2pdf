@@ -34,7 +34,8 @@ class StyleManager {
     headerSpacing = null,
     documentTitle = null,
     themeColorPrimary = null,
-    themeColorSecondary = null
+    themeColorSecondary = null,
+    highlightColor = null
   ) {
     let cssContent = "";
 
@@ -142,6 +143,11 @@ class StyleManager {
     // Apply header spacing if specified
     if (headerSpacing) {
       cssContent = this.applyHeaderSpacing(cssContent, headerSpacing);
+    }
+
+    // Apply highlight color if specified
+    if (highlightColor) {
+      cssContent = this.applyHighlightColor(cssContent, highlightColor);
     }
 
     // Apply single-page modifications if requested
@@ -511,6 +517,20 @@ h6 {
 `;
 
     return headerSpacingRule + cssContent;
+  }
+
+  applyHighlightColor(cssContent, highlightColor) {
+    console.log(chalk.blue(`🎨 Applying highlight color:`, highlightColor));
+
+    // Add CSS rule to override the --highlight-color custom property
+    const highlightColorRule = `
+/* Highlight color override from document settings */
+:root {
+  --highlight-color: ${highlightColor} !important;
+}
+`;
+
+    return highlightColorRule + cssContent;
   }
 
   hexToRgba(hex, alpha) {

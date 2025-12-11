@@ -185,6 +185,8 @@ class ToPdf {
       const lineHeight = documentSettings.lineHeight;
       const paragraphSpacing = documentSettings.paragraphSpacing;
       const headerSpacing = documentSettings.headerSpacing;
+      const customFilename = documentSettings.customFilename;
+      const highlightColor = documentSettings.highlightColor;
 
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
@@ -207,7 +209,8 @@ class ToPdf {
         headerSpacing,
         documentTitle,
         themeColorPrimary,
-        themeColorSecondary
+        themeColorSecondary,
+        highlightColor
       );
 
       // Save styled HTML to temp file
@@ -220,11 +223,22 @@ class ToPdf {
 
       // Generate PDF
       console.log(chalk.blue("📄 Converting to PDF..."));
-      // Generate output path with optional version suffix
-      const baseName = path.basename(inputFile, path.extname(inputFile));
-      const versionSuffix = sequentialOutput ? `-v${versionNumber}` : "";
-      const outputPath =
-        this.options.outputPath || path.join(path.dirname(inputPath), baseName + versionSuffix + ".pdf");
+      // Generate output path with optional custom filename and version suffix
+      let outputPath;
+      if (this.options.outputPath) {
+        // CLI option takes highest priority
+        outputPath = this.options.outputPath;
+      } else if (customFilename) {
+        // Use custom filename from document settings
+        // Ensure it has .pdf extension
+        const customName = customFilename.endsWith(".pdf") ? customFilename : `${customFilename}.pdf`;
+        outputPath = path.join(path.dirname(inputPath), customName);
+      } else {
+        // Default: use input filename with optional version suffix
+        const baseName = path.basename(inputFile, path.extname(inputFile));
+        const versionSuffix = sequentialOutput ? `-v${versionNumber}` : "";
+        outputPath = path.join(path.dirname(inputPath), baseName + versionSuffix + ".pdf");
+      }
 
       await this.pdfGenerator.generatePdf(
         htmlPath,
