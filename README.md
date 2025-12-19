@@ -186,9 +186,74 @@ This entire block will also use the light blue background.
 
 The default highlight color is `#ffffad` (light yellow), but you can customize it per document using the `<!-- highlight-color: -->` setting. This applies to both inline (`<mark>`, `==text==`) and block (`<highlight>`) highlighting.
 
+### 5. Headers (H1-H6)
+
+All headers use the Inter font family and are styled with specific colors, sizes, and formatting:
+
+#### H1 - Main Title
+
+- **Font size:** 2.5rem (largest)
+- **Font weight:** 300 (light)
+- **Color:** Primary theme color (`--theme-color-primary`)
+- **Horizontal rule:** Yes - thin line below in primary theme color
+- **Use for:** Document title, major section dividers
+
+#### H2 - Major Sections
+
+- **Font size:** 1.75rem
+- **Font weight:** 600 (semi-bold)
+- **Color:** Primary theme color (`--theme-color-primary`)
+- **Horizontal rule:** Yes - thin line below in primary theme color
+- **Use for:** Main sections, chapter headings
+
+#### H3 - Subsections
+
+- **Font size:** 1.4rem
+- **Font weight:** 600 (semi-bold)
+- **Color:** Secondary theme color (`--theme-color-secondary`)
+- **Horizontal rule:** Yes - thin gray line (#aaa)
+- **Use for:** Subsections within major sections
+
+#### H4 - Minor Headings
+
+- **Font size:** 1.25rem
+- **Font weight:** 600 (semi-bold)
+- **Color:** Secondary theme color (`--theme-color-secondary`)
+- **Horizontal rule:** No
+- **Use for:** Smaller subsections, topic headings
+
+#### H5 - Small Headings
+
+- **Font size:** 1rem (same as body text)
+- **Font weight:** 800 (extra bold)
+- **Color:** Primary theme color (`--theme-color-primary`)
+- **Horizontal rule:** No
+- **Use for:** Minor topics, list section headers
+
+#### H6 - Smallest Headings
+
+- **Font size:** 0.7rem (smaller than body text)
+- **Font weight:** 800 (extra bold)
+- **Color:** Primary theme color (`--theme-color-primary`)
+- **Text transform:** UPPERCASE
+- **Horizontal rule:** No
+- **Use for:** Labels, metadata headers, fine print sections
+
+**Color customization:**
+
+Headers use theme colors that can be customized per document:
+
+```markdown
+<!-- theme-color-primary: #1976d2 -->
+<!-- theme-color-secondary: #388e3c -->
+```
+
+- **Primary color** affects H1, H2, H5, H6
+- **Secondary color** affects H3, H4
+
 <!--| PAGE-BREAK -->
 
-### 5. Table of Contents with PDF Navigation
+### 6. Table of Contents with PDF Navigation
 
 Create a markdown table of contents with links that work in PDFs:
 
@@ -316,7 +381,7 @@ You can force content to break to the next column using `<!-- column-break -->`:
 
 This ensures content is distributed exactly as you want across the columns.
 
-### 6. Table column widths
+### 7. Table column widths
 
 Control table column widths with HTML comments:
 
