@@ -11,6 +11,7 @@
 <!-- line-height: 1em -->
 <!-- paragraph-spacing: 0.5em -->
 <!-- header-spacing: 0.75em -->
+<!-- list-item-spacing: 0.2em -->
 <!-- page-numbers: ON -->
 <!-- disclosure: Internal Use Only -->
 <!-- sequential-output: OFF-->
@@ -417,6 +418,58 @@ Control table column widths with HTML comments:
 | --- | ---- | ---------- |
 | 1   | Test | Some notes |
 
+### 8. Table column alignment
+
+Control table column alignment using standard markdown syntax with colons in the separator row:
+
+- `:---` = left aligned (default)
+- `:---:` = center aligned
+- `---:` = right aligned
+
+#### Left aligned (default)
+
+```markdown
+| Name | Description  |
+| ---- | ------------ |
+| Item | Left aligned |
+```
+
+#### Center aligned
+
+```markdown
+| Name | Status |
+| :--: | :----: |
+| Item | Active |
+```
+
+#### Right aligned
+
+```markdown
+| Quantity |  Price |
+| -------: | -----: |
+|      100 | $50.00 |
+```
+
+#### Mixed alignment
+
+```markdown
+| Name      |  Status  |   Price |
+| :-------- | :------: | ------: |
+| Product A |  Active  |  $99.99 |
+| Product B | Inactive | $149.99 |
+```
+
+You can combine alignment with column widths:
+
+```markdown
+<!-- col-widths: 30% 40% 30% -->
+
+| Name   | Description    |  Price |
+| :----- | :------------- | -----: |
+| Item 1 | Left aligned   | $10.00 |
+| Item 2 | Center aligned | $20.00 |
+```
+
 ## Document styling
 
 Set theme colors, text colors, and font sizes directly in your document:
@@ -472,6 +525,7 @@ Content with custom styling...
   - H1 has no top margin (abuts page margin)
   - Headers after page breaks have no top margin
   - Spacing scales: H2(1.0×), H3(0.9×), H4(0.75×), H5(0.6×), H6(0.5×)
+- **list-item-spacing**: Margin above/below each list item (`0.2em`, `0.5em`, `8px`)
 
 ### Page features
 
@@ -600,6 +654,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- line-height: 1.2em -->
 <!-- paragraph-spacing: 0.8em -->
 <!-- header-spacing: 1em -->
+<!-- list-item-spacing: 0.3em -->
 
 # Text Highlighting
 

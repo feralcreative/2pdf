@@ -56,9 +56,12 @@ class PdfGenerator {
     pageNumbers = false,
     documentTitle = "",
     disclosure = "",
-    pageNumberFormat = "X of Y"
+    pageNumberFormat = "X of Y",
   ) {
     let browser = null;
+
+    const headerTemplate = "<div></div>";
+    const topMargin = "0.5in";
 
     try {
       console.log(chalk.blue("🚀 Launching Chrome..."));
@@ -136,7 +139,7 @@ class PdfGenerator {
           width: `${widthPoints / 72}in`, // Convert points to inches
           height: `${heightPoints / 72}in`,
           margin: {
-            top: "0.5in",
+            top: topMargin,
             right: "0.5in",
             bottom: pageNumbers ? "0.75in" : "0.5in", // Extra space for page numbers
             left: "0.5in",
@@ -144,7 +147,7 @@ class PdfGenerator {
           printBackground: true,
           preferCSSPageSize: false, // Use our custom dimensions
           displayHeaderFooter: pageNumbers,
-          headerTemplate: "<div></div>", // Completely empty header
+          headerTemplate: headerTemplate,
           footerTemplate: pageNumbers
             ? `<div style="font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0 0.5in;">
                 <span style="color: #666; justify-self: start;">${documentTitle || ""}</span>
@@ -165,7 +168,7 @@ class PdfGenerator {
           path: outputPath,
           format: "Letter",
           margin: {
-            top: "0.5in",
+            top: topMargin,
             right: "0.5in",
             bottom: pageNumbers ? "0.75in" : "0.5in", // Extra space for page numbers
             left: "0.5in",
@@ -173,7 +176,7 @@ class PdfGenerator {
           printBackground: true,
           preferCSSPageSize: false,
           displayHeaderFooter: pageNumbers,
-          headerTemplate: "<div></div>", // Completely empty header
+          headerTemplate: headerTemplate,
           footerTemplate: pageNumbers
             ? `<div style="font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0 0.5in;">
                 <span style="color: #666; justify-self: start;">${documentTitle || ""}</span>

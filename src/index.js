@@ -185,8 +185,28 @@ class ToPdf {
       const lineHeight = documentSettings.lineHeight;
       const paragraphSpacing = documentSettings.paragraphSpacing;
       const headerSpacing = documentSettings.headerSpacing;
+      const listItemSpacing = documentSettings.listItemSpacing;
       const customFilename = documentSettings.customFilename;
       const highlightColor = documentSettings.highlightColor;
+      const logo = documentSettings.logo;
+
+      // Resolve logo to absolute path and encode as base64 data URI
+      let resolvedLogoPath = null;
+      let logoDataUri = null;
+      if (logo) {
+        resolvedLogoPath = path.isAbsolute(logo)
+          ? logo
+          : path.join(this.scriptDir, 'public', 'assets', 'images', logo);
+        try {
+          const imageBuffer = await fs.readFile(resolvedLogoPath);
+          const base64 = imageBuffer.toString('base64');
+          const mimeType = resolvedLogoPath.endsWith('.svg') ? 'image/svg+xml' : 'image/png';
+          logoDataUri = `data:${mimeType};base64,${base64}`;
+        } catch (e) {
+          console.log(chalk.yellow('⚠️  Logo file not found, skipping:', resolvedLogoPath));
+          resolvedLogoPath = null;
+        }
+      }
 
       // Apply styling based on file type
       console.log(chalk.blue("🎨 Applying styles..."));
@@ -210,7 +230,9 @@ class ToPdf {
         documentTitle,
         themeColorPrimary,
         themeColorSecondary,
-        highlightColor
+        highlightColor,
+        listItemSpacing,
+        logoDataUri
       );
 
       // Save styled HTML to temp file

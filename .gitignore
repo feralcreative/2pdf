@@ -9,3 +9,6 @@ summit*
 *.css
 *.css.map
 .augment
+.claude
+public/assets/images/logo-cannonball.png
+public/assets/images/logo-cannonball.svg

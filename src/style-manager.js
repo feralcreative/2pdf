@@ -35,7 +35,9 @@ class StyleManager {
     documentTitle = null,
     themeColorPrimary = null,
     themeColorSecondary = null,
-    highlightColor = null
+    highlightColor = null,
+    listItemSpacing = null,
+    logoDataUri = null
   ) {
     let cssContent = "";
 
@@ -145,6 +147,11 @@ class StyleManager {
       cssContent = this.applyHeaderSpacing(cssContent, headerSpacing);
     }
 
+    // Apply list item spacing if specified
+    if (listItemSpacing) {
+      cssContent = this.applyListItemSpacing(cssContent, listItemSpacing);
+    }
+
     // Apply highlight color if specified
     if (highlightColor) {
       cssContent = this.applyHighlightColor(cssContent, highlightColor);
@@ -156,7 +163,7 @@ class StyleManager {
     }
 
     // Create complete HTML document with embedded CSS
-    const styledHtml = this.createStyledHtml(htmlContent, cssContent, documentTitle);
+    const styledHtml = this.createStyledHtml(htmlContent, cssContent, documentTitle, logoDataUri);
 
     return styledHtml;
   }
@@ -185,8 +192,11 @@ class StyleManager {
     return cssContent;
   }
 
-  createStyledHtml(htmlContent, cssContent, documentTitle = null) {
+  createStyledHtml(htmlContent, cssContent, documentTitle = null, logoDataUri = null) {
     const title = documentTitle || "Markdown to PDF";
+    const logoHtml = logoDataUri
+      ? `<div class="pdf-header"><img class="pdf-logo" src="${logoDataUri}" alt="Logo"></div>\n`
+      : "";
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -198,7 +208,7 @@ ${cssContent}
     </style>
 </head>
 <body>
-${htmlContent}
+${logoHtml}${htmlContent}
 
 <script>
 // Force font loading and apply additional processing
@@ -459,9 +469,10 @@ body, p, li, td, th, div, span, blockquote, h1, h2, h3, h4, h5, h6, pre, code {
     console.log(chalk.blue(`📏 Applying paragraph spacing:`, paragraphSpacing));
 
     // Add CSS rule for paragraph margins
+    // Note: li is excluded here because it may have its own list-item-spacing setting
     const paragraphSpacingRule = `
 /* Paragraph spacing override from document settings */
-p, li, blockquote {
+p, blockquote {
   margin-top: ${paragraphSpacing} !important;
   margin-bottom: ${paragraphSpacing} !important;
 }
@@ -517,6 +528,21 @@ h6 {
 `;
 
     return headerSpacingRule + cssContent;
+  }
+
+  applyListItemSpacing(cssContent, listItemSpacing) {
+    console.log(chalk.blue(`📏 Applying list item spacing:`, listItemSpacing));
+
+    // Add CSS rule for list item margins
+    const listItemSpacingRule = `
+/* List item spacing override from document settings */
+li {
+  margin-top: ${listItemSpacing} !important;
+  margin-bottom: ${listItemSpacing} !important;
+}
+`;
+
+    return listItemSpacingRule + cssContent;
   }
 
   applyHighlightColor(cssContent, highlightColor) {

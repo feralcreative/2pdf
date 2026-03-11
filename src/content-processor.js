@@ -240,6 +240,15 @@ class ContentProcessor {
       console.log(chalk.blue(`📏 Found header spacing in document:`, headerSpacing));
     }
 
+    // Extract list item spacing from comments like <!-- list-item-spacing: 0.5em -->
+    const listItemSpacingRegex = /<!--\s*list-item-spacing:\s*([^-]+?)\s*-->/i;
+    const listItemSpacingMatch = content.match(listItemSpacingRegex);
+    if (listItemSpacingMatch) {
+      const listItemSpacing = listItemSpacingMatch[1].trim();
+      settings.listItemSpacing = listItemSpacing;
+      console.log(chalk.blue(`📏 Found list item spacing in document:`, listItemSpacing));
+    }
+
     // Extract custom filename from comments like <!-- filename: custom-name.pdf -->
     const filenameRegex = /<!--\s*filename:\s*(.+?)\s*-->/i;
     const filenameMatch = content.match(filenameRegex);
@@ -259,6 +268,17 @@ class ContentProcessor {
       if (highlightColor) {
         settings.highlightColor = highlightColor;
         console.log(chalk.blue(`🎨 Found highlight color in document:`, highlightColor));
+      }
+    }
+
+    // Extract logo from comments like <!-- logo: logo-feral.svg -->
+    const logoRegex = /<!--\s*logo:\s*(.+?)\s*-->/i;
+    const logoMatch = content.match(logoRegex);
+    if (logoMatch) {
+      const logo = logoMatch[1].trim();
+      if (logo) {
+        settings.logo = logo;
+        console.log(chalk.blue(`🖼️  Found logo in document:`, logo));
       }
     }
 
@@ -385,6 +405,9 @@ class ContentProcessor {
 
     // Apply table classes to actual table elements
     htmlContent = this.applyTableClasses(htmlContent);
+
+    // Process table column alignment from markdown syntax
+    htmlContent = this.processTableAlignment(htmlContent);
 
     // Process anchor links for PDF compatibility
     htmlContent = this.processAnchorLinks(htmlContent);
@@ -516,6 +539,74 @@ class ContentProcessor {
     }
 
     return result;
+  }
+
+  processTableAlignment(htmlContent) {
+    // Process table column alignment based on markdown syntax
+    // Markdown uses colons in the separator row:
+    // | Left | Center | Right |
+    // |:-----|:------:|------:|
+    // :--- = left, :---: = center, ---: = right
+
+    // Find all tables in the HTML
+    const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/g;
+    let tableCounter = 0;
+
+    return htmlContent.replace(tableRegex, (fullMatch, tableContent) => {
+      tableCounter++;
+      const tableClass = `align-table-${tableCounter}`;
+
+      // Find the header row (first tr with th elements)
+      const headerMatch = tableContent.match(/<thead[^>]*>([\s\S]*?)<\/thead>/);
+      if (!headerMatch) {
+        return fullMatch; // No header, skip alignment processing
+      }
+
+      const headerContent = headerMatch[1];
+      const headerCells = headerContent.match(/<th[^>]*>/g) || [];
+      const columnCount = headerCells.length;
+
+      if (columnCount === 0) {
+        return fullMatch;
+      }
+
+      // Create alignment styles for each column
+      let styleTag = `<style>\n`;
+      let hasAlignment = false;
+
+      for (let i = 0; i < columnCount; i++) {
+        const cellIndex = i + 1;
+        // Default to left alignment
+        let alignment = "left";
+
+        // Check the corresponding th element for text-align style
+        const thElement = headerCells[i];
+        if (thElement.includes("text-align: center")) {
+          alignment = "center";
+          hasAlignment = true;
+        } else if (thElement.includes("text-align: right")) {
+          alignment = "right";
+          hasAlignment = true;
+        } else if (thElement.includes("text-align: left")) {
+          hasAlignment = true;
+        }
+
+        // Apply alignment to both th and td elements in this column
+        styleTag += `.${tableClass} th:nth-child(${cellIndex}),\n`;
+        styleTag += `.${tableClass} td:nth-child(${cellIndex}) { text-align: ${alignment}; }\n`;
+      }
+
+      styleTag += `</style>\n`;
+
+      // Only add style tag if we found alignment directives
+      if (hasAlignment) {
+        // Add the class to the table
+        const newTable = fullMatch.replace(/<table/, `<table class="${tableClass}"`);
+        return styleTag + newTable;
+      }
+
+      return fullMatch;
+    });
   }
 
   processAnchorLinks(htmlContent) {

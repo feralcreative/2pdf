@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pdf.scss Preview</title>
+  <link rel="stylesheet" href="assets/styles/pdf.css">
+  <style>
+    /* Preview chrome — not part of pdf.scss */
+    body {
+      background: #c8c8c8 !important;
+      padding: 40px !important;
+      max-width: none !important;
+    }
+
+    .preview-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #1a1a2e;
+      color: #e0e0ff;
+      font-family: "SF Mono", Monaco, monospace;
+      font-size: 12px;
+      padding: 8px 16px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .preview-banner strong {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+
+    .preview-banner code {
+      background: rgba(255,255,255,0.15) !important;
+      border: none !important;
+      color: #a0e0ff !important;
+      padding: 2px 6px !important;
+      border-radius: 3px !important;
+      font-size: 11px !important;
+    }
+
+    .preview-banner .sep {
+      opacity: 0.4;
+    }
+
+    .paper {
+      background: white;
+      width: 816px; /* 8.5in at 96dpi */
+      min-height: 1056px; /* 11in at 96dpi */
+      margin: 48px auto 40px;
+      padding: 72px 72px 72px 72px; /* ~0.75in margins */
+      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    }
+
+    .section-label {
+      font-family: "SF Mono", Monaco, monospace;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #999;
+      border-top: 1px dashed #ddd;
+      padding-top: 6px;
+      margin-top: 32px;
+      margin-bottom: 0;
+    }
+
+    /* Preview-only guide line under logo header */
+    .pdf-header {
+      border-bottom: 1px dashed #ddd;
+    }
+
+    @media print {
+      .preview-banner { display: none; }
+      body { background: white !important; padding: 0 !important; }
+      .paper { box-shadow: none; margin: 0; padding: 0; width: auto; }
+      .section-label { display: none; }
+      .pdf-header { border-bottom: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="preview-banner">
+    <strong>PREVIEW MODE</strong>
+    <span class="sep">|</span>
+    To see all styles: DevTools
+    <code>Rendering → Emulate CSS media type → print</code>
+    <span class="sep">|</span>
+    Or use
+    <code>Cmd+P</code>
+    for actual print preview
+  </div>
+
+  <div class="paper">
+
+    <div class="pdf-header">
+      <img src="assets/images/logo-feral.svg" alt="Logo">
+    </div>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Headings</p>
+
+    <h1>H1 — Document Title <updated>Updated 2026-01-15</updated></h1>
+    <h2>H2 — Major Section</h2>
+    <h3>H3 — Subsection</h3>
+    <h4>H4 — Sub-subsection</h4>
+    <h5>H5 — Minor heading</h5>
+    <h6>H6 — Label / eyebrow text</h6>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Typography</p>
+
+    <p>Regular paragraph text. Eiusmod commodo, deserunt ex sit officia consequat aliqua. Ex, sit officia consequat aliqua minim. Consequat aliqua, minim reprehenderit reprehenderit. Reprehenderit aliqua minim fugiat laboris cupidatat.</p>
+
+    <p>Second paragraph with <strong>bold text</strong>, <em>italic text</em>, and <strong><em>bold italic text</em></strong> combined.</p>
+
+    <p>A paragraph with an <a href="#">inline link</a> and some <code>inline code</code> for good measure.</p>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Lists</p>
+
+    <ul>
+      <li>Unordered list item one</li>
+      <li>Unordered list item two
+        <ul>
+          <li>Nested item A</li>
+          <li>Nested item B</li>
+        </ul>
+      </li>
+      <li>Unordered list item three</li>
+    </ul>
+
+    <ol>
+      <li>Ordered list item one</li>
+      <li>Ordered list item two</li>
+      <li>Ordered list item three</li>
+    </ol>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Blockquote</p>
+
+    <blockquote>
+      <p>This is a blockquote. It should have a colored left border and a subtle background. <strong>Bold text inside a blockquote</strong> and <em>italic text</em> and <em><strong>bold italic</strong></em>.</p>
+    </blockquote>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Code</p>
+
+    <p>Inline code: <code>const foo = bar()</code> in the middle of a sentence.</p>
+
+    <pre><code>// Fenced code block
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+const result = greet('World');
+console.log(result);</code></pre>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Mark / Highlight (inline)</p>
+
+    <p>This paragraph has <mark>highlighted text using the mark tag</mark> inline. The highlight color is controlled by <code>--highlight-color</code>.</p>
+
+    <h2>Heading with <mark>highlighted words</mark> inside it</h2>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Highlight Block (custom tag)</p>
+
+    <highlight>
+      <h3>Highlighted Block Heading</h3>
+      <p>This entire block uses the custom <code>&lt;highlight&gt;</code> tag. It should render with the highlight background and contain child elements with proper spacing.</p>
+      <ul>
+        <li>Item inside a highlight block</li>
+        <li>Another item inside a highlight block</li>
+      </ul>
+    </highlight>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Table</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alice</td>
+          <td>Designer</td>
+          <td>Active</td>
+          <td><code>usr_001</code></td>
+        </tr>
+        <tr>
+          <td>Bob</td>
+          <td>Engineer</td>
+          <td>On leave</td>
+          <td><code>usr_002</code></td>
+        </tr>
+        <tr>
+          <td>Carol</td>
+          <td>Product</td>
+          <td>Active</td>
+          <td><code>usr_003</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ============================================================ -->
+    <p class="section-label">PDF Source Attribution</p>
+
+    <div class="pdf-source">
+      <p>Source: https://example.com/original-document</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Live Site Shield</p>
+
+    <p class="live-site-shield">
+      <span class="label">Live Site</span><span class="url">feralcreative.co</span>
+    </p>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Icon Placeholders</p>
+
+    <p>
+      <span class="icon-placeholder icon-5g"></span> 5G
+      <span class="icon-placeholder icon-1gig"></span> 1 Gig
+      <span class="icon-placeholder icon-10gig"></span> 10 Gig
+      <span class="icon-placeholder icon-sonic"></span> Sonic
+    </p>
+
+    <!-- ============================================================ -->
+    <p class="section-label">Page Break (visual indicator only on screen)</p>
+
+    <p>Content before the page break.</p>
+    <div class="page-break"></div>
+    <p>Content after the page break (in PDF this would start a new page).</p>
+
+  </div><!-- /.paper -->
+
+</body>
+</html>
