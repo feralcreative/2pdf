@@ -117,7 +117,8 @@ pre * {
   .pdf-logo {
     display: block;
     position: relative;
-    width: 100%;
+    width: auto;
+    height: auto;
     max-width: 150px;
     max-height: 100px;
   }

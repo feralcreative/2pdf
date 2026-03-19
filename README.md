@@ -1,4 +1,5 @@
 <!-- filename:  -->
+<!-- logo: logo-feral.svg -->
 <!-- theme-color-primary: #880088 -->
 <!-- theme-color-secondary: #444444 -->
 <!-- body-color: #222222 -->
