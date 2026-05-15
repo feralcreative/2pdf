@@ -1,4 +1,5 @@
 <!-- filename:  -->
+<!-- file-date: OFF -->
 <!-- logo: logo-feral.svg -->
 <!-- theme-color-primary: #880088 -->
 <!-- theme-color-secondary: #444444 -->
@@ -9,14 +10,14 @@
 <!-- font-size: 0.9em -->
 <!-- header-size: 0.75em -->
 <!-- body-size: 1em -->
-<!-- line-height: 1em -->
+<!-- line-height: 1.3em -->
 <!-- paragraph-spacing: 0.5em -->
 <!-- header-spacing: 0.75em -->
 <!-- list-item-spacing: 0.2em -->
 <!-- page-numbers: ON -->
-<!-- disclosure: Internal Use Only -->
-<!-- sequential-output: ON-->
-<!-- version-number: 00.25 -->
+<!-- disclosure:  -->
+<!-- sequential-output: OFF -->
+<!-- version-number: 00.44 -->
 
 # {{PROJECT_NAME}}
 
@@ -116,6 +117,8 @@ Content here...
 Content on next page...
 ```
 
+<!--| PAGE-BREAK -->
+
 ### 3. Live site shields
 
 Style a paragraph as a compact badge:
@@ -164,13 +167,15 @@ You can include multiple paragraphs, lists, headers, and other elements.
 </highlight>
 ```
 
-**Important notes about `<highlight>`:**
+##### Important notes about `<highlight>`:
 
 - It's a custom HTML element that won't render in standard markdown preview
 - It will be properly styled in the generated PDF
 - Use blank lines before and after the opening/closing tags for proper markdown parsing
 - Headers inside highlight blocks maintain their theme colors
 - You can nest inline highlighting (`<mark>` or `==text==`) inside block highlights
+
+<!--| PAGE-BREAK -->
 
 #### Custom highlight color
 
@@ -224,6 +229,8 @@ All headers use the Inter font family and are styled with specific colors, sizes
 - **Horizontal rule:** No
 - **Use for:** Smaller subsections, topic headings
 
+<!--| PAGE-BREAK -->
+
 #### H5 - Small Headings
 
 - **Font size:** 1rem (same as body text)
@@ -241,7 +248,7 @@ All headers use the Inter font family and are styled with specific colors, sizes
 - **Horizontal rule:** No
 - **Use for:** Labels, metadata headers, fine print sections
 
-**Color customization:**
+#### Color customization
 
 Headers use theme colors that can be customized per document:
 
@@ -252,8 +259,6 @@ Headers use theme colors that can be customized per document:
 
 - **Primary color** affects H1, H2, H5, H6
 - **Secondary color** affects H3, H4
-
-<!--| PAGE-BREAK -->
 
 ### 6. Table of Contents with PDF Navigation
 
@@ -278,18 +283,14 @@ Your introduction content here...
 
 Installation steps...
 
-### Configuration
-
-Configuration steps...
-
-## Usage
-
-Usage information...
+etc.
 ```
 
 When converted to PDF, all links in the table of contents become clickable internal links that jump to the corresponding sections. PDF viewers will navigate to the correct page automatically.
 
-**How it works:**
+<!--| PAGE-BREAK -->
+
+#### How it works
 
 - Headers are automatically assigned unique IDs (e.g., `# Introduction` → `id="introduction"`)
 - Markdown links like `[Introduction](#introduction)` are converted to HTML anchor links
@@ -299,7 +300,7 @@ When converted to PDF, all links in the table of contents become clickable inter
 
 For long tables of contents or lists, you can display them in multiple columns:
 
-**Two Columns:**
+##### Two Columns:
 
 ```markdown
 ## Table of Contents
@@ -318,7 +319,7 @@ For long tables of contents or lists, you can display them in multiple columns:
 <!-- /two-columns -->
 ```
 
-**Three Columns:**
+##### Three Columns:
 
 ```markdown
 <!-- three-columns -->
@@ -336,7 +337,9 @@ For long tables of contents or lists, you can display them in multiple columns:
 <!-- /three-columns -->
 ```
 
-**Four Columns:**
+<!--| PAGE-BREAK -->
+
+##### Four Columns:
 
 ```markdown
 <!-- four-columns -->
@@ -355,7 +358,7 @@ For long tables of contents or lists, you can display them in multiple columns:
 
 The content between the opening and closing tags will be displayed in the specified number of columns with a subtle divider line between them.
 
-**Manual Column Breaks:**
+##### Manual Column Breaks:
 
 You can force content to break to the next column using `<!-- column-break -->`:
 
@@ -382,6 +385,8 @@ You can force content to break to the next column using `<!-- column-break -->`:
 ```
 
 This ensures content is distributed exactly as you want across the columns.
+
+<!--| PAGE-BREAK -->
 
 ### 7. Table column widths
 
@@ -443,6 +448,8 @@ Control table column alignment using standard markdown syntax with colons in the
 | Item | Active |
 ```
 
+<!--| PAGE-BREAK -->
+
 #### Right aligned
 
 ```markdown
@@ -500,6 +507,8 @@ Content with custom styling...
   - If empty or missing, defaults to input filename
   - CLI `-o` option takes priority over this setting
 
+<!--| PAGE-BREAK -->
+
 ### Color options
 
 - **theme-color**: Primary theme - headers, blockquotes, inline code (`#ff6b35`, `#1434cb`, `#27ae60`)
@@ -512,8 +521,6 @@ Content with custom styling...
 ### Text decoration
 
 - **link-underline**: `on` or `off` - controls link underlines
-
-<!--| PAGE-BREAK -->
 
 ### Font sizing
 
@@ -532,6 +539,10 @@ Content with custom styling...
 
 - **page-numbers**: `on`, `off`, `X`, or `X of Y` - controls footer page numbering
 - **disclosure**: Brief text for center footer (e.g., `Internal Use Only`, `CONFIDENTIAL`)
+- **logo**: Filename (or absolute path) for a logo image displayed at the top of the document
+  - Bare filenames resolve to `public/assets/images/` inside the 2pdf install
+  - Embedded as a base64 data URI so the PDF stays portable
+  - Example: `<!-- logo: logo-feral.svg -->`
 
 ### Output features
 
@@ -542,6 +553,8 @@ Content with custom styling...
   - `BEFORE` prepends: `260514T2227Z-document.pdf`
   - `AFTER` appends: `document-260514T2227Z.pdf`
   - Applies on top of any other filename source (CLI `-o`, `filename`, or sequential version)
+
+<!--| PAGE-BREAK -->
 
 ## Footer Layout
 
@@ -636,32 +649,49 @@ node bin/2pdf.js file.md --verbose      # detailed output
 
 ### Quick reference
 
-**Special comments for enhanced formatting:**
+#### Special comments for enhanced formatting
 
 ```markdown
+<!-- ── Content layout ── -->
 <!-- PDF ONLY Content only in PDF -->
 <!-- PAGE-BREAK -->
 <!-- live-site-shield -->
 <!-- col-widths: 30% 70% -->
+<!-- two-columns -->
+<!-- /two-columns -->
+<!-- three-columns -->
+<!-- /three-columns -->
+<!-- four-columns -->
+<!-- /four-columns -->
+<!-- column-break -->
+
+<!-- ── Output file ── -->
 <!-- filename: custom-output.pdf -->
+<!-- file-date: AFTER -->
+<!-- sequential-output: on -->
+<!-- version-number: 00.00 -->
+
+<!-- ── Colors ── -->
 <!-- theme-color-primary: #880088 -->
 <!-- theme-color-secondary: #666666 -->
 <!-- body-color: #222222 -->
 <!-- link-color: #0000ff -->
 <!-- link-underline: off -->
 <!-- highlight-color: #ffff00 -->
+
+<!-- ── Typography ── -->
 <!-- font-size: 1.2em -->
 <!-- header-size: 1.3em -->
 <!-- body-size: 0.9em -->
-<!-- page-numbers: X of Y -->
-<!-- disclosure: Internal Use Only -->
-<!-- sequential-output: on -->
-<!-- version-number: 00.00 -->
-<!-- file-date: AFTER -->
 <!-- line-height: 1.2em -->
 <!-- paragraph-spacing: 0.8em -->
 <!-- header-spacing: 1em -->
 <!-- list-item-spacing: 0.3em -->
+
+<!-- ── Page features ── -->
+<!-- logo: logo-feral.svg -->
+<!-- page-numbers: X of Y -->
+<!-- disclosure: Internal Use Only -->
 
 # Text Highlighting
 
@@ -669,6 +699,8 @@ Inline: Use <mark>HTML mark tags</mark> or ==double equals syntax==.
 
 Block: Use <highlight>custom tag</highlight> for entire sections.
 ```
+
+<!--| PAGE-BREAK -->
 
 ## Configuration
 
