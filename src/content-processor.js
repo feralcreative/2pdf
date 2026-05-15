@@ -260,6 +260,19 @@ class ContentProcessor {
       }
     }
 
+    // Extract file-date setting from comments like <!-- file-date: BEFORE -->, <!-- file-date: AFTER -->, or <!-- file-date: OFF -->
+    const fileDateRegex = /<!--\s*file-date:\s*(.+?)\s*-->/i;
+    const fileDateMatch = content.match(fileDateRegex);
+    if (fileDateMatch) {
+      const fileDateSetting = fileDateMatch[1].trim().toLowerCase();
+      if (fileDateSetting === "before" || fileDateSetting === "after") {
+        settings.fileDate = fileDateSetting;
+        console.log(chalk.blue(`📅 Found file-date setting in document:`, fileDateSetting));
+      } else {
+        settings.fileDate = "off";
+      }
+    }
+
     // Extract highlight color from comments like <!-- highlight-color: #ffff00 -->
     const highlightColorRegex = /<!--\s*highlight-color:\s*(.+?)\s*-->/i;
     const highlightColorMatch = content.match(highlightColorRegex);
@@ -491,7 +504,7 @@ class ContentProcessor {
 
       // Generate CSS that targets only the specific table class
       widthArray.forEach((width, index) => {
-        styleTag += `.${tableClass} tr td:nth-child(${index + 1}) { width: ${width}; }\n`;
+        styleTag += `.${tableClass} tr th:nth-child(${index + 1}), .${tableClass} tr td:nth-child(${index + 1}) { width: ${width}; }\n`;
       });
 
       styleTag += `</style>\n`;

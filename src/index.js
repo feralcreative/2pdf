@@ -73,6 +73,16 @@ class ToPdf {
     return `${major.toString().padStart(2, "0")}.${minor.toString().padStart(2, "0")}`;
   }
 
+  formatUtcStamp(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    const y = pad(date.getUTCFullYear() % 100);
+    const mo = pad(date.getUTCMonth() + 1);
+    const d = pad(date.getUTCDate());
+    const h = pad(date.getUTCHours());
+    const mi = pad(date.getUTCMinutes());
+    return `${y}${mo}${d}T${h}${mi}Z`;
+  }
+
   async updateVersionInFile(filePath, newVersion) {
     try {
       const content = await fs.readFile(filePath, "utf8");
@@ -187,6 +197,7 @@ class ToPdf {
       const headerSpacing = documentSettings.headerSpacing;
       const listItemSpacing = documentSettings.listItemSpacing;
       const customFilename = documentSettings.customFilename;
+      const fileDate = documentSettings.fileDate;
       const highlightColor = documentSettings.highlightColor;
       const logo = documentSettings.logo;
 
@@ -260,6 +271,16 @@ class ToPdf {
         const baseName = path.basename(inputFile, path.extname(inputFile));
         const versionSuffix = sequentialOutput ? `-v${versionNumber}` : "";
         outputPath = path.join(path.dirname(inputPath), baseName + versionSuffix + ".pdf");
+      }
+
+      // Apply file-date prefix/suffix (UTC) if requested
+      if (fileDate === "before" || fileDate === "after") {
+        const stamp = this.formatUtcStamp(new Date());
+        const dir = path.dirname(outputPath);
+        const ext = path.extname(outputPath);
+        const base = path.basename(outputPath, ext);
+        const newBase = fileDate === "before" ? `${stamp}-${base}` : `${base}-${stamp}`;
+        outputPath = path.join(dir, newBase + ext);
       }
 
       await this.pdfGenerator.generatePdf(
