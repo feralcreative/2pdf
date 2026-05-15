@@ -15,8 +15,8 @@
 <!-- list-item-spacing: 0.2em -->
 <!-- page-numbers: ON -->
 <!-- disclosure: Internal Use Only -->
-<!-- sequential-output: OFF-->
-<!-- version-number: 00.24 -->
+<!-- sequential-output: ON-->
+<!-- version-number: 00.25 -->
 
 # {{PROJECT_NAME}}
 
@@ -537,6 +537,11 @@ Content with custom styling...
 
 - **sequential-output**: `on` or `off` - enables versioned output filenames
 - **version-number**: `XX.YY` format - auto-increments with each PDF generation
+- **file-date**: `BEFORE`, `AFTER`, or `OFF` - stamps the output filename with a UTC timestamp
+  - Format: `YYMMDDTHHMMZ` (e.g. `260514T2227Z`)
+  - `BEFORE` prepends: `260514T2227Z-document.pdf`
+  - `AFTER` appends: `document-260514T2227Z.pdf`
+  - Applies on top of any other filename source (CLI `-o`, `filename`, or sequential version)
 
 ## Footer Layout
 
@@ -652,6 +657,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- disclosure: Internal Use Only -->
 <!-- sequential-output: on -->
 <!-- version-number: 00.00 -->
+<!-- file-date: AFTER -->
 <!-- line-height: 1.2em -->
 <!-- paragraph-spacing: 0.8em -->
 <!-- header-spacing: 1em -->
