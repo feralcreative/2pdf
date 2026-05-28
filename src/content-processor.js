@@ -416,6 +416,10 @@ class ContentProcessor {
     // Process table column widths if present
     htmlContent = this.processTableColumnWidths(htmlContent);
 
+    // Process per-table font sizing if present (must run before applyTableClasses
+    // so its marker is picked up alongside col-widths markers)
+    htmlContent = this.processTableSize(htmlContent);
+
     // Apply table classes to actual table elements
     htmlContent = this.applyTableClasses(htmlContent);
 
@@ -511,6 +515,34 @@ class ContentProcessor {
 
       // Add a marker that will be replaced with the table class when we find the next table
       styleTag += `<div class="table-class-marker" data-class="${tableClass}"></div>\n`;
+
+      return styleTag;
+    });
+  }
+
+  processTableSize(htmlContent) {
+    // Process per-table font sizing
+    // Look for comments like <!-- table-size: 1em 0.75em -->
+    // First value = header (th) size, second = body (td) size. One value = both.
+    const tableSizeRegex = /<!--\s*table-size:\s*(.+?)\s*-->/gi;
+    let tableCounter = 0;
+
+    return htmlContent.replace(tableSizeRegex, (match, sizes) => {
+      const parts = sizes.trim().split(/\s+/);
+      if (!parts[0]) return "";
+
+      const headerSize = parts[0];
+      const bodySize = parts[1] || parts[0];
+
+      tableCounter++;
+      const tableClass = `table-size-${tableCounter}`;
+
+      const styleTag =
+        `<style>\n` +
+        `.${tableClass} th { font-size: ${headerSize} !important; }\n` +
+        `.${tableClass} td { font-size: ${bodySize} !important; }\n` +
+        `</style>\n` +
+        `<div class="table-class-marker" data-class="${tableClass}"></div>\n`;
 
       return styleTag;
     });

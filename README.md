@@ -424,7 +424,32 @@ Control table column widths with HTML comments:
 | --- | ---- | ---------- |
 | 1   | Test | Some notes |
 
-### 8. Table column alignment
+### 8. Table font size
+
+Override `body-size` for a single table. Place `<!-- table-size: ... -->` immediately before the table — it applies only to the next table, so you can use it multiple times throughout a document.
+
+```markdown
+<!-- table-size: 1em 0.75em -->
+
+| Name | Description    |
+| ---- | -------------- |
+| Item | Body at 0.75em |
+```
+
+- Two values: first is header (`th`) size, second is body (`td`) size
+- One value applies to both: `<!-- table-size: 0.85em -->`
+- Stackable with `col-widths`:
+
+```markdown
+<!-- col-widths: 30% 70% -->
+<!-- table-size: 0.9em 0.75em -->
+
+| Name | Description |
+| ---- | ----------- |
+| Item | Long text   |
+```
+
+### 9. Table column alignment
 
 Control table column alignment using standard markdown syntax with colons in the separator row:
 
@@ -657,6 +682,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- PAGE-BREAK -->
 <!-- live-site-shield -->
 <!-- col-widths: 30% 70% -->
+<!-- table-size: 1em 0.75em -->
 <!-- two-columns -->
 <!-- /two-columns -->
 <!-- three-columns -->
