@@ -402,15 +402,72 @@ pre * {
   }
 
   // -------------------------------------------------------------------------
-  // FOOTNOTES - Styling for footnotes section
+  // FOOTNOTES - end-of-document notes section
   // -------------------------------------------------------------------------
 
   section[data-footnotes] {
-    border-top: none !important;
+    margin-top: 2em;
+    padding-top: 0.75em;
+    font-size: 0.85em;
+    color: #444;
+
+    // heading derived from the preceding section header (see
+    // processFootnotesHeading in content-processor.js); falls back to "Notes".
+    // Small all-caps label with the single divider rule UNDER it. The global h2
+    // chrome (its own border/padding/margin/weight) is fully neutralized so the
+    // only rule is this one border-bottom.
+    .footnotes-title {
+      display: block;
+      margin: 0 0 0.75em !important;
+      padding: 0 0 0.3em !important;
+      border: none !important;
+      border-bottom: 0.5pt solid var(--theme-color-primary) !important;
+      font-weight: 500 !important;
+      font-size: 0.72em;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--theme-color-primary);
+    }
+
+    // hide any un-rewritten sr-only heading (e.g. raw HTML input path)
+    h2:not(.footnotes-title) {
+      display: none !important;
+    }
+
+    ol {
+      margin: 0;
+      padding-left: 1.25em;
+    }
+
+    li {
+      margin-bottom: 0.4em;
+
+      p {
+        margin: 0;
+      }
+    }
   }
 
-  section[data-footnotes] h2 {
-    display: none !important;
+  // in-text reference marker, e.g. [1]
+  a[data-footnote-ref] {
+    color: var(--theme-color-primary);
+    font-weight: 600;
+    text-decoration: none;
+
+    &::before {
+      content: "[";
+    }
+
+    &::after {
+      content: "]";
+    }
+  }
+
+  // back-reference arrow at the end of each note
+  a[data-footnote-backref] {
+    margin-left: 0.25em;
+    color: var(--theme-color-secondary);
+    text-decoration: none;
   }
 
   // -------------------------------------------------------------------------

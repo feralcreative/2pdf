@@ -426,6 +426,9 @@ class ContentProcessor {
     // Process table column alignment from markdown syntax
     htmlContent = this.processTableAlignment(htmlContent);
 
+    // Derive the footnotes heading from the preceding section header
+    htmlContent = this.processFootnotesHeading(htmlContent);
+
     // Process anchor links for PDF compatibility
     htmlContent = this.processAnchorLinks(htmlContent);
 
@@ -435,6 +438,59 @@ class ContentProcessor {
     }
 
     return htmlContent;
+  }
+
+  processFootnotesHeading(htmlContent) {
+    // marked-footnote appends a single end-of-document <section data-footnotes>
+    // with an empty sr-only <h2>. Rewrite that heading to use the text of the
+    // last document heading (h1-h6) that precedes the section. Falls back to
+    // "Notes" when no preceding heading exists.
+    const sectionMatch = htmlContent.match(/<section[^>]*\bdata-footnotes\b[^>]*>/i);
+    if (!sectionMatch) {
+      return htmlContent;
+    }
+
+    // Scan only the content before the footnotes section for the last heading
+    const before = htmlContent.slice(0, sectionMatch.index);
+    const headingRegex = /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi;
+    let lastHeadingInner = null;
+    let lastHeadingStart = -1;
+    let lastHeadingEnd = -1;
+    let headingMatch;
+    while ((headingMatch = headingRegex.exec(before)) !== null) {
+      lastHeadingInner = headingMatch[2];
+      lastHeadingStart = headingMatch.index;
+      lastHeadingEnd = headingMatch.index + headingMatch[0].length;
+    }
+
+    // Derive the label from the preceding heading text; fall back to "Notes"
+    let label = "Notes";
+    if (lastHeadingInner) {
+      // Strip any inline markup so the heading reads as plain text
+      const text = lastHeadingInner.replace(/<[^>]+>/g, "").trim();
+      if (text) {
+        label = text;
+      }
+    }
+
+    let working = htmlContent;
+
+    // If that heading sits immediately before the section (only whitespace
+    // between), it IS the author's notes heading. Remove it from the body so it
+    // doesn't render as a second standalone heading — with its own divider rule —
+    // stacked above the styled footnotes title (the source of the duplicate
+    // heading and double rule). Its text still drives the title below.
+    const authorHeadingAdjacent =
+      lastHeadingEnd !== -1 && before.slice(lastHeadingEnd).replace(/\s+/g, "") === "";
+    if (authorHeadingAdjacent) {
+      working = before.slice(0, lastHeadingStart) + before.slice(lastHeadingEnd) + htmlContent.slice(sectionMatch.index);
+    }
+
+    // Replace the section's empty sr-only <h2> with the styled, dynamic title
+    return working.replace(
+      /(<section[^>]*\bdata-footnotes\b[^>]*>\s*)<h2\b[^>]*>[\s\S]*?<\/h2>/i,
+      `$1<h2 class="footnotes-title">${label}</h2>`
+    );
   }
 
   addHeaderIds(htmlContent) {
