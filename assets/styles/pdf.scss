@@ -17,6 +17,10 @@ $feral: #808;
 $feral-dk: #606;
 $text: #222;
 
+// Multi-column layout (two/three/four-columns) — change these at will
+$column-gap: 2em;
+$column-rule: none; // vertical border between columns; set to `none` to remove
+
 // CSS Custom Properties for theme colors
 :root {
   --theme-color: #{$feral}; // Default to current $feral color
@@ -377,6 +381,38 @@ pre * {
   }
 
   // -------------------------------------------------------------------------
+  // MULTI-COLUMN LAYOUT - two/three/four-columns markers
+  // -------------------------------------------------------------------------
+
+  .two-column-layout,
+  .three-column-layout,
+  .four-column-layout {
+    column-gap: $column-gap;
+    column-rule: $column-rule;
+
+    ul {
+      margin: 0;
+      padding-left: 1.5em;
+    }
+
+    li {
+      margin: 0.25em 0;
+    }
+  }
+
+  .two-column-layout {
+    column-count: 2;
+  }
+
+  .three-column-layout {
+    column-count: 3;
+  }
+
+  .four-column-layout {
+    column-count: 4;
+  }
+
+  // -------------------------------------------------------------------------
   // TABLES - Column width control and consistent styling
   // -------------------------------------------------------------------------
 
@@ -420,12 +456,12 @@ pre * {
       display: block;
       margin: 0 0 0.75em !important;
       padding: 0 0 0.3em !important;
-      border: none !important;
+      border: bold !important;
       border-bottom: 0.5pt solid var(--theme-color-primary) !important;
-      font-weight: 500 !important;
-      font-size: 0.72em;
+      font-weight: 900 !important;
+      font-size: 0.55em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.01em;
       color: var(--theme-color-primary);
     }
 

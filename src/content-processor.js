@@ -420,8 +420,15 @@ class ContentProcessor {
     // so its marker is picked up alongside col-widths markers)
     htmlContent = this.processTableSize(htmlContent);
 
+    // Process per-image width overrides if present (must run before
+    // applyImageWidthClasses so its markers are emitted first)
+    htmlContent = this.processImageWidths(htmlContent);
+
     // Apply table classes to actual table elements
     htmlContent = this.applyTableClasses(htmlContent);
+
+    // Apply image-width classes to the image following each marker
+    htmlContent = this.applyImageWidthClasses(htmlContent);
 
     // Process table column alignment from markdown syntax
     htmlContent = this.processTableAlignment(htmlContent);
@@ -518,25 +525,9 @@ class ContentProcessor {
     const multiColumnRegex = /<!--\s*(two|three|four)-columns\s*-->([\s\S]*?)<!--\s*\/\1-columns\s*-->/gi;
 
     htmlContent = htmlContent.replace(multiColumnRegex, (match, columnCount, content) => {
-      const count = columnCount === "two" ? 2 : columnCount === "three" ? 3 : 4;
-
-      // Wrap content in a multi-column div with CSS
-      const styleTag = `<style>
-.${columnCount}-column-layout {
-  column-count: ${count};
-  column-gap: 2em;
-  column-rule: 1px solid #ddd;
-}
-.${columnCount}-column-layout ul {
-  margin: 0;
-  padding-left: 1.5em;
-}
-.${columnCount}-column-layout li {
-  margin: 0.25em 0;
-}
-</style>`;
-
-      return `${styleTag}<div class="${columnCount}-column-layout">${content}</div>`;
+      // Layout styling (column-count/gap/rule) lives in assets/styles/pdf.scss
+      // under the `.{two,three,four}-column-layout` selectors.
+      return `<div class="${columnCount}-column-layout">${content}</div>`;
     });
 
     // Process manual column breaks
@@ -604,21 +595,92 @@ class ContentProcessor {
     });
   }
 
-  applyTableClasses(htmlContent) {
-    // Find table class markers and apply the classes to the next table element
-    const markerRegex = /<div class="table-class-marker" data-class="([^"]+)"><\/div>/g;
+  processImageWidths(htmlContent) {
+    // Process per-image width overrides
+    // Look for comments like <!-- img-width: 300px --> (also accepts %, in, em, etc.)
+    // Applies to the next image only. The global `img { max-width: 100% }` rule still
+    // applies, so an image never overflows the page even if a larger width is given.
+    const imgWidthRegex = /<!--\s*img-width:\s*(.+?)\s*-->/gi;
+    let imageCounter = 0;
+
+    return htmlContent.replace(imgWidthRegex, (match, width) => {
+      const value = width.trim();
+      if (!value) return "";
+
+      imageCounter++;
+      const imageClass = `img-width-${imageCounter}`;
+
+      return (
+        `<style>\n` +
+        `.${imageClass} { width: ${value} !important; height: auto !important; }\n` +
+        `</style>\n` +
+        `<div class="img-class-marker" data-class="${imageClass}"></div>\n`
+      );
+    });
+  }
+
+  applyImageWidthClasses(htmlContent) {
+    // Find image class markers and apply the class to the next image element.
+    // Works positionally (slicing rather than string replace) because multiple
+    // images can be byte-identical — a naive replace would hit the wrong one.
+    const markerRegex = /<div class="img-class-marker" data-class="([^"]+)"><\/div>/;
     let result = htmlContent;
     let match;
 
-    // Process each marker
-    while ((match = markerRegex.exec(htmlContent)) !== null) {
+    while ((match = result.match(markerRegex)) !== null) {
+      const fullMatch = match[0];
+      const imageClass = match[1];
+      const markerIndex = match.index;
+      const afterStart = markerIndex + fullMatch.length;
+      const before = result.substring(0, markerIndex); // drops the marker
+      const after = result.substring(afterStart);
+
+      // Find the next image element after this marker
+      const imgMatch = after.match(/<img[^>]*>/);
+
+      if (imgMatch) {
+        const originalImg = imgMatch[0];
+        let newImg;
+
+        // Check if the image already has a class attribute
+        if (originalImg.includes("class=")) {
+          newImg = originalImg.replace(/class="([^"]*)"/, `class="$1 ${imageClass}"`);
+        } else {
+          newImg = originalImg.replace("<img", `<img class="${imageClass}"`);
+        }
+
+        const imgStart = imgMatch.index;
+        const imgEnd = imgStart + originalImg.length;
+        result = before + after.substring(0, imgStart) + newImg + after.substring(imgEnd);
+      } else {
+        // No image follows the marker; just drop the marker
+        result = before + after;
+      }
+    }
+
+    return result;
+  }
+
+  applyTableClasses(htmlContent) {
+    // Find table class markers and apply the classes to the next table element.
+    // Works positionally (slicing rather than string replace) so that multiple
+    // markers preceding the same table (e.g. col-widths + table-size) each get
+    // applied — a naive replace would miss the second one once the first edit
+    // changed the table tag, and could also hit the wrong identical table.
+    const markerRegex = /<div class="table-class-marker" data-class="([^"]+)"><\/div>/;
+    let result = htmlContent;
+    let match;
+
+    while ((match = result.match(markerRegex)) !== null) {
       const fullMatch = match[0];
       const tableClass = match[1];
       const markerIndex = match.index;
+      const afterStart = markerIndex + fullMatch.length;
+      const before = result.substring(0, markerIndex); // drops the marker
+      const after = result.substring(afterStart);
 
       // Find the next table element after this marker
-      const afterMarker = htmlContent.substring(markerIndex + fullMatch.length);
-      const tableMatch = afterMarker.match(/<table[^>]*>/);
+      const tableMatch = after.match(/<table[^>]*>/);
 
       if (tableMatch) {
         const originalTable = tableMatch[0];
@@ -631,12 +693,13 @@ class ContentProcessor {
           newTable = originalTable.replace("<table", `<table class="${tableClass}"`);
         }
 
-        // Replace the original table with the classed version
-        result = result.replace(originalTable, newTable);
+        const tableStart = tableMatch.index;
+        const tableEnd = tableStart + originalTable.length;
+        result = before + after.substring(0, tableStart) + newTable + after.substring(tableEnd);
+      } else {
+        // No table follows the marker; just drop the marker
+        result = before + after;
       }
-
-      // Remove the marker
-      result = result.replace(fullMatch, "");
     }
 
     return result;

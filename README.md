@@ -503,6 +503,20 @@ You can combine alignment with column widths:
 | Item 2 | Center aligned | $20.00 |
 ```
 
+### 10. Image width
+
+Override the width of a single image. Place `<!-- img-width: ... -->` immediately before the image — it applies only to the next image, so you can use it multiple times throughout a document.
+
+```markdown
+<!-- img-width: 150px -->
+
+![Diagram](images/diagram.png)
+```
+
+- Any CSS length is accepted: `150px`, `50%`, `4in`, `12em`, etc.
+- Images never overflow the page — the global `max-width: 100%` still applies, so a width larger than the content area is clamped.
+- Standard markdown image syntax (`![alt](path)`) is supported; the comment applies to whichever image follows it. Images without a preceding comment render at their native size (capped to the content width).
+
 ## Document styling
 
 Set theme colors, text colors, and font sizes directly in your document:
@@ -683,6 +697,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- live-site-shield -->
 <!-- col-widths: 30% 70% -->
 <!-- table-size: 1em 0.75em -->
+<!-- img-width: 150px -->
 <!-- two-columns -->
 <!-- /two-columns -->
 <!-- three-columns -->
