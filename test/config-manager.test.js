@@ -72,7 +72,7 @@ EMPTY_VALUE=
       // Check that all expected tokens are present
       expect(tokens.DATE).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(tokens.DATE_LONG).toMatch(/^[A-Za-z]+ \d{1,2}, \d{4}$/);
-      expect(tokens.TIME_NOW).toMatch(/^\d{2}:\d{2}$/);
+      expect(tokens.TIME).toMatch(/^\d{2}:\d{2}$/);
       expect(tokens.DATETIME_NOW).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
       expect(tokens.TIMESTAMP).toMatch(/^\d+$/);
       expect(tokens.YEAR).toMatch(/^\d{4}$/);
@@ -99,7 +99,7 @@ EMPTY_VALUE=
   describe("loadConfig", () => {
     test("should load config from script directory", async () => {
       const configContent = "DEVELOPER_NAME=Script Dir User";
-      const configPath = path.join(tempDir, "md2pdf.config");
+      const configPath = path.join(tempDir, "2pdf.config");
       await fs.writeFile(configPath, configContent);
 
       const config = await configManager.loadConfig();

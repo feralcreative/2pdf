@@ -78,6 +78,6 @@ These are endnotes, not per-page footnotes. See [decisions.md](decisions.md).
 
 ## Dead code
 
-- `src/dependency-manager.js`—Chrome/Pandoc detection from the shell-script era. Nothing requires it. Its unused `spawn` import is one of the standing lint errors.
+- `src/dependency-manager.js`—Chrome/Pandoc detection from the shell-script era. Nothing requires it; the whole file is a deletion candidate, pending the user's call.
 - `PdfGenerator.findChrome()`—returns the string `"puppeteer-chrome"` and is never called. Real detection happens in the constructor's `chromePaths` loop.
 - `debug-highlight.js` at the repo root—calls `processContent()` with the wrong arity and expects an object back. Broken.

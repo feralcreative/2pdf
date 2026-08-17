@@ -4,6 +4,7 @@
 
 const TokenProcessor = require("../src/token-processor");
 const ConfigManager = require("../src/config-manager");
+const fs = require("fs-extra");
 const path = require("path");
 const os = require("os");
 
@@ -60,48 +61,52 @@ describe("TokenProcessor", () => {
   });
 
   describe("processTokens", () => {
-    test("should process automatic tokens", async () => {
-      const content = "Generated on {{DATE}} by {{USERNAME}}";
-      const config = {};
+    let tempDir;
 
-      const result = await tokenProcessor.processTokens("dummy-path", config);
+    beforeEach(async () => {
+      tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "2pdf-test-"));
+    });
 
-      // Should contain actual date and username
+    afterEach(async () => {
+      await fs.remove(tempDir);
+    });
+
+    const writeInput = async (content) => {
+      const inputPath = path.join(tempDir, "input.md");
+      await fs.writeFile(inputPath, content);
+      return inputPath;
+    };
+
+    test("should process automatic tokens when config is empty", async () => {
+      const inputPath = await writeInput("Generated on {{DATE}} by {{USERNAME}}");
+
+      const result = await tokenProcessor.processTokens(inputPath, {});
+
+      // Automatic tokens are documented as always available, so an empty config
+      // must not short-circuit them.
       expect(result).toMatch(/Generated on \d{4}-\d{2}-\d{2} by \w+/);
       expect(result).not.toContain("{{DATE}}");
       expect(result).not.toContain("{{USERNAME}}");
     });
 
     test("should process config tokens", async () => {
-      const content = "Created by {{DEVELOPER_NAME}} at {{COMPANY_NAME}}";
-      const config = {
+      const inputPath = await writeInput("Created by {{DEVELOPER_NAME}} at {{COMPANY_NAME}}");
+
+      const result = await tokenProcessor.processTokens(inputPath, {
         DEVELOPER_NAME: "John Doe",
         COMPANY_NAME: "Acme Corp",
-      };
-
-      // Mock the file reading since we're not using a real file
-      const originalProcessTokens = tokenProcessor.processTokens;
-      tokenProcessor.processTokens = async function (inputPath, config) {
-        // Skip file reading and process the content directly
-        let processedContent = content;
-
-        // Get automatic tokens
-        const automaticTokens = this.configManager.getAutomaticTokens();
-        const allTokens = { ...config, ...automaticTokens };
-
-        // Process tokens
-        for (const [key, value] of Object.entries(config)) {
-          if (this.hasToken(processedContent, key)) {
-            processedContent = this.replaceToken(processedContent, key, value);
-          }
-        }
-
-        return processedContent;
-      };
-
-      const result = await tokenProcessor.processTokens("dummy-path", config);
+      });
 
       expect(result).toBe("Created by John Doe at Acme Corp");
+    });
+
+    test("should leave tokens inside code blocks alone", async () => {
+      const inputPath = await writeInput('Use {{DATE}} here.\n\n```bash\necho "{{DATE}}"\n```\n');
+
+      const result = await tokenProcessor.processTokens(inputPath, {});
+
+      expect(result).toMatch(/Use \d{4}-\d{2}-\d{2} here\./);
+      expect(result).toContain('echo "{{DATE}}"');
     });
   });
 });

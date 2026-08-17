@@ -119,8 +119,7 @@ class ConfigManager {
     const hostname = os.hostname();
     const username = os.userInfo().username;
 
-    // Get timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Get timezone (short form, e.g. PST — this is what the TIMEZONE token uses)
     const timezoneShort = now.toLocaleString("en", { timeZoneName: "short" }).split(" ").pop();
 
     return {

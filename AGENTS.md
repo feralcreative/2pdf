@@ -24,19 +24,16 @@ When a change makes anything in this file inaccurate—a command, a path, a conv
 
 There is no typecheck step (plain JS, no TypeScript). `npm start` and `npm run dev` run `src/index.js` directly, which exports a class and does nothing on its own—use `node bin/2pdf.js` instead.
 
-## Known-failing baseline
+## Baseline
 
-`npm run build` fails today, before any change you make. Verified 2026-08-17:
+`npm run build` passes clean as of 2026-08-17: zero lint errors, 17 of 17 tests green. Any failure you see is yours—do not write one off as pre-existing without first checking `git stash`.
 
-- `npm run lint`—10 errors. Four `no-unused-vars` (`timezone` in `src/config-manager.js`, `spawn` in `src/dependency-manager.js`, `fs` in `src/pdf-generator.js`, `allTokens` in `src/token-processor.js`) and six `no-undef` on `document` inside `page.evaluate` callbacks in `src/pdf-generator.js` (the `eslintConfig` in `package.json` sets `env.node` but not `env.browser`).
-- `npm test`—3 of 16 fail, all in tests left over from the pre-rename `md2pdf` era: `TIME_NOW` (the token is named `TIME`), a fixture written as `md2pdf.config` (the loader looks for `2pdf.config`), and two `processTokens("dummy-path")` calls that hit the real filesystem.
-
-Do not report these as caused by your change, and do not claim a clean build. Compare against this baseline; if your change adds a new failure, fix it.
+Coverage is still thin: only `ConfigManager` and `TokenProcessor` have unit tests. Every rendering path—`ContentProcessor`, `StyleManager`, `PdfGenerator`—is uncovered, so a green suite is weak evidence. Smoke-test real output.
 
 ## Definition of done
 
-1. `npm run lint`—no *new* errors beyond the 10 above.
-2. `npm test`—no *new* failures beyond the 3 above.
+1. `npm run lint`—clean, no errors.
+2. `npm test`—all green.
 3. If you touched `assets/styles/pdf.scss`, recompile into `public/assets/styles/` (see Commands). Nothing reads the SCSS at runtime.
 4. Smoke-test an actual conversion end to end. Unit tests cover only `ConfigManager` and `TokenProcessor`; every rendering path is uncovered.
 

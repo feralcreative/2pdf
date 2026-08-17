@@ -5,6 +5,10 @@
  * Replicates the Chrome command-line options from the original shell script
  */
 
+/* global document */
+// `document` is referenced only inside page.evaluate() callbacks, which run in
+// the browser context rather than in Node.
+
 const puppeteer = require("puppeteer");
 const fs = require("fs-extra");
 const path = require("path");
@@ -22,7 +26,7 @@ class PdfGenerator {
     let executablePath = null;
     for (const chromePath of chromePaths) {
       try {
-        require("fs").accessSync(chromePath);
+        fs.accessSync(chromePath);
         executablePath = chromePath;
         break;
       } catch (e) {

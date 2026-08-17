@@ -52,6 +52,12 @@ Note the probe list has no Windows path, so Windows always uses the bundled bina
 
 `processFontPaths()` exists to rewrite `../fonts/` URLs to absolute `file://` for local font files, but `assets/fonts/` was never populated—`pdf.scss` `@import`s Inter from Google Fonts instead. Trade-off accepted: renders need network access, in exchange for not carrying ~15 font files in the repo. The `processFontPaths()` machinery is kept so dropping fonts in later needs no code change.
 
+## An empty config must not short-circuit token replacement
+
+`processTokens()` and `processTokensInContent()` both used to return the content untouched when `config` was `{}`, on the theory that no config means nothing to replace. That skipped the *automatic* tokens too, so `{{DATE}}` and `{{USERNAME}}` leaked literally into the PDF whenever no `2pdf.config` was found anywhere—reachable on a fresh clone, since `config/2pdf.config` is gitignored. README calls automatic tokens "always available", so the code contradicted the documentation.
+
+Both early returns were removed on 2026-08-17 and a regression test added. Do not reinstate them as an optimization: `getAutomaticTokens()` is cheap, and the guard's only effect was the bug. The visible change is that a no-config run now resolves date/time/system tokens and may emit an unprocessed-token warning where it previously stayed silent.
+
 ## `sequential-output` writes back to the source document
 
 Incrementing `<!-- version-number: -->` in the user's own Markdown after a successful render is intentional: the version has to survive between invocations and the document is the only place a user reliably keeps. Rejected: a sidecar state file (invisible, gets out of sync, pollutes the user's project).

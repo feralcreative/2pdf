@@ -19,17 +19,12 @@ class TokenProcessor {
     // Read the input file
     let content = await fs.readFile(inputPath, "utf8");
 
-    if (Object.keys(config).length === 0) {
-      // No config file, return content as-is
-      return content;
-    }
+    // No early return on an empty `config`: automatic tokens ({{DATE}},
+    // {{USERNAME}}, …) are documented as always available, and loadConfig()
+    // legitimately returns {} when no 2pdf.config exists anywhere.
 
     // Get automatic tokens
     const automaticTokens = this.configManager.getAutomaticTokens();
-
-    // Combine config tokens with automatic tokens
-    // Config tokens are processed first to allow them to contain automatic tokens
-    const allTokens = { ...config, ...automaticTokens };
 
     // Process tokens with multiple passes to handle nested tokens
     const maxPasses = 3;
@@ -200,10 +195,8 @@ class TokenProcessor {
   async processTokensInContent(content, config) {
     console.log(chalk.blue("🏷️ Processing tokens in content..."));
 
-    if (Object.keys(config).length === 0) {
-      // No config file, return content as-is
-      return content;
-    }
+    // Same as processTokens: no early return on an empty `config`, so automatic
+    // tokens still resolve in HTML input when no 2pdf.config exists.
 
     // Get automatic tokens
     const automaticTokens = this.configManager.getAutomaticTokens();

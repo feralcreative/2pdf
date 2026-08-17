@@ -30,7 +30,7 @@ Caveat: the browser shows the screen cascade. Most of `pdf.scss` is inside `@med
 
 Each pipeline step prints one line. A missing line means that step was skipped.
 
-- `📋 Using config file: …`—which of the four locations won. Absent means no config was found and token replacement is inert.
+- `📋 Using config file: …`—which of the four locations won. Absent means no config was found, so only automatic tokens resolve; any custom `{{TOKEN}}` will be reported as unprocessed.
 - `🎨 Found theme color in document: …` / `📄 Found page numbers setting …`—the setting parsed. **Absent means the regex did not match**, which is the usual cause of "my setting is ignored".
 - `🔍 CSS file path: …`—confirms `public/assets/styles/pdf.min.css` was the stylesheet, not `assets/styles/`.
 - `⚠️ Fonts directory not found, using web fonts`—always printed; expected, not a fault.
@@ -77,4 +77,8 @@ node bin/2pdf.js /tmp/smoke.md --no-open
 
 ## Test-suite noise
 
-`npm test` prints `ℹ️ No config file found` and `🏷️ Processing tokens…` from the code under test. Expected. Three failures are a known pre-existing baseline—see AGENTS.md before attributing any of them to your change.
+`npm test` prints `ℹ️ No config file found`, `🏷️ Processing tokens…`, and a `⚠️ Warning: Found unprocessed tokens: {{DATE}}` from the code under test. All expected—the last one is the known false positive described below. The suite itself is green; a failure means your change.
+
+## Known cosmetic wart
+
+`findRemainingTokens()` does not exclude code blocks, so a document that merely *documents* a token inside a fence (`` `{{DATE}}` `` or a ```` ```bash ```` block) still triggers `⚠️ Warning: Found unprocessed tokens` and advises adding it to `2pdf.config`. Replacement itself is correctly code-block-aware—only the warning is over-eager. Harmless, but do not chase it as a replacement bug.

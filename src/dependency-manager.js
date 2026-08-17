@@ -5,7 +5,7 @@
  * Manages Chrome detection and other system requirements
  */
 
-const { execSync, spawn } = require('child_process');
+const { execSync } = require('child_process');
 const which = require('which');
 const chalk = require('chalk');
 const os = require('os');
