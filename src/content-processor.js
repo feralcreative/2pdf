@@ -424,11 +424,18 @@ class ContentProcessor {
     // applyImageWidthClasses so its markers are emitted first)
     htmlContent = this.processImageWidths(htmlContent);
 
+    // Process per-code-block font sizing if present (must run before
+    // applyCodeSizeClasses so its markers are emitted first)
+    htmlContent = this.processCodeSize(htmlContent);
+
     // Apply table classes to actual table elements
     htmlContent = this.applyTableClasses(htmlContent);
 
     // Apply image-width classes to the image following each marker
     htmlContent = this.applyImageWidthClasses(htmlContent);
+
+    // Apply code-size classes to the code block following each marker
+    htmlContent = this.applyCodeSizeClasses(htmlContent);
 
     // Process table column alignment from markdown syntax
     htmlContent = this.processTableAlignment(htmlContent);
@@ -593,6 +600,76 @@ class ContentProcessor {
 
       return styleTag;
     });
+  }
+
+  processCodeSize(htmlContent) {
+    // Process per-code-block font sizing
+    // Look for comments like <!-- code-size: 1.4em --> (also accepts px, %, pt, rem)
+    // Applies to the next code block only. The value is relative to body text,
+    // matching `table-size`; the unstyled default is 0.75em.
+    const codeSizeRegex = /<!--\s*code-size:\s*(.+?)\s*-->/gi;
+    let codeCounter = 0;
+
+    return htmlContent.replace(codeSizeRegex, (match, size) => {
+      const value = size.trim();
+      if (!value) return "";
+
+      codeCounter++;
+      const codeClass = `code-size-${codeCounter}`;
+
+      // Size the <pre> itself, then pin the inner <code> to 1em so it inherits
+      // rather than compounding. `.class code` (0,1,1) outranks the stylesheet's
+      // `code { font-size: .75em !important }` (0,0,1), so the override lands.
+      return (
+        `<style>\n` +
+        `.${codeClass} { font-size: ${value} !important; }\n` +
+        `.${codeClass} code { font-size: 1em !important; }\n` +
+        `</style>\n` +
+        `<div class="code-class-marker" data-class="${codeClass}"></div>\n`
+      );
+    });
+  }
+
+  applyCodeSizeClasses(htmlContent) {
+    // Find code class markers and apply the class to the next <pre> element.
+    // Works positionally (slicing rather than string replace) because multiple
+    // code blocks can be byte-identical — a naive replace would hit the wrong one.
+    const markerRegex = /<div class="code-class-marker" data-class="([^"]+)"><\/div>/;
+    let result = htmlContent;
+    let match;
+
+    while ((match = result.match(markerRegex)) !== null) {
+      const fullMatch = match[0];
+      const codeClass = match[1];
+      const markerIndex = match.index;
+      const afterStart = markerIndex + fullMatch.length;
+      const before = result.substring(0, markerIndex); // drops the marker
+      const after = result.substring(afterStart);
+
+      // Find the next code block after this marker
+      const preMatch = after.match(/<pre[^>]*>/);
+
+      if (preMatch) {
+        const originalPre = preMatch[0];
+        let newPre;
+
+        // Check if the pre already has a class attribute
+        if (originalPre.includes("class=")) {
+          newPre = originalPre.replace(/class="([^"]*)"/, `class="$1 ${codeClass}"`);
+        } else {
+          newPre = originalPre.replace("<pre", `<pre class="${codeClass}"`);
+        }
+
+        const preStart = preMatch.index;
+        const preEnd = preStart + originalPre.length;
+        result = before + after.substring(0, preStart) + newPre + after.substring(preEnd);
+      } else {
+        // No code block follows the marker; just drop the marker
+        result = before + after;
+      }
+    }
+
+    return result;
   }
 
   processImageWidths(htmlContent) {

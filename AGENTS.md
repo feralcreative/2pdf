@@ -69,7 +69,7 @@ Two entry points: `bin/2pdf.js` (Commander CLI) and `src/index.js` (exports `ToP
 1. `ConfigManager.loadConfig()`—finds and parses `2pdf.config` into a flat `KEY=VALUE` map.
 2. `TokenProcessor.processTokens(inputPath, config)`—up to 3 passes of `{{TOKEN}}` substitution, skipping code blocks.
 3. `ContentProcessor.processContent()`—runs `extractDocumentSettings()` (stashed on `this.documentSettings`), then PDF-only blocks, page breaks, live-site shields.
-4. `ContentProcessor.markdownToHtml()`—captures the first `# H1` as `documentTitle`, runs `marked`, then `postProcessHtml()` (header IDs, columns, table widths/size/alignment, image widths, footnote heading, anchor links, image paths).
+4. `ContentProcessor.markdownToHtml()`—captures the first `# H1` as `documentTitle`, runs `marked`, then `postProcessHtml()` (header IDs, columns, table widths/size/alignment, image widths, code sizes, footnote heading, anchor links, image paths).
 5. `ToPdf` reads `contentProcessor.getDocumentSettings()` and resolves a `logo` into a base64 data URI.
 6. `StyleManager.applyStyles()`—loads compiled CSS, string-substitutes theme colors and every size/spacing setting into it, wraps the body in a full HTML document.
 7. Styled HTML is written to `os.tmpdir()/2pdf-<ms>/styled.html`.

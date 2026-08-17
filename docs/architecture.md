@@ -22,10 +22,13 @@ Features on this protocol:
 | Comment | Phase 1 | Phase 2 |
 | --- | --- | --- |
 | `<!-- img-width: -->` | `processImageWidths()` | `applyImageWidthClasses()` |
+| `<!-- code-size: -->` | `processCodeSize()` | `applyCodeSizeClasses()` |
 | `<!-- col-widths: -->` | `processTableColumnWidths()` | `applyTableClasses()` |
 | `<!-- table-size: -->` | `processTableSize()` | `applyTableClasses()` |
 
 `applyTableClasses()` is shared by both table producers—it accumulates all pending classes onto one table. Adding a third table-scoped comment means adding a producer, not a second walker.
+
+`applyCodeSizeClasses()` targets `<pre>`, not `<code>`: it sizes the block and pins the inner `<code>` to `1em` so the value does not compound. The `.code-size-N code` selector (0,1,1) is what beats the stylesheet's `code { font-size: .75em !important }` (0,0,1)—a bare `.code-size-N` rule on the `<pre>` alone would be overridden on the text itself.
 
 `processTableAlignment()` is the exception: it is not comment-driven and not on the marker protocol. It walks every `<table>` that has a `<thead>`, reads the per-column alignment that `marked` already emitted from the markdown separator row (`:---`, `:---:`, `---:`), and writes an `align-table-N` class plus its own `<style>` block directly. It therefore runs on all tables, not just annotated ones.
 
@@ -42,7 +45,7 @@ Features on this protocol:
 | Document settings | full `extractDocumentSettings()` | full `extractDocumentSettings()` |
 | Styling | always full stylesheet | theme-colour variables only if the file already has `<style>`, `<link>`, or inline styles (`hasExistingCss()`); full stylesheet otherwise |
 
-Consequence: markers, columns, table widths, image widths, header IDs, and the footnote heading are **Markdown-only**. A feature added to `postProcessHtml()` does not reach HTML input. If it must, add it to `processHtmlContent()` too.
+Consequence: markers, columns, table widths, image widths, code sizes, header IDs, and the footnote heading are **Markdown-only**. A feature added to `postProcessHtml()` does not reach HTML input. If it must, add it to `processHtmlContent()` too.
 
 ## Document settings threading
 

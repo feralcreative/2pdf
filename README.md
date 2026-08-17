@@ -517,6 +517,23 @@ Override the width of a single image. Place `<!-- img-width: ... -->` immediatel
 - Images never overflow the page — the global `max-width: 100%` still applies, so a width larger than the content area is clamped.
 - Standard markdown image syntax (`![alt](path)`) is supported; the comment applies to whichever image follows it. Images without a preceding comment render at their native size (capped to the content width).
 
+### 11. Code block font size
+
+Override the text size of a single code block. Place `<!-- code-size: ... -->` immediately before the block — it applies only to the next code block, so you can use it as many times as you like in one document.
+
+````markdown
+<!-- code-size: 1.4em -->
+
+```js
+const scaledUp = true;
+```
+````
+
+- Any CSS length is accepted: `1.4em`, `0.6em`, `11px`, `9pt`, etc.
+- The value is relative to body text, the same way `table-size` works. The unstyled default for code blocks is `0.75em`, so `1.4em` is noticeably larger and `0.6em` noticeably smaller.
+- Applies to fenced and indented code blocks. Inline code (`` `like this` ``) is never affected — only the block that follows the comment.
+- Blocks without a preceding comment keep the default size.
+
 ## Document styling
 
 Set theme colors, text colors, and font sizes directly in your document:
@@ -698,6 +715,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- col-widths: 30% 70% -->
 <!-- table-size: 1em 0.75em -->
 <!-- img-width: 150px -->
+<!-- code-size: 1.4em -->
 <!-- two-columns -->
 <!-- /two-columns -->
 <!-- three-columns -->
