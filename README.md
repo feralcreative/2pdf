@@ -599,7 +599,7 @@ Content with custom styling...
 - **watermark**: `on` (or `DRAFT`), `off`, or any custom text - stamps a large diagonal watermark across every page
   - `on`/`true`/`yes` renders `DRAFT`; `off`/`false`/`no`/`none` disables it
   - Any other value is used verbatim, e.g. `<!-- watermark: NOT FOR DISTRIBUTION -->`
-  - Drawn over the content in the theme color at 12% opacity, and scaled down automatically for longer strings
+  - Drawn over the content in the `theme-color-primary` color faded to 5% (falls back to `theme-color`), and scaled down automatically for longer strings
   - Ignored for `.html` input that carries its own CSS (same as `logo`)
 - **logo**: Filename (or absolute path) for a logo image displayed at the top of the document
   - Bare filenames resolve to `public/assets/images/` inside the 2pdf install

@@ -165,7 +165,12 @@ class StyleManager {
 
     // Apply watermark styling if specified
     if (watermark) {
-      cssContent = this.applyWatermark(cssContent, watermark);
+      // Watermark takes the theme primary color, falling back to the base theme color
+      const watermarkColor =
+        this.resolveThemeColor(themeColorPrimary, config) ||
+        this.resolveThemeColor(effectiveThemeColor, config) ||
+        "#880088";
+      cssContent = this.applyWatermark(cssContent, watermark, watermarkColor);
     }
 
     // Create complete HTML document with embedded CSS
@@ -596,11 +601,16 @@ li {
       .replace(/"/g, "&quot;");
   }
 
-  applyWatermark(cssContent, watermark) {
-    console.log(chalk.blue(`💧 Applying watermark:`, watermark));
+  applyWatermark(cssContent, watermark, watermarkColor = "#880088") {
+    console.log(chalk.blue(`💧 Applying watermark:`, watermark, chalk.gray(`(${watermarkColor} @ 5%)`)));
 
     // Scale the type down for longer strings so the word still fits the page diagonal
     const fontSize = Math.max(24, Math.min(140, Math.round(1100 / watermark.length)));
+
+    // Fade the theme color back to 5%; non-hex values (from a config color) fall back to opacity
+    const isHex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(watermarkColor);
+    const color = isHex ? this.hexToRgba(watermarkColor, 0.05) : watermarkColor;
+    const fallbackOpacity = isHex ? 1 : 0.05;
 
     // Fixed positioning makes Chrome repeat the element on every printed page
     const watermarkCSS = `
@@ -611,8 +621,8 @@ li {
   left: 50% !important;
   transform: translate(-50%, -50%) rotate(-45deg) !important;
   z-index: 9999 !important;
-  color: var(--theme-color, #808080) !important;
-  opacity: 0.12 !important;
+  color: ${color} !important;
+  opacity: ${fallbackOpacity} !important;
   font-family: "Inter", sans-serif !important;
   font-size: ${fontSize}pt !important;
   font-weight: 800 !important;
