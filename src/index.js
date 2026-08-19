@@ -200,6 +200,7 @@ class ToPdf {
       const fileDate = documentSettings.fileDate;
       const highlightColor = documentSettings.highlightColor;
       const logo = documentSettings.logo;
+      const watermark = documentSettings.watermark;
 
       // Resolve logo to absolute path and encode as base64 data URI
       let resolvedLogoPath = null;
@@ -243,7 +244,8 @@ class ToPdf {
         themeColorSecondary,
         highlightColor,
         listItemSpacing,
-        logoDataUri
+        logoDataUri,
+        watermark
       );
 
       // Save styled HTML to temp file

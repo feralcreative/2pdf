@@ -37,7 +37,8 @@ class StyleManager {
     themeColorSecondary = null,
     highlightColor = null,
     listItemSpacing = null,
-    logoDataUri = null
+    logoDataUri = null,
+    watermark = null
   ) {
     let cssContent = "";
 
@@ -162,8 +163,13 @@ class StyleManager {
       cssContent = this.applySinglePageMode(cssContent);
     }
 
+    // Apply watermark styling if specified
+    if (watermark) {
+      cssContent = this.applyWatermark(cssContent, watermark);
+    }
+
     // Create complete HTML document with embedded CSS
-    const styledHtml = this.createStyledHtml(htmlContent, cssContent, documentTitle, logoDataUri);
+    const styledHtml = this.createStyledHtml(htmlContent, cssContent, documentTitle, logoDataUri, watermark);
 
     return styledHtml;
   }
@@ -192,10 +198,13 @@ class StyleManager {
     return cssContent;
   }
 
-  createStyledHtml(htmlContent, cssContent, documentTitle = null, logoDataUri = null) {
+  createStyledHtml(htmlContent, cssContent, documentTitle = null, logoDataUri = null, watermark = null) {
     const title = documentTitle || "Markdown to PDF";
     const logoHtml = logoDataUri
       ? `<div class="pdf-header"><img class="pdf-logo" src="${logoDataUri}" alt="Logo"></div>\n`
+      : "";
+    const watermarkHtml = watermark
+      ? `<div class="pdf-watermark" aria-hidden="true">${this.escapeHtml(watermark)}</div>\n`
       : "";
     return `<!DOCTYPE html>
 <html lang="en">
@@ -208,7 +217,7 @@ ${cssContent}
     </style>
 </head>
 <body>
-${logoHtml}${htmlContent}
+${watermarkHtml}${logoHtml}${htmlContent}
 
 <script>
 // Force font loading and apply additional processing
@@ -577,6 +586,46 @@ li {
     const b = parseInt(hex.substring(4, 6), 16);
 
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  applyWatermark(cssContent, watermark) {
+    console.log(chalk.blue(`💧 Applying watermark:`, watermark));
+
+    // Scale the type down for longer strings so the word still fits the page diagonal
+    const fontSize = Math.max(24, Math.min(140, Math.round(1100 / watermark.length)));
+
+    // Fixed positioning makes Chrome repeat the element on every printed page
+    const watermarkCSS = `
+/* Watermark override from document settings */
+.pdf-watermark {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-45deg) !important;
+  z-index: 9999 !important;
+  color: var(--theme-color, #808080) !important;
+  opacity: 0.12 !important;
+  font-family: "Inter", sans-serif !important;
+  font-size: ${fontSize}pt !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+`;
+
+    return cssContent + watermarkCSS;
   }
 
   applySinglePageMode(cssContent) {

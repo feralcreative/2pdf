@@ -551,6 +551,7 @@ Set theme colors, text colors, and font sizes directly in your document:
 <!-- header-size: 1.3em -->
 <!-- body-size: 0.9em -->
 <!-- page-numbers: on -->
+<!-- watermark: DRAFT -->
 
 # Your Document Title
 
@@ -595,6 +596,11 @@ Content with custom styling...
 
 - **page-numbers**: `on`, `off`, `X`, or `X of Y` - controls footer page numbering
 - **disclosure**: Brief text for center footer (e.g., `Internal Use Only`, `CONFIDENTIAL`)
+- **watermark**: `on` (or `DRAFT`), `off`, or any custom text - stamps a large diagonal watermark across every page
+  - `on`/`true`/`yes` renders `DRAFT`; `off`/`false`/`no`/`none` disables it
+  - Any other value is used verbatim, e.g. `<!-- watermark: NOT FOR DISTRIBUTION -->`
+  - Drawn over the content in the theme color at 12% opacity, and scaled down automatically for longer strings
+  - Ignored for `.html` input that carries its own CSS (same as `logo`)
 - **logo**: Filename (or absolute path) for a logo image displayed at the top of the document
   - Bare filenames resolve to `public/assets/images/` inside the 2pdf install
   - Embedded as a base64 data URI so the PDF stays portable
@@ -751,6 +757,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- logo: logo-feral.svg -->
 <!-- page-numbers: X of Y -->
 <!-- disclosure: Internal Use Only -->
+<!-- watermark: DRAFT -->
 
 # Text Highlighting
 

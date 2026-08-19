@@ -295,6 +295,22 @@ class ContentProcessor {
       }
     }
 
+    // Extract watermark from comments like <!-- watermark: DRAFT --> or <!-- watermark: on -->
+    const watermarkRegex = /<!--\s*watermark:\s*(.+?)\s*-->/i;
+    const watermarkMatch = content.match(watermarkRegex);
+    if (watermarkMatch) {
+      const watermarkSetting = watermarkMatch[1].trim();
+      const normalizedWatermark = watermarkSetting.toLowerCase();
+      if (["off", "false", "no", "none"].includes(normalizedWatermark)) {
+        settings.watermark = null;
+      } else if (["on", "true", "yes"].includes(normalizedWatermark)) {
+        settings.watermark = "DRAFT";
+      } else {
+        settings.watermark = watermarkSetting;
+      }
+      console.log(chalk.blue(`💧 Found watermark in document:`, settings.watermark || "off"));
+    }
+
     return settings;
   }
 
