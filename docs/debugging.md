@@ -6,8 +6,8 @@ Read when the PDF is wrong but nothing threw. There are no log files—everythin
 
 | Flag | Effect |
 | --- | --- |
-| `--verbose` | Prints working dir, install dir, temp dir, input path, resolved font paths, and the stack trace on failure |
-| `--debug` | Keeps the temp directory and prints its path instead of deleting it |
+| `--verbose` | Prints working dir, install dir, temp dir, and input path. CLI-caught exceptions include a stack trace; failures returned by `convert()` include only the message |
+| `--debug` | Keeps the temp directory after success and prints its path; `convert()` still deletes it on failure |
 | `--no-open` | Skips the macOS auto-open. Always use this in scripted or agent runs |
 | `-c <path>` | Forces a config file, bypassing the four-location search |
 | `-s <path>` | Forces a CSS file, bypassing the compiled stylesheet |
@@ -46,7 +46,7 @@ Some steps print twice (once from `ToPdf.convert()`, once from the processor). C
 | `No CSS file found. Expected pdf.min.css or pdf.css in assets/styles/` | Compiled CSS absent—it is gitignored | Compile the SCSS into `public/assets/styles/` (see AGENTS.md Commands). The error message names the wrong directory |
 | A document setting is ignored, no `Found …` line | Regex did not match. Most likely a hyphen in the value—the older settings use `([^-]+?)` | Remove the hyphen, or widen that one regex to `(.+?)` and verify it still stops at `-->` |
 | A recent `pdf.scss` change has no effect | Not recompiled, or compiled into `assets/styles/` instead of `public/assets/styles/` | Recompile to `public/assets/styles/` |
-| A CSS rule has no effect at all | Rule sits outside `@media print`, or a prepended `!important` override in `style-manager.js` beats it | Check the block; check the `apply*` methods |
+| A CSS rule has no effect at all | Print rules or a prepended `!important` override in `style-manager.js` beat it, or `pdf.min.css` is stale | Inspect the print cascade and the loaded stylesheet; check the `apply*` methods |
 | Wrong config values | 2pdf's own `config/2pdf.config` outranks the calling project's `config/2pdf.config` | Pass `-c`, or check the `📋 Using config file` line |
 | Tokens left as `{{FOO}}` | Not in config, misspelled, or inside a code block (protected by design) | Look for the unprocessed-tokens warning; check `config/2pdf.config.sample` for the canonical key list |
 | Fonts render as generic sans-serif | Google Fonts unreachable—Inter is not bundled | Check network. Not a code fault |
@@ -72,12 +72,12 @@ End-to-end smoke test:
 
 ```bash
 printf '# Smoke\n\nHello[^1] ==mark==\n\n[^1]: note\n' > /tmp/smoke.md
-node bin/2pdf.js /tmp/smoke.md --no-open
+node bin/2pdf.js /tmp/smoke.md -c config/2pdf.config.sample --no-open
 ```
 
 ## Test-suite noise
 
-`npm test` prints `ℹ️ No config file found`, `🏷️ Processing tokens…`, and a `⚠️ Warning: Found unprocessed tokens: {{DATE}}` from the code under test. All expected—the last one is the known false positive described below. The suite itself is green; a failure means your change.
+`npm test` prints `ℹ️ No config file found`, `🏷️ Processing tokens…`, and a `⚠️ Warning: Found unprocessed tokens: {{DATE}}` from the code under test. All expected—the last one is the known false positive described below. Compare failures against a build run before your edits; a historical pass does not establish the current baseline.
 
 ## Known cosmetic wart
 

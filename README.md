@@ -16,6 +16,7 @@
 <!-- list-item-spacing: 0.2em -->
 <!-- page-numbers: ON -->
 <!-- disclosure:  -->
+<!-- watermark: OFF -->
 <!-- sequential-output: OFF -->
 <!-- version-number: 00.44 -->
 
@@ -534,6 +535,23 @@ const scaledUp = true;
 - Applies to fenced and indented code blocks. Inline code (`` `like this` ``) is never affected — only the block that follows the comment.
 - Blocks without a preceding comment keep the default size.
 
+### 12. Header rules
+
+H1, H2, and H3 get a hairline rule beneath them by default. Place `<!-- rule: off -->` on the line **below** a heading to drop that heading's rule.
+
+```markdown
+## Section Without A Rule
+<!-- rule: off -->
+
+Body copy.
+```
+
+- This is the only comment that targets the element **above** it — every other per-element tag (`table-size`, `img-width`, `code-size`) applies to what follows. A blank line between the heading and the comment is fine either way.
+- `off`, `none`, `no`, `false`, and `hide` all turn the rule off.
+- `<!-- rule: on -->` does the reverse: it adds a rule to a heading that has none (H4-H6), drawn in the heading's own color.
+- Applies to one heading per comment, so use it as many times as you like. Headings without a comment keep the default.
+- Markdown input only. HTML input keeps whatever its own CSS says.
+
 ## Document styling
 
 Set theme colors, text colors, and font sizes directly in your document:
@@ -722,6 +740,7 @@ node bin/2pdf.js file.md --verbose      # detailed output
 <!-- table-size: 1em 0.75em -->
 <!-- img-width: 150px -->
 <!-- code-size: 1.4em -->
+<!-- rule: off -->
 <!-- two-columns -->
 <!-- /two-columns -->
 <!-- three-columns -->

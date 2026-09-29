@@ -26,9 +26,9 @@ This is a side effect of a broad ignore rule, not a considered decision—but do
 
 ## Live Sass Compiler, not an npm script, is the sanctioned compiler
 
-`.vscode/settings.json` configures Live Sass Compiler to emit `.css` and `.min.css` into `/public/assets/styles` with source maps and autoprefixing (`> 1%, last 2 versions`). That is why the checked-out CSS carries `-webkit-`/`-ms-` prefixes that a plain `npx sass` run does not produce.
+`.vscode/settings.json` configures Live Sass Compiler to emit `.css` and `.min.css` into `/public/assets/styles` with source maps and autoprefixing (`> 1%, last 2 versions`). Locally generated CSS can therefore carry `-webkit-`/`-ms-` prefixes that a plain `npx sass` run does not produce; these outputs are gitignored.
 
-There is deliberately no `npm run sass` script. The user's standing preference is `npx sass` over IDE extensions in general, but this repo predates that and its committed output is prefixed. Recompiling with `npx sass` is correct and safe for headless Chrome; just do not treat the vanished prefixes as a regression to patch by hand.
+There is deliberately no `npm run sass` script. The user's standing preference is `npx sass` over IDE extensions in general, but this repo predates that and its IDE compiler adds prefixes. Recompiling with `npx sass` is correct and safe for headless Chrome; just do not treat the vanished prefixes as a regression to patch by hand.
 
 ## Footnotes are endnotes, and that is final
 

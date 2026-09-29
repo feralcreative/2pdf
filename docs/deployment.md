@@ -39,6 +39,6 @@ npx sass assets/styles/pdf.scss public/assets/styles/pdf.min.css --style=compres
 
 ## Publishing
 
-Never published. `repository` points at `github.com/feralcreative/md-to-pdf` while `homepage`, `bugs`, and the config sample point at `feralcreative/2pdf`—the metadata is inconsistent and unverified.
+Never published. `repository`, `homepage`, and `bugs` point at `github.com/feralcreative/md-to-pdf` while the config sample points at `feralcreative/2pdf`—the metadata is inconsistent and unverified.
 
 If publishing is ever wanted, it needs at minimum: a `files` allowlist, a prepublish SCSS compile, reconciled repository URLs, and the user's explicit go-ahead. Do not run `npm publish`.

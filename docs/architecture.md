@@ -30,6 +30,8 @@ Features on this protocol:
 
 `applyCodeSizeClasses()` targets `<pre>`, not `<code>`: it sizes the block and pins the inner `<code>` to `1em` so the value does not compound. The `.code-size-N code` selector (0,1,1) is what beats the stylesheet's `code { font-size: .75em !important }` (0,0,1)—a bare `.code-size-N` rule on the `<pre>` alone would be overridden on the text itself.
 
+`processHeaderRules()` is the other exception, and the only comment whose target sits *above* it. `<!-- rule: off -->` / `<!-- rule: on -->` is authored on the line below a heading, so the walker slices back to the nearest preceding `<h1>`-`<h6>` and grafts `no-header-rule` / `has-header-rule` onto it, then emits one shared `<style>` block for the whole document rather than a class per instance. It also swallows the `<p>` wrapper `marked` puts around a standalone comment. If you add another comment that reads backwards, keep the marker-drop unconditional—the `while` loop only terminates because every matched comment is removed whether or not a heading was found.
+
 `processTableAlignment()` is the exception: it is not comment-driven and not on the marker protocol. It walks every `<table>` that has a `<thead>`, reads the per-column alignment that `marked` already emitted from the markdown separator row (`:---`, `:---:`, `---:`), and writes an `align-table-N` class plus its own `<style>` block directly. It therefore runs on all tables, not just annotated ones.
 
 `<!-- PDF ONLY ... -->` uses a different placeholder scheme: the block becomes `PDFONLY_PLACEHOLDER_START…END` in phase 1 and is run through `marked` a second time inside `postProcessHtml()`, so PDF-only content supports full markdown.
@@ -43,15 +45,15 @@ Features on this protocol:
 | Tokens | `processTokens(path, config)`—reads the file itself | `processTokensInContent(string, config)` |
 | Special tags | `processContent()` → `markdownToHtml()` → `postProcessHtml()` | `processHtmlContent()` → `processPdfOnlyContentInHtml()`, `processPageBreaksInHtml()`, `processLiveSiteShieldInHtml()` |
 | Document settings | full `extractDocumentSettings()` | full `extractDocumentSettings()` |
-| Styling | always full stylesheet | theme-colour variables only if the file already has `<style>`, `<link>`, or inline styles (`hasExistingCss()`); full stylesheet otherwise |
+| Styling | always full stylesheet | theme-colour variables only if the file already has `<style>`, `<link>`, or inline styles (`hasExistingCss()`) and no custom stylesheet was passed; full styling otherwise |
 
-Consequence: markers, columns, table widths, image widths, code sizes, header IDs, and the footnote heading are **Markdown-only**. A feature added to `postProcessHtml()` does not reach HTML input. If it must, add it to `processHtmlContent()` too.
+Consequence: markers, columns, table widths, image widths, code sizes, header rules, header IDs, and the footnote heading are **Markdown-only**. A feature added to `postProcessHtml()` does not reach HTML input. If it must, add it to `processHtmlContent()` too. HTML's existing-CSS early return also skips logo and watermark generation.
 
 ## Document settings threading
 
 `extractDocumentSettings()` returns a plain object; `processContent()` stores it on `this.documentSettings`; `markdownToHtml()` then mutates the same object to add `documentTitle` (from the first `# H1`). So settings are only complete *after* HTML conversion—`ToPdf.convert()` calls `getDocumentSettings()` at that point, not earlier.
 
-From there each setting becomes a local `const` in `convert()` and is passed to `StyleManager.applyStyles()` by position (21 parameters). `pageNumbers`, `pageNumberFormat`, `documentTitle`, and `disclosure` bypass `StyleManager` and go straight to `PdfGenerator.generatePdf()` for the footer. `customFilename`, `fileDate`, `sequentialOutput`, and `versionNumber` are consumed by `convert()` itself for output-path resolution.
+From there each setting becomes a local `const` in `convert()` and is passed to `StyleManager.applyStyles()` by position (22 parameters, with `watermark` last). `pageNumbers`, `pageNumberFormat`, and `disclosure` bypass `StyleManager` and go straight to `PdfGenerator.generatePdf()` for the footer; `documentTitle` goes to both. `customFilename`, `fileDate`, `sequentialOutput`, and `versionNumber` are consumed by `convert()` itself for output-path resolution.
 
 `logo` is resolved in `convert()`, not `StyleManager`: a bare filename resolves against `<install>/public/assets/images/`, an absolute path is used as-is, and the file is read and inlined as a base64 data URI. Data URI, not `file://`, because the logo is emitted into the `<div class="pdf-header">` that `StyleManager.createStyledHtml()` builds, and Chrome's file-access rules make `file://` fragile there.
 
@@ -64,7 +66,8 @@ From there each setting becomes a local `const` in `convert()` and is passed to 
 3. Replaces the `--theme-color` value inside the existing `:root` block by regex, then **flattens** `var(--theme-color)` and `var(--theme-color-10)` to literal colours, because CSS custom properties are unreliable in Chrome's print path. `--theme-color-primary` and `--theme-color-secondary` are flattened only when the corresponding document setting is present, so they stay as `var()` by default.
 4. Prepends one `!important` override block per remaining setting (`applyBaseFontSize`, `applyBodyColor`, `applyLinkColor`, `applyLinkUnderline`, `applyHeaderSize`, `applyBodySize`, `applyLineHeight`, `applyParagraphSpacing`, `applyHeaderSpacing`, `applyListItemSpacing`, `applyHighlightColor`).
 5. `applySinglePageMode()` strips page-break rules when `--single-page` is set.
-6. `createStyledHtml()` wraps everything in a document with the CSS inlined in a `<style>` tag and the optional logo header.
+6. `applyWatermark()` appends watermark CSS when enabled; its color resolves from the primary theme, then the base theme.
+7. `createStyledHtml()` wraps everything in a document with the CSS inlined in a `<style>` tag, the optional logo header, and escaped watermark text.
 
 Because overrides are *prepended*, they beat the stylesheet only by virtue of `!important`. Drop the `!important` from a new `applyX()` and it will lose.
 

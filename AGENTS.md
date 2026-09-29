@@ -10,7 +10,7 @@ When a change makes anything in this file inaccurate—a command, a path, a conv
 | --- | --- |
 | Install | `npm install` |
 | Compile SCSS (required before first run) | `npx sass assets/styles/pdf.scss public/assets/styles/pdf.css && npx sass assets/styles/pdf.scss public/assets/styles/pdf.min.css --style=compressed` |
-| Watch SCSS | `npx sass --watch assets/styles/pdf.scss:public/assets/styles/pdf.css` |
+| Watch runtime SCSS | `npx sass --watch --poll assets/styles/pdf.scss:public/assets/styles/pdf.min.css --style=compressed` |
 | Convert a file | `node bin/2pdf.js path/to/file.md --no-open` |
 | Convert a directory | `node bin/2pdf.js path/to/dir -r` |
 | Unit tests | `npm test` |
@@ -26,7 +26,7 @@ There is no typecheck step (plain JS, no TypeScript). `npm start` and `npm run d
 
 ## Baseline
 
-`npm run build` passes clean as of 2026-08-17: zero lint errors, 17 of 17 tests green. Any failure you see is yours—do not write one off as pre-existing without first checking `git stash`.
+`npm run build` passes clean as of 2026-08-17: zero lint errors, 17 of 17 tests green. Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
 
 Coverage is still thin: only `ConfigManager` and `TokenProcessor` have unit tests. Every rendering path—`ContentProcessor`, `StyleManager`, `PdfGenerator`—is uncovered, so a green suite is weak evidence. Smoke-test real output.
 
@@ -39,10 +39,10 @@ Coverage is still thin: only `ConfigManager` and `TokenProcessor` have unit test
 
    ```bash
    printf '# Smoke\n\nHello[^1] ==mark==\n\n[^1]: note\n' > /tmp/smoke.md
-   node bin/2pdf.js /tmp/smoke.md --no-open
+   node bin/2pdf.js /tmp/smoke.md -c config/2pdf.config.sample --no-open
    ```
 
-5. If you changed content processing or CSS, open the generated HTML instead of guessing: `node bin/2pdf.js /tmp/smoke.md --debug --verbose` prints a temp dir; `open <tempdir>/styled.html`.
+5. If you changed content processing or CSS, open the generated HTML instead of guessing: `node bin/2pdf.js /tmp/smoke.md -c config/2pdf.config.sample --debug --verbose --no-open` prints a temp dir; `open <tempdir>/styled.html`. Inspect print media as well as the screen view.
 6. If you added or changed a document setting or comment tag, update `README.md` in the same change. It is the user-facing source of truth for the full tag surface.
 
 ## Prohibitions
@@ -66,7 +66,7 @@ Two entry points: `bin/2pdf.js` (Commander CLI) and `src/index.js` (exports `ToP
 1. `ConfigManager.loadConfig()`—finds and parses `2pdf.config` into a flat `KEY=VALUE` map.
 2. `TokenProcessor.processTokens(inputPath, config)`—up to 3 passes of `{{TOKEN}}` substitution, skipping code blocks.
 3. `ContentProcessor.processContent()`—runs `extractDocumentSettings()` (stashed on `this.documentSettings`), then PDF-only blocks, page breaks, live-site shields.
-4. `ContentProcessor.markdownToHtml()`—captures the first `# H1` as `documentTitle`, runs `marked`, then `postProcessHtml()` (header IDs, columns, table widths/size/alignment, image widths, code sizes, footnote heading, anchor links, image paths).
+4. `ContentProcessor.markdownToHtml()`—captures the first `# H1` as `documentTitle`, runs `marked`, then `postProcessHtml()` (header IDs, columns, table widths/size/alignment, image widths, code sizes, header rules, footnote heading, anchor links, image paths).
 5. `ToPdf` reads `contentProcessor.getDocumentSettings()` and resolves a `logo` into a base64 data URI.
 6. `StyleManager.applyStyles()`—loads compiled CSS, string-substitutes theme colors and every size/spacing setting into it, wraps the body in a full HTML document.
 7. Styled HTML is written to `os.tmpdir()/2pdf-<ms>/styled.html`.
@@ -74,7 +74,7 @@ Two entry points: `bin/2pdf.js` (Commander CLI) and `src/index.js` (exports `ToP
 9. `PdfGenerator.generatePdf()`—Puppeteer renders the temp HTML to the output path.
 10. Post: bump `<!-- version-number: -->` in the *source* file, `open` the PDF (macOS), remove the temp dir unless `--debug`.
 
-HTML input (`.html`/`.htm`) skips steps 2–4 in favour of `processTokensInContent()` + `processHtmlContent()`, and `StyleManager` injects only theme-color overrides when the file already has its own CSS.
+HTML input (`.html`/`.htm`) skips steps 2–4 in favour of `processTokensInContent()` + `processHtmlContent()`, and `StyleManager` injects only theme-color overrides when the file already has its own CSS and no custom stylesheet was passed. This early return also skips the logo and watermark.
 
 Dependency direction is one-way: `bin` → `src/index.js` → the five processors. The processors never import each other. `src/dependency-manager.js` is dead code (Chrome/Pandoc detection from the shell era)—nothing requires it.
 
@@ -88,7 +88,7 @@ See [docs/architecture.md](docs/architecture.md) for the non-obvious coupling in
 - User-facing progress goes through `chalk` + emoji on `console.log`, one line per pipeline step. `no-console` is off deliberately.
 - Errors: `throw new Error(...)` inside processors; `ToPdf.convert()` catches everything and returns `{ success: false, error }`. Never let `convert()` throw—the CLI's batch loop depends on the result object.
 - Document settings are read from HTML comments by regex in `ContentProcessor.extractDocumentSettings()`, stored camelCase on `settings`, then threaded through `ToPdf.convert()` into `StyleManager.applyStyles()`'s positional parameter list.
-- Styling settings are applied by **string-appending CSS override blocks with `!important`** onto the compiled stylesheet (see the `apply*` methods in `src/style-manager.js`). That is the established pattern; follow it rather than introducing a CSS-in-JS layer.
+- Styling settings are applied by **prepending CSS override blocks with `!important`** to the compiled stylesheet (see the `apply*` methods in `src/style-manager.js`); `applyWatermark()` appends its block. Follow these patterns rather than introducing a CSS-in-JS layer.
 - Tests are Jest, `test/<module>.test.js`, `describe(ClassName) > describe(methodName) > test(...)`, tmpdir fixtures created in `beforeEach`.
 
 Adding a document setting touches four places, in order: `extractDocumentSettings()` in `src/content-processor.js`, the local-const block and the `applyStyles()` call in `ToPdf.convert()`, a new `applyX()` in `src/style-manager.js` plus its parameter, and `README.md`.
@@ -97,8 +97,10 @@ Adding a document setting touches four places, in order: `extractDocumentSetting
 
 - **A fresh clone cannot generate a PDF.** `.gitignore` has `*.css`, so no compiled stylesheet is tracked and `StyleManager` throws "No CSS file found". Compile the SCSS first. This also means CSS changes never travel in a commit—say so when handing over a commit that changes `pdf.scss`.
 - **There are two compiled-CSS locations and only one is read.** Runtime loads `public/assets/styles/pdf.min.css`, falling back to `public/assets/styles/pdf.css`. The copies in `assets/styles/` are strays from someone compiling into the source directory; they are ignored at runtime. Always target `public/assets/styles/`.
-- **`npx sass` drops vendor prefixes that the committed CSS has.** `.vscode/settings.json` configures Live Sass Compiler with autoprefix `> 1%, last 2 versions`, so the checked-out `public/assets/styles/*.css` carries `-webkit-`/`-ms-` prefixes. A plain `npx sass` recompile produces prefix-free CSS. Harmless for headless Chrome, but expect a large diff-in-spirit; do not "fix" the missing prefixes by hand.
-- **Most of the stylesheet lives inside `@media print`.** Editing a rule outside that block has no effect on PDF output. Check which block you are in.
+- **`npx sass` does not add vendor prefixes.** `.vscode/settings.json` configures Live Sass Compiler with autoprefix `> 1%, last 2 versions`, so locally generated CSS may contain `-webkit-`/`-ms-` prefixes. Compiled CSS is ignored, not committed. Plain Sass output works in headless Chrome; do not add the prefixes by hand.
+- **Most of the stylesheet lives inside `@media print`.** Global rules also apply to PDFs, but print rules can override them. Check the print cascade; a screen-only inspection is insufficient.
+- **Watching only `pdf.css` leaves the runtime stale.** `StyleManager` prefers `pdf.min.css` whenever it exists. The watcher above updates that file; compile both outputs before handing over SCSS changes.
+- **`<!-- rule: off -->` targets the heading above it.** Unlike image, table, and code-size comments, this Markdown-only tag searches backward. Preserve unconditional marker removal in `processHeaderRules()` so unmatched comments cannot loop forever.
 - **Half the setting regexes reject hyphens in the value.** `theme-color`, `theme-color-primary`, `theme-color-secondary`, `body-color`, `link-color`, `font-size`, `header-size`, `body-size`, `line-height`, `paragraph-spacing`, `header-spacing`, `list-item-spacing`, `link-underline`, `page-numbers`, `disclosure`, and `version-number` use `([^-]+?)`; `filename`, `file-date`, `highlight-color`, and `logo` use `(.+?)`. So `<!-- disclosure: pre-release -->` silently fails to parse. Use `(.+?)` for anything new, and do not "normalize" the old ones to `(.+?)` without checking that the non-greedy match still stops at `-->` for every existing document.
 - **2pdf's own config wins over the calling project's `config/2pdf.config`.** Search order is `<install>/2pdf.config`, `<cwd>/2pdf.config`, `<install>/config/2pdf.config`, `<cwd>/config/2pdf.config`. When 2pdf is installed globally from this checkout and this repo has a `config/2pdf.config`, that one is used. Pass `-c` to be certain.
 - **Inter is fetched from Google Fonts at render time.** `assets/fonts/` does not exist, so `processFontPaths()` logs "Fonts directory not found, using web fonts". Offline renders fall back to the system sans-serif—not a bug in your change.

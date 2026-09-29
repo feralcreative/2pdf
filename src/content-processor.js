@@ -453,6 +453,9 @@ class ContentProcessor {
     // Apply code-size classes to the code block following each marker
     htmlContent = this.applyCodeSizeClasses(htmlContent);
 
+    // Apply per-header rule overrides to the heading above each marker
+    htmlContent = this.processHeaderRules(htmlContent);
+
     // Process table column alignment from markdown syntax
     htmlContent = this.processTableAlignment(htmlContent);
 
@@ -468,6 +471,84 @@ class ContentProcessor {
     }
 
     return htmlContent;
+  }
+
+  processHeaderRules(htmlContent) {
+    // Process per-header overrides for the hairline rule under a heading.
+    // Look for comments like <!-- rule: off --> on the line *below* the heading.
+    // Unlike every other marker, this one targets the element ABOVE it, because
+    // that is where it reads naturally when authoring. `marked` may wrap a
+    // standalone comment in a <p>, so the wrapper is matched and removed too.
+    const markerRegex = /(?:<p>\s*)?<!--\s*rule:\s*(.+?)\s*-->(?:\s*<\/p>)?/i;
+    const headingRegex = /<h([1-6])((?:"[^"]*"|[^>])*)>/gi;
+    const off = ["off", "none", "false", "no", "hide"];
+    const on = ["on", "true", "yes", "show"];
+
+    let result = htmlContent;
+    let applied = false;
+    let match;
+
+    while ((match = result.match(markerRegex)) !== null) {
+      const value = match[1].trim().toLowerCase();
+      const markerIndex = match.index;
+      const before = result.substring(0, markerIndex);
+      const after = result.substring(markerIndex + match[0].length);
+
+      let ruleClass = null;
+      if (off.includes(value)) {
+        ruleClass = "no-header-rule";
+      } else if (on.includes(value)) {
+        ruleClass = "has-header-rule";
+      } else {
+        console.log(chalk.yellow(`⚠️ Unrecognized rule setting '${value}', expected on or off`));
+      }
+
+      // Walk back to the nearest heading above the marker
+      const headings = [...before.matchAll(headingRegex)];
+      const heading = headings[headings.length - 1];
+
+      if (ruleClass && heading) {
+        const originalTag = heading[0];
+        const updatedTag = /class="/i.test(originalTag)
+          ? originalTag.replace(/class="([^"]*)"/i, `class="$1 ${ruleClass}"`)
+          : originalTag.replace(/^<h([1-6])/i, `<h$1 class="${ruleClass}"`);
+
+        result =
+          before.substring(0, heading.index) +
+          updatedTag +
+          before.substring(heading.index + originalTag.length) +
+          after;
+        applied = true;
+        console.log(chalk.blue(`➖ Header rule ${off.includes(value) ? "off" : "on"} for h${heading[1]}`));
+      } else {
+        if (ruleClass) {
+          console.log(chalk.yellow("⚠️ `rule:` comment has no heading above it, ignoring"));
+        }
+        // Drop the marker either way so it cannot loop
+        result = before + after;
+      }
+    }
+
+    if (!applied) {
+      return result;
+    }
+
+    // currentColor keeps a switched-on rule matching the heading's own color,
+    // whatever the theme resolves to.
+    const levels = [1, 2, 3, 4, 5, 6];
+    const styleTag =
+      `<style>\n` +
+      `${levels.map((n) => `h${n}.no-header-rule`).join(", ")} {\n` +
+      `  border-bottom: none !important;\n` +
+      `  padding-bottom: 0 !important;\n` +
+      `}\n` +
+      `${levels.map((n) => `h${n}.has-header-rule`).join(", ")} {\n` +
+      `  border-bottom: 0.25pt solid currentColor !important;\n` +
+      `  padding-bottom: 0.25em !important;\n` +
+      `}\n` +
+      `</style>\n`;
+
+    return styleTag + result;
   }
 
   processFootnotesHeading(htmlContent) {
