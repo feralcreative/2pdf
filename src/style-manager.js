@@ -38,7 +38,8 @@ class StyleManager {
     highlightColor = null,
     listItemSpacing = null,
     logoDataUri = null,
-    watermark = null
+    watermark = null,
+    highlightColorRed = null
   ) {
     let cssContent = "";
 
@@ -85,6 +86,10 @@ class StyleManager {
         }
       }
     }
+
+    // Strip the byte-order mark Sass emits in compressed output. Settings overrides are prepended
+    // below, which strands the BOM mid-stylesheet, where it swallows the following :root block.
+    cssContent = cssContent.replace(/^\uFEFF/, "");
 
     // Handle font paths - convert relative paths to absolute file:// URLs for Chrome
     cssContent = await this.processFontPaths(cssContent);
@@ -156,6 +161,11 @@ class StyleManager {
     // Apply highlight color if specified
     if (highlightColor) {
       cssContent = this.applyHighlightColor(cssContent, highlightColor);
+    }
+
+    // Apply red highlight color if specified
+    if (highlightColorRed) {
+      cssContent = this.applyHighlightColor(cssContent, highlightColorRed, "--highlight-color-red");
     }
 
     // Apply single-page modifications if requested
@@ -559,14 +569,14 @@ li {
     return listItemSpacingRule + cssContent;
   }
 
-  applyHighlightColor(cssContent, highlightColor) {
-    console.log(chalk.blue(`🎨 Applying highlight color:`, highlightColor));
+  applyHighlightColor(cssContent, highlightColor, property = "--highlight-color") {
+    console.log(chalk.blue(`🎨 Applying ${property}:`, highlightColor));
 
-    // Add CSS rule to override the --highlight-color custom property
+    // Add CSS rule to override the highlight color custom property
     const highlightColorRule = `
 /* Highlight color override from document settings */
 :root {
-  --highlight-color: ${highlightColor} !important;
+  ${property}: ${highlightColor} !important;
 }
 `;
 
