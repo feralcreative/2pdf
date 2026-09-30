@@ -284,6 +284,17 @@ class ContentProcessor {
       }
     }
 
+    // Extract red highlight color from comments like <!-- highlight-color-red: #ffc9c9 -->
+    const highlightColorRedRegex = /<!--\s*highlight-color-red:\s*(.+?)\s*-->/i;
+    const highlightColorRedMatch = content.match(highlightColorRedRegex);
+    if (highlightColorRedMatch) {
+      const highlightColorRed = highlightColorRedMatch[1].trim();
+      if (highlightColorRed) {
+        settings.highlightColorRed = highlightColorRed;
+        console.log(chalk.blue(`🎨 Found red highlight color in document:`, highlightColorRed));
+      }
+    }
+
     // Extract logo from comments like <!-- logo: logo-feral.svg -->
     const logoRegex = /<!--\s*logo:\s*(.+?)\s*-->/i;
     const logoMatch = content.match(logoRegex);

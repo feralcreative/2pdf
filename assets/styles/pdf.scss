@@ -31,6 +31,7 @@ $column-rule: none; // vertical border between columns; set to `none` to remove
   --theme-color-primary: #880088; // Primary theme color
   --theme-color-secondary: #444444; // Secondary theme color
   --highlight-color: #ffffad; // Default highlight color (yellow)
+  --highlight-color-red: #ffc9c9; // Default red highlight color, for <mark class="red"> and <highlight class="red">
 }
 
 @page {
@@ -253,6 +254,10 @@ pre * {
     font-family: "Inter", sans-serif !important;
   }
 
+  mark.red {
+    background-color: var(--highlight-color-red) !important;
+  }
+
   // Mark tags inside headers should inherit header styling
   h1 mark,
   h2 mark,
@@ -296,6 +301,10 @@ pre * {
       color: var(--theme-color-primary) !important;
     }
   }
+  highlight.red {
+    background-color: var(--highlight-color-red) !important;
+  }
+
 
   blockquote {
     border-left: 4px solid var(--theme-color-primary);

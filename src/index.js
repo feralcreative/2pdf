@@ -199,6 +199,7 @@ class ToPdf {
       const customFilename = documentSettings.customFilename;
       const fileDate = documentSettings.fileDate;
       const highlightColor = documentSettings.highlightColor;
+      const highlightColorRed = documentSettings.highlightColorRed;
       const logo = documentSettings.logo;
       const watermark = documentSettings.watermark;
 
@@ -245,7 +246,8 @@ class ToPdf {
         highlightColor,
         listItemSpacing,
         logoDataUri,
-        watermark
+        watermark,
+        highlightColorRed
       );
 
       // Save styled HTML to temp file

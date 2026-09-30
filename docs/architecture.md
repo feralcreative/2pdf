@@ -64,7 +64,7 @@ From there each setting becomes a local `const` in `convert()` and is passed to 
 1. Reads `public/assets/styles/pdf.min.css` (or `pdf.css`, or a `-s` custom file).
 2. Rewrites relative `../fonts/` URLs to absolute `file://`—a no-op today, since `assets/fonts/` does not exist.
 3. Replaces the `--theme-color` value inside the existing `:root` block by regex, then **flattens** `var(--theme-color)` and `var(--theme-color-10)` to literal colours, because CSS custom properties are unreliable in Chrome's print path. `--theme-color-primary` and `--theme-color-secondary` are flattened only when the corresponding document setting is present, so they stay as `var()` by default.
-4. Prepends one `!important` override block per remaining setting (`applyBaseFontSize`, `applyBodyColor`, `applyLinkColor`, `applyLinkUnderline`, `applyHeaderSize`, `applyBodySize`, `applyLineHeight`, `applyParagraphSpacing`, `applyHeaderSpacing`, `applyListItemSpacing`, `applyHighlightColor`).
+4. Prepends one `!important` override block per remaining setting (`applyBaseFontSize`, `applyBodyColor`, `applyLinkColor`, `applyLinkUnderline`, `applyHeaderSize`, `applyBodySize`, `applyLineHeight`, `applyParagraphSpacing`, `applyHeaderSpacing`, `applyListItemSpacing`, `applyHighlightColor`—called once per highlight color).
 5. `applySinglePageMode()` strips page-break rules when `--single-page` is set.
 6. `applyWatermark()` appends watermark CSS when enabled; its color resolves from the primary theme, then the base theme.
 7. `createStyledHtml()` wraps everything in a document with the CSS inlined in a `<style>` tag, the optional logo header, and escaped watermark text.

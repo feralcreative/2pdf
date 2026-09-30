@@ -194,6 +194,22 @@ This entire block will also use the light blue background.
 
 The default highlight color is `#ffffad` (light yellow), but you can customize it per document using the `<!-- highlight-color: -->` setting. This applies to both inline (`<mark>`, `==text==`) and block (`<highlight>`) highlighting.
 
+#### Red highlight
+
+A second, independent highlight is available by adding `class="red"` to either tag. It defaults to `#ffc9c9` (light red) and is set per document with `<!-- highlight-color-red: -->`, so it can sit alongside the default highlight in the same document.
+
+```markdown
+<!-- highlight-color-red: #ffb3b3 -->
+
+This is <mark class="red">highlighted in red</mark> next to <mark>the default highlight</mark>.
+
+<highlight class="red">
+
+This entire block uses the red highlight.
+
+</highlight>
+```
+
 ### 5. Headers (H1-H6)
 
 All headers use the Inter font family and are styled with specific colors, sizes, and formatting:
