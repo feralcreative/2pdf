@@ -51,7 +51,7 @@ Coverage is still thin: only `ConfigManager` and `TokenProcessor` have unit test
 - **Never edit `package-lock.json` by hand.** Let npm write it.
 - **Do not add dependencies** without asking. This tool is deliberately thin.
 - **Do not upgrade Puppeteer past 21.x** without asking. `src/pdf-generator.js` calls `page.waitForTimeout()`, removed in Puppeteer 22.
-- **Do not commit.** Hand over `git add -A && git commit -m "type(scope): subject"` and let the user run it.
+- **Commit in logical blocks, but do not push.** The agent makes each commit itself with a Conventional Commits message; pushing needs explicit permission.
 - **Do not commit a `2pdf.config`.** `.gitignore` covers `*.config`; only `config/2pdf.config.sample` is tracked.
 - **Do not touch `_deprecated/`** (the original shell implementation) or `_archive/` (scratch test files). Both are gitignored and dead.
 - **Do not use `---` horizontal rules** in Markdown authored for this tool. H1/H2 already get bottom rules from the CSS. Use `<!--| PAGE-BREAK -->` to break sections.
@@ -124,7 +124,7 @@ Gitignored paths that must never be read into a commit, a log, or a chat respons
 
 - Conventional Commits: `type(scope): subject`, imperative mood. Types in use: `feat`, `fix`, `docs`, `chore`, `refactor`, `style`.
 - Branch: work on `main` unless the user says otherwise.
-- Never commit or push without the user asking. Hand over a single chained one-liner: `git add -A && git commit -m "..."`.
+- The agent commits in logical blocks, one feature, fix, or refactor step per commit. Never push without the user asking.
 - Never add AI attribution—no `Co-Authored-By`, no "Generated with" footer.
 - Never commit: `2pdf.config`, generated PDFs other than a deliberate `README.pdf` refresh, temp dirs, compiled CSS (already ignored).
 
