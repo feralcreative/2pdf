@@ -26,16 +26,16 @@ There is no typecheck step (plain JS, no TypeScript). `npm start` and `npm run d
 
 ## Baseline
 
-`npm run build` passes clean as of 2026-08-17: zero lint errors, 17 of 17 tests green. Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
+`npm run build` passes clean as of 2026-10-21: zero lint errors, 22 of 22 tests green. Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
 
-Coverage is still thin: only `ConfigManager` and `TokenProcessor` have unit tests. Every rendering path—`ContentProcessor`, `StyleManager`, `PdfGenerator`—is uncovered, so a green suite is weak evidence. Smoke-test real output.
+Coverage is still thin: `ConfigManager` and `TokenProcessor` have unit tests, and `ContentProcessor` has tests for `processImageAlignment` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output.
 
 ## Definition of done
 
 1. `npm run lint`—clean, no errors.
 2. `npm test`—all green.
 3. If you touched `assets/styles/pdf.scss`, recompile into `public/assets/styles/` (see Commands). Nothing reads the SCSS at runtime.
-4. Smoke-test an actual conversion end to end. Unit tests cover only `ConfigManager` and `TokenProcessor`; every rendering path is uncovered.
+4. Smoke-test an actual conversion end to end. Unit tests cover only `ConfigManager`, `TokenProcessor`, and `ContentProcessor.processImageAlignment()`; every other rendering path is uncovered.
 
    ```bash
    printf '# Smoke\n\nHello[^1] ==mark==\n\n[^1]: note\n' > /tmp/smoke.md
@@ -100,7 +100,8 @@ Adding a document setting touches four places, in order: `extractDocumentSetting
 - **`npx sass` does not add vendor prefixes.** `.vscode/settings.json` configures Live Sass Compiler with autoprefix `> 1%, last 2 versions`, so locally generated CSS may contain `-webkit-`/`-ms-` prefixes. Compiled CSS is ignored, not committed. Plain Sass output works in headless Chrome; do not add the prefixes by hand.
 - **Most of the stylesheet lives inside `@media print`.** Global rules also apply to PDFs, but print rules can override them. Check the print cascade; a screen-only inspection is insufficient.
 - **Watching only `pdf.css` leaves the runtime stale.** `StyleManager` prefers `pdf.min.css` whenever it exists. The watcher above updates that file; compile both outputs before handing over SCSS changes.
-- **`<!-- rule: off -->` targets the heading above it.** Unlike image, table, and code-size comments, this Markdown-only tag searches backward. Preserve unconditional marker removal in `processHeaderRules()` so unmatched comments cannot loop forever.
+- **Standalone images are centered by default.** `processImageAlignment()` tags a `<p>` whose only content is an image (optionally inside a link) as `img-block`, which the stylesheet centers; `<!-- img-align: left|center|right -->` overrides the next one. A paragraph with any text beside the image is left alone, so do not widen the regex to catch images in running text—inline icons would jump to the center.
+- **`<!-- rule: off -->` targets the heading above it.** Unlike image (`img-width`, `img-align`), table, and code-size comments, this Markdown-only tag searches backward. Preserve unconditional marker removal in `processHeaderRules()` so unmatched comments cannot loop forever.
 - **Half the setting regexes reject hyphens in the value.** `theme-color`, `theme-color-primary`, `theme-color-secondary`, `body-color`, `link-color`, `font-size`, `header-size`, `body-size`, `line-height`, `paragraph-spacing`, `header-spacing`, `list-item-spacing`, `link-underline`, `page-numbers`, `disclosure`, and `version-number` use `([^-]+?)`; `filename`, `file-date`, `highlight-color`, and `logo` use `(.+?)`. So `<!-- disclosure: pre-release -->` silently fails to parse. Use `(.+?)` for anything new, and do not "normalize" the old ones to `(.+?)` without checking that the non-greedy match still stops at `-->` for every existing document.
 - **2pdf's own config wins over the calling project's `config/2pdf.config`.** Search order is `<install>/2pdf.config`, `<cwd>/2pdf.config`, `<install>/config/2pdf.config`, `<cwd>/config/2pdf.config`. When 2pdf is installed globally from this checkout and this repo has a `config/2pdf.config`, that one is used. Pass `-c` to be certain.
 - **Inter is fetched from Google Fonts at render time.** `assets/fonts/` does not exist, so `processFontPaths()` logs "Fonts directory not found, using web fonts". Offline renders fall back to the system sans-serif—not a bug in your change.

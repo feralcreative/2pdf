@@ -534,6 +534,16 @@ Override the width of a single image. Place `<!-- img-width: ... -->` immediatel
 - Images never overflow the page — the global `max-width: 100%` still applies, so a width larger than the content area is clamped.
 - Standard markdown image syntax (`![alt](path)`) is supported; the comment applies to whichever image follows it. Images without a preceding comment render at their native size (capped to the content width).
 
+**Alignment.** An image that stands alone in its own paragraph—optionally wrapped in a link—is **centered by default**. Images inside running text, table cells, and list items are left where they sit, so inline icons and badges are unaffected. To align one standalone image differently, place `<!-- img-align: ... -->` before it; like `img-width`, it applies only to the next standalone image, and the two comments combine in either order.
+
+```markdown
+<!-- img-align: left -->
+
+![Diagram](images/diagram.png)
+```
+
+- Values: `left`, `center`, or `right`.
+
 ### 11. Code block font size
 
 Override the text size of a single code block. Place `<!-- code-size: ... -->` immediately before the block — it applies only to the next code block, so you can use it as many times as you like in one document.

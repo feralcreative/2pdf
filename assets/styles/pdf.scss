@@ -389,6 +389,20 @@ pre * {
     }
   }
 
+  // A paragraph holding only an image (tagged by processImageAlignment) is
+  // centered by default; <!-- img-align: left|right --> overrides one image
+  p.img-block {
+    text-align: center;
+
+    &.img-align-left {
+      text-align: left;
+    }
+
+    &.img-align-right {
+      text-align: right;
+    }
+  }
+
   // -------------------------------------------------------------------------
   // MULTI-COLUMN LAYOUT - two/three/four-columns markers
   // -------------------------------------------------------------------------

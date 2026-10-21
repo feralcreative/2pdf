@@ -461,6 +461,9 @@ class ContentProcessor {
     // Apply image-width classes to the image following each marker
     htmlContent = this.applyImageWidthClasses(htmlContent);
 
+    // Center standalone images by default; <!-- img-align: --> overrides one
+    htmlContent = this.processImageAlignment(htmlContent);
+
     // Apply code-size classes to the code block following each marker
     htmlContent = this.applyCodeSizeClasses(htmlContent);
 
@@ -840,6 +843,48 @@ class ContentProcessor {
       } else {
         // No image follows the marker; just drop the marker
         result = before + after;
+      }
+    }
+
+    return result;
+  }
+
+  processImageAlignment(htmlContent) {
+    // Standalone images are centered by default. A paragraph whose only content
+    // is an image (optionally wrapped in a link) gets class "img-block", which
+    // the stylesheet centers. Images inside running text, tables, and list
+    // items are left alone, so inline icons and badges stay where they sit.
+    //
+    // <!-- img-align: left|center|right --> overrides the next standalone
+    // image only, like img-width. It searches forward, positionally, because
+    // multiple image paragraphs can be byte-identical.
+    let result = htmlContent.replace(
+      /<p>(\s*(?:<a\b[^>]*>\s*)?<img\b[^>]*>(?:\s*<\/a>)?\s*)<\/p>/gi,
+      (match, inner) => `<p class="img-block">${inner}</p>`
+    );
+
+    result = result.replace(
+      /<!--\s*img-align:\s*(left|center|right)\s*-->/gi,
+      (match, align) => `<div class="img-align-marker" data-align="${align.toLowerCase()}"></div>`
+    );
+
+    const markerRegex = /<div class="img-align-marker" data-align="(left|center|right)"><\/div>/;
+    let match;
+
+    while ((match = result.match(markerRegex)) !== null) {
+      const before = result.substring(0, match.index); // drops the marker
+      const after = result.substring(match.index + match[0].length);
+      const blockIndex = after.indexOf('<p class="img-block">');
+
+      if (blockIndex === -1) {
+        // No standalone image follows the marker; just drop the marker
+        result = before + after;
+      } else {
+        result =
+          before +
+          after.substring(0, blockIndex) +
+          `<p class="img-block img-align-${match[1]}">` +
+          after.substring(blockIndex + '<p class="img-block">'.length);
       }
     }
 
