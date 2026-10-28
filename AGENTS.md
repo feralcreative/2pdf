@@ -119,7 +119,7 @@ There are none. No environment variables, no API keys, no auth, no `.env`, and n
 
 If you ever add a secret-bearing key, document its name and source here—never its value, not even masked.
 
-Gitignored paths that must never be read into a commit, a log, or a chat response: `*.config`, `_*`, `.claude`, `**/img/*`, `public/assets/images/logo-cannonball.*`.
+Gitignored paths that must never be read into a commit, a log, or a chat response: `*.config`, `_*`, `.claude`, `**/img/*`, `public/assets/images/logo-cannonball.*`, `public/assets/images/logo-acmpls.*`.
 
 ## Commit and PR conventions
 
