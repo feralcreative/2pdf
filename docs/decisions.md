@@ -65,3 +65,19 @@ Incrementing `<!-- version-number: -->` in the user's own Markdown after a succe
 ## `_deprecated/` is kept, not deleted
 
 The original shell implementation (`md2pdf-sh.sh`, `install-sh.sh`, its `style/` directory) is retained as the reference for output parity during the Node port. It is gitignored via `_*`, so it costs nothing. Do not read it for current behaviour and do not port anything from it without asking.
+
+## The web version adds no dependencies
+
+Set by User on 2026-11-18. `web/server.js` is Node's `http` module, uploads are a raw request body instead of multipart, and `web/auth.js` verifies Google ID tokens with `crypto`. The cost is one Markdown file per request with no local images, and a hand-written token check where Google recommends a library. Codex flagged the second point in review; it stays as it is unless User lifts the constraint, and the swap to `google-auth-library` is confined to `web/auth.js`.
+
+## Uploaded scripts are blocked by policy, not by turning JavaScript off
+
+The wrapper script that `StyleManager` appends still has to run, so sandboxed mode cannot simply disable JavaScript. A Content Security Policy that allows that one script by hash blocks everything a document brings with it, including markup injected through a title or a setting value, without auditing every place the pipeline pastes text into HTML. `RequestGuard` is the second layer, for what a policy cannot see: where a permitted `https:` URL actually leads.
+
+## Remote files are fetched in Node, not by Chrome
+
+Checking a hostname and then letting Chrome connect leaves a gap: the name can resolve somewhere else the second time (DNS rebinding). `RequestGuard` resolves the name, checks every address, connects to the one it checked, and hands Chrome the bytes.
+
+## One child process per web conversion
+
+A conversion that hangs cannot be cancelled from inside the process that started it, and `ContentProcessor` registers Marked extensions globally on every construction, which piles up in a long-lived server. A fresh process per upload fixes both and gives a process group to kill on timeout.

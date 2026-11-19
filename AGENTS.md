@@ -1,6 +1,6 @@
 # 2pdf Agent Operating Manual
 
-Node CLI that converts Markdown/HTML to styled PDFs via Puppeteer. Single package, no monorepo, no server, no database, no network API.
+Node CLI that converts Markdown/HTML to styled PDFs via Puppeteer, plus a small web version (`web/`) that runs the same pipeline behind a drop page. Single package, no monorepo, no database.
 
 When a change makes anything in this file inaccurate—a command, a path, a convention, a prohibition—update this file in the same change.
 
@@ -12,6 +12,9 @@ When a change makes anything in this file inaccurate—a command, a path, a conv
 | Compile SCSS (required before first run) | `npx sass assets/styles/pdf.scss public/assets/styles/pdf.css && npx sass assets/styles/pdf.scss public/assets/styles/pdf.min.css --style=compressed` |
 | Watch runtime SCSS | `npx sass --watch --poll assets/styles/pdf.scss:public/assets/styles/pdf.min.css --style=compressed` |
 | Convert a file | `node bin/2pdf.js path/to/file.md --no-open` |
+| Run the web version (port 1646, watch, opens a browser) | `npm start` |
+| Same, without opening a browser | `npm run start:no-open` |
+| Compile the drop page's SCSS | `npm run web:css` |
 | Convert a directory | `node bin/2pdf.js path/to/dir -r` |
 | Unit tests | `npm test` |
 | Single test file | `npx jest test/token-processor.test.js` |
@@ -22,13 +25,13 @@ When a change makes anything in this file inaccurate—a command, a path, a conv
 | Build (lint + test) | `npm run build` |
 | Install globally as `2pdf` | `npm install -g .` |
 
-There is no typecheck step (plain JS, no TypeScript). `npm start` and `npm run dev` run `src/index.js` directly, which exports a class and does nothing on its own—use `node bin/2pdf.js` instead.
+There is no typecheck step (plain JS, no TypeScript). `npm run dev` runs `src/index.js` directly, which exports a class and does nothing on its own—use `node bin/2pdf.js` instead. `npm start` runs the web version. Lint covers `src/`, `bin/`, `web/`, and `utils/`.
 
 ## Baseline
 
-`npm run build` passes clean as of 2026-10-21: zero lint errors, 22 of 22 tests green. Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
+`npm run build` passes clean as of 2026-11-18: zero lint errors, 99 of 99 tests green. Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
 
-Coverage is still thin: `ConfigManager` and `TokenProcessor` have unit tests, and `ContentProcessor` has tests for `processImageAlignment` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output.
+Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, and `RequestGuard` have unit tests, and `ContentProcessor` has tests for `processImageAlignment` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output. The web version (`web/auth.js`, `web/convert.js`, `web/server.js`) is tested with stand-in workers, so its tests never launch Chrome either.
 
 ## Definition of done
 
@@ -44,6 +47,7 @@ Coverage is still thin: `ConfigManager` and `TokenProcessor` have unit tests, an
 
 5. If you changed content processing or CSS, open the generated HTML instead of guessing: `node bin/2pdf.js /tmp/smoke.md -c config/2pdf.config.sample --debug --verbose --no-open` prints a temp dir; `open <tempdir>/styled.html`. Inspect print media as well as the screen view.
 6. If you added or changed a document setting or comment tag, update `README.md` in the same change. It is the user-facing source of truth for the full tag surface.
+7. If you touched `web/`, `src/request-guard.js`, or anything `sandboxed` gates, run `npm start`, drop a file on the page, and check the PDF. Then convert a hostile file (a `<script>`, an `<iframe src="file:///etc/passwd">`, `<!-- filename: ../../x -->`, `{{HOSTNAME}}`) and confirm none of it works.
 
 ## Prohibitions
 
@@ -56,10 +60,12 @@ Coverage is still thin: `ConfigManager` and `TokenProcessor` have unit tests, an
 - **Do not touch `_deprecated/`** (the original shell implementation) or `_archive/` (scratch test files). Both are gitignored and dead.
 - **Do not use `---` horizontal rules** in Markdown authored for this tool. H1/H2 already get bottom rules from the CSS. Use `<!--| PAGE-BREAK -->` to break sections.
 - **Never widen a document-setting regex to swallow the closing `-->`.** See Gotchas.
+- **Never weaken sandboxed mode to make a document render.** Every uploaded file is hostile. Do not add `'unsafe-inline'` to the page's `script-src`, let Chrome fetch a URL itself, pass `--no-sandbox` by default, or read a path a document names. See [docs/web.md](docs/web.md).
+- **Never put brand assets or licensed fonts in `web/`.** This repo is public.
 
 ## Architecture
 
-Two entry points: `bin/2pdf.js` (Commander CLI) and `src/index.js` (exports `ToPdf` for programmatic use). The CLI is a thin shell—it resolves the input to a file or directory, constructs one `ToPdf` per file, and prints results. All orchestration lives in `ToPdf.convert()`.
+Three entry points: `bin/2pdf.js` (Commander CLI), `src/index.js` (exports `ToPdf` for programmatic use), and `web/server.js` (the web version, which runs `ToPdf` with `sandboxed: true` in a child process per upload—see [docs/web.md](docs/web.md)). The CLI is a thin shell—it resolves the input to a file or directory, constructs one `ToPdf` per file, and prints results. All orchestration lives in `ToPdf.convert()`.
 
 `ToPdf.convert()` call chain, Markdown path:
 
@@ -69,14 +75,14 @@ Two entry points: `bin/2pdf.js` (Commander CLI) and `src/index.js` (exports `ToP
 4. `ContentProcessor.markdownToHtml()`—captures the first `# H1` as `documentTitle`, runs `marked`, then `postProcessHtml()` (header IDs, columns, table widths/size/alignment, image widths, code sizes, header rules, footnote heading, anchor links, image paths).
 5. `ToPdf` reads `contentProcessor.getDocumentSettings()` and resolves a `logo` into a base64 data URI.
 6. `StyleManager.applyStyles()`—loads compiled CSS, string-substitutes theme colors and every size/spacing setting into it, wraps the body in a full HTML document.
-7. Styled HTML is written to `os.tmpdir()/2pdf-<ms>/styled.html`.
+7. Styled HTML is written to `os.tmpdir()/2pdf-XXXXXX/styled.html` (an `fs.mkdtemp` directory created at the top of `convert()`). In sandboxed mode a Content Security Policy `<meta>` is added first.
 8. Output path is resolved: CLI `-o` > `<!-- filename: -->` > input basename (+ `-vXX.YY` when `sequential-output` is on), then the `file-date` UTC stamp is layered on top.
 9. `PdfGenerator.generatePdf()`—Puppeteer renders the temp HTML to the output path.
 10. Post: bump `<!-- version-number: -->` in the *source* file, `open` the PDF (macOS), remove the temp dir unless `--debug`.
 
 HTML input (`.html`/`.htm`) skips steps 2–4 in favour of `processTokensInContent()` + `processHtmlContent()`, and `StyleManager` injects only theme-color overrides when the file already has its own CSS and no custom stylesheet was passed. This early return also skips the logo and watermark.
 
-Dependency direction is one-way: `bin` → `src/index.js` → the five processors. The processors never import each other. `src/dependency-manager.js` is dead code (Chrome/Pandoc detection from the shell era)—nothing requires it.
+Dependency direction is one-way: `bin` and `web` → `src/index.js` → the five processors. The processors never import each other, except `PdfGenerator`, which uses `src/request-guard.js` in sandboxed mode. `src/dependency-manager.js` is dead code (Chrome/Pandoc detection from the shell era)—nothing requires it.
 
 See [docs/architecture.md](docs/architecture.md) for the non-obvious coupling in `ContentProcessor`'s marker/`<style>` protocol.
 
@@ -107,6 +113,10 @@ Adding a document setting touches four places, in order: `extractDocumentSetting
 - **Inter is fetched from Google Fonts at render time.** `assets/fonts/` does not exist, so `processFontPaths()` logs "Fonts directory not found, using web fonts". Offline renders fall back to the system sans-serif—not a bug in your change.
 - **`sequential-output` writes to the user's source file.** `updateVersionInFile()` rewrites `<!-- version-number: -->` in the *input* Markdown after a successful render. Never enable it in a test fixture you care about.
 - **The footer layout is title / disclosure / date + page**, left / center / right—not what an older primer claimed. It is an inline template string duplicated in both branches of `generatePdf()`; change both.
+- **`ToPdf.tempDir` is `null` until `convert()` runs.** It used to be set in the constructor from the clock; it is now created by `fs.mkdtemp` per conversion.
+- **The sandboxed CSP allows one script: the last `<script>` in the page, by hash.** That is the wrapper script `StyleManager.createStyledHtml()` appends. Add a second wrapper script, or move it ahead of the content, and it silently stops running on the web.
+- **`web/public/app.css` is compiled and gitignored**, like the PDF stylesheet. `npm start` compiles it; a bare `node web/server.js` on a fresh clone serves a page with no styles.
+- **Never `pkill -f` the web server by its command line from a shell command that contains that text.** It kills the shell running it. Use `lsof -nP -iTCP:1646 -sTCP:LISTEN` to find the PID.
 - **Positional parameters, not an options object.** `StyleManager.applyStyles()` takes 22 positional arguments. Inserting one in the middle silently shifts every later setting. Append at the end.
 - **`--single-page` recomputes the page height from `document.body.scrollHeight` plus a fixed 200px buffer.** Tall or late-laying-out content clips. Adjust the buffer in `generatePdf()`, not the CSS.
 - **`debug-highlight.js` at the root is broken.** It calls `processContent(content, file)` expecting `{ documentSettings, htmlContent }`; the method takes one argument and returns a string. It also reads `test-highlight-closing.md`, which lives in `_archive/`. Do not use it as a reference; rewrite or delete it if you need a scratch harness.
@@ -115,7 +125,7 @@ Adding a document setting touches four places, in order: `extractDocumentSetting
 
 ## Credentials
 
-There are none. No environment variables, no API keys, no auth, no `.env`, and no `.env.example`—`grep -r process.env src/ bin/` returns nothing. `2pdf.config` is user-authored plain text (names, company, colour hexes) and is gitignored via `*.config`; `config/2pdf.config.sample` is the tracked template and the canonical key list.
+There are no secrets. The CLI reads no environment variables. The web version reads settings from the environment (`PORT`, `HOST`, `GOOGLE_CLIENT_ID`, `ALLOWED_DOMAINS`, `ALLOWED_SUBS`, `AUTH_DISABLED`, `TOPDF_WEB_CONFIG`, `MAX_BODY_BYTES`, `TOPDF_CHROME_NO_SANDBOX`; see [docs/web.md](docs/web.md)), none of which is secret: a Google OAuth client ID is public by design. There is no `.env` and no `.env.example`. `2pdf.config` is user-authored plain text (names, company, colour hexes) and is gitignored via `*.config`; `config/2pdf.config.sample` is the tracked template and the canonical key list.
 
 If you ever add a secret-bearing key, document its name and source here—never its value, not even masked.
 
@@ -134,5 +144,6 @@ Gitignored paths that must never be read into a commit, a log, or a chat respons
 - [docs/architecture.md](docs/architecture.md)—the marker/`<style>` injection protocol, HTML-vs-Markdown paths, settings threading. Read before changing `ContentProcessor` or `StyleManager`.
 - [docs/decisions.md](docs/decisions.md)—why string-substituted CSS, why endnotes not footnotes, why Puppeteer is pinned. Read before "improving" something that looks wrong.
 - [docs/debugging.md](docs/debugging.md)—flags, temp-file inspection, symptom-to-cause table. Read when output is wrong but nothing errored.
+- [docs/web.md](docs/web.md)—the web version: settings, endpoints, sandboxed mode, sign-in, hosting requirements. Read before changing `web/`, `src/request-guard.js`, or anything gated on `sandboxed`.
 - [docs/deployment.md](docs/deployment.md)—global install, publish, uninstall. Read before changing `bin`, `files`, or `engines` in `package.json`.
 - [README.md](README.md)—the complete user-facing reference for every document setting and comment tag. The source of truth; do not duplicate it here.

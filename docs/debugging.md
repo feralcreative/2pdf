@@ -18,8 +18,8 @@ Inspect the intermediate HTML. It is the exact input Chrome saw.
 
 ```bash
 node bin/2pdf.js file.md --debug --verbose --no-open
-# → "🔍 Debug files kept in: /var/folders/.../2pdf-<ms>"
-open /var/folders/.../2pdf-<ms>/styled.html
+# → "🔍 Debug files kept in: /var/folders/.../2pdf-XXXXXX"
+open /var/folders/.../2pdf-XXXXXX/styled.html
 ```
 
 Everything downstream of `StyleManager` is Chrome's doing. If `styled.html` is wrong, the bug is in `ContentProcessor` or `StyleManager`. If `styled.html` is right and the PDF is wrong, it is `PdfGenerator` options, print CSS, or paging.

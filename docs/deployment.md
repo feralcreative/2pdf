@@ -1,6 +1,6 @@
 # Deployment
 
-There is no server, no CI, and no release pipeline. "Deploying" means installing this checkout as a global CLI on the user's machine.
+There is no CI and no release pipeline. "Deploying" the CLI means installing this checkout as a global CLI on the user's machine. The web version is not deployed anywhere yet; what a host must provide is in [web.md](web.md).
 
 ## Global install
 

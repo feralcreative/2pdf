@@ -46,6 +46,18 @@ node bin/2pdf.js webpage.html        # converts HTML files too
 node bin/2pdf.js file.md -o out.pdf  # custom output name
 ```
 
+## Web version
+
+There is also a drop page: sign in, drop a Markdown file, and download the PDF.
+
+```bash
+npm start
+```
+
+That serves it at <http://localhost:1646/> and opens it in your browser. Run this way it needs no sign-in and only answers on your own machine. Setting it up for other people (Google sign-in, limits, hosting requirements) is covered in [docs/web.md](docs/web.md).
+
+On the web, images must be `https:` links or data URIs, and scripts in a document do not run.
+
 ## File types supported
 
 ### Markdown files (.md)
