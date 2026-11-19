@@ -10,9 +10,12 @@ const path = require("path");
 const chalk = require("chalk");
 
 class ConfigManager {
-  constructor(scriptDir, currentDir) {
+  constructor(scriptDir, currentDir, options = {}) {
     this.scriptDir = scriptDir;
     this.currentDir = currentDir;
+    // Sandboxed mode (the web version) must not reveal anything about the
+    // machine it runs on to the person who uploaded the document.
+    this.sandboxed = options.sandboxed === true;
   }
 
   async loadConfig(configPath = null) {
@@ -84,7 +87,7 @@ class ConfigManager {
 
       // Handle PROJECT_NAME special case - use auto-generated if empty
       if (!config.PROJECT_NAME || config.PROJECT_NAME === "") {
-        config.PROJECT_NAME = path.basename(this.currentDir);
+        config.PROJECT_NAME = this.sandboxed ? "" : path.basename(this.currentDir);
       }
 
       return config;
@@ -116,8 +119,8 @@ class ConfigManager {
 
     // Get system information
     const os = require("os");
-    const hostname = os.hostname();
-    const username = os.userInfo().username;
+    const hostname = this.sandboxed ? "" : os.hostname();
+    const username = this.sandboxed ? "" : os.userInfo().username;
 
     // Get timezone (short form, e.g. PST — this is what the TIMEZONE token uses)
     const timezoneShort = now.toLocaleString("en", { timeZoneName: "short" }).split(" ").pop();
@@ -134,8 +137,8 @@ class ConfigManager {
       TIMEZONE: timezoneShort,
       HOSTNAME: hostname,
       USERNAME: username,
-      PWD: this.currentDir,
-      SCRIPT_DIR: this.scriptDir,
+      PWD: this.sandboxed ? "" : this.currentDir,
+      SCRIPT_DIR: this.sandboxed ? "" : this.scriptDir,
     };
   }
 }

@@ -13,9 +13,14 @@ const puppeteer = require("puppeteer");
 const fs = require("fs-extra");
 const path = require("path");
 const chalk = require("chalk");
+const RequestGuard = require("./request-guard");
 
 class PdfGenerator {
-  constructor() {
+  constructor(options = {}) {
+    // Sandboxed mode renders untrusted input (the web version): Chrome keeps
+    // its same-origin rules and every request goes through RequestGuard.
+    this.sandboxed = options.sandboxed === true;
+
     // Try to find system Chrome first
     const chromePaths = [
       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -37,10 +42,12 @@ class PdfGenerator {
     this.chromeOptions = {
       headless: "new",
       args: [
-        "--no-sandbox",
+        // Untrusted input is rendered with Chrome's own process sandbox on.
+        // TOPDF_CHROME_NO_SANDBOX=1 turns it off for hosts that cannot run
+        // it, which leaves a Chrome bug one step from the server itself.
+        ...(this.sandboxed && process.env.TOPDF_CHROME_NO_SANDBOX !== "1" ? [] : ["--no-sandbox"]),
         "--disable-dev-shm-usage",
-        "--disable-web-security",
-        "--allow-file-access-from-files",
+        ...(this.sandboxed ? [] : ["--disable-web-security", "--allow-file-access-from-files"]),
         "--disable-logging",
         "--log-level=3",
       ],
@@ -64,6 +71,12 @@ class PdfGenerator {
   ) {
     let browser = null;
 
+    if (this.sandboxed) {
+      // The footer template is HTML; an untrusted title must stay text.
+      documentTitle = this.escapeHtml(documentTitle);
+      disclosure = this.escapeHtml(disclosure);
+    }
+
     const headerTemplate = "<div></div>";
     const topMargin = "0.5in";
 
@@ -84,6 +97,12 @@ class PdfGenerator {
 
       // Load the HTML file
       const htmlUrl = `file://${path.resolve(htmlPath)}`;
+
+      if (this.sandboxed) {
+        const guard = new RequestGuard(htmlUrl);
+        await page.setRequestInterception(true);
+        page.on("request", (request) => guard.handle(request));
+      }
       console.log(chalk.gray("📄 Loading HTML:"), htmlUrl);
 
       await page.goto(htmlUrl, {
@@ -98,6 +117,33 @@ class PdfGenerator {
         });
       } catch (e) {
         console.log(chalk.yellow("⚠️ Font loading check failed, continuing..."));
+      }
+
+      // Remote images are fetched through RequestGuard, which is slower than
+      // a local file, so wait for them (up to 15 seconds) before printing.
+      if (this.sandboxed) {
+        try {
+          await page.evaluate(
+            (deadlineMs) =>
+              Promise.race([
+                Promise.all(
+                  Array.from(document.images)
+                    .filter((image) => !image.complete)
+                    .map(
+                      (image) =>
+                        new Promise((resolve) => {
+                          image.addEventListener("load", resolve, { once: true });
+                          image.addEventListener("error", resolve, { once: true });
+                        })
+                    )
+                ),
+                new Promise((resolve) => setTimeout(resolve, deadlineMs)),
+              ]),
+            15000
+          );
+        } catch (e) {
+          console.log(chalk.yellow("⚠️ Image loading check failed, continuing..."));
+        }
       }
 
       // Brief wait for rendering
@@ -207,6 +253,15 @@ class PdfGenerator {
         await browser.close();
       }
     }
+  }
+
+  escapeHtml(text) {
+    return String(text || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   async findChrome() {

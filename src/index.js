@@ -8,7 +8,8 @@
 const fs = require("fs-extra");
 const path = require("path");
 const os = require("os");
-const { execSync } = require("child_process");
+const crypto = require("crypto");
+const { execFileSync } = require("child_process");
 const chalk = require("chalk");
 
 const TokenProcessor = require("./token-processor");
@@ -28,25 +29,33 @@ class ToPdf {
       openAfterGeneration: options.openAfterGeneration !== false,
       debug: options.debug || false,
       verbose: options.verbose || false,
+      // Sandboxed mode treats the input as untrusted (the web version): no
+      // config search, no machine tokens, bundled logos only, a Content
+      // Security Policy on the rendered page, and guarded Chrome requests.
+      sandboxed: options.sandboxed === true,
       ...options,
     };
+    if (this.options.sandboxed) {
+      this.options.openAfterGeneration = false;
+      this.options.debug = false;
+    }
 
     // Set up paths
     this.currentDir = process.cwd();
     this.scriptDir = path.dirname(path.dirname(__filename)); // Go up from src/ to root
-    this.tempDir = path.join(os.tmpdir(), "2pdf-" + Date.now());
+    // Created per conversion by fs.mkdtemp, so it is unique and private to this user.
+    this.tempDir = null;
 
     // Initialize components
-    this.configManager = new ConfigManager(this.scriptDir, this.currentDir);
+    this.configManager = new ConfigManager(this.scriptDir, this.currentDir, { sandboxed: this.options.sandboxed });
     this.tokenProcessor = new TokenProcessor(this.configManager);
     this.styleManager = new StyleManager(this.scriptDir);
     this.contentProcessor = null; // Will be initialized with input directory
-    this.pdfGenerator = new PdfGenerator();
+    this.pdfGenerator = new PdfGenerator({ sandboxed: this.options.sandboxed });
 
     if (this.options.verbose) {
       console.log(chalk.gray("📁 Working directory:"), this.currentDir);
       console.log(chalk.gray("📁 Script directory:"), this.scriptDir);
-      console.log(chalk.gray("📁 Temp directory:"), this.tempDir);
     }
   }
 
@@ -81,6 +90,48 @@ class ToPdf {
     const h = pad(date.getUTCHours());
     const mi = pad(date.getUTCMinutes());
     return `${y}${mo}${d}T${h}${mi}Z`;
+  }
+
+  // A logo named by an untrusted document may only be a plain file name, which
+  // resolves inside public/assets/images. No directories, no absolute paths.
+  isBundledLogoName(logo) {
+    return /^[A-Za-z0-9][A-Za-z0-9._-]*\.(svg|png)$/i.test(logo) && !logo.includes("..");
+  }
+
+  // Reduces a document-supplied output name to a plain file name in the
+  // input's own directory.
+  safeOutputName(name) {
+    const base = path
+      .basename(name.replace(/\\/g, "/"))
+      .replace(/[^A-Za-z0-9._ -]/g, "_")
+      .replace(/^\.+/, "");
+    return /.\.pdf$/i.test(base) ? base : "document.pdf";
+  }
+
+  // Adds a Content Security Policy to the rendered page so nothing an
+  // untrusted document carries can run or phone out. The only script allowed
+  // is the wrapper's own (the last one in the document), matched by hash;
+  // images, fonts, and stylesheets may come from data: or https: URLs, which
+  // RequestGuard then vets one by one.
+  applyContentSecurityPolicy(styledHtml) {
+    const open = styledHtml.lastIndexOf("<script>");
+    const close = styledHtml.lastIndexOf("</script>");
+    let scriptSource = "'none'";
+    if (open !== -1 && close > open) {
+      const body = styledHtml.slice(open + "<script>".length, close);
+      scriptSource = `'sha256-${crypto.createHash("sha256").update(body, "utf8").digest("base64")}'`;
+    }
+    const policy = [
+      "default-src 'none'",
+      `script-src ${scriptSource}`,
+      "style-src 'unsafe-inline' https:",
+      "img-src data: https:",
+      "font-src data: https:",
+      "base-uri 'none'",
+      "form-action 'none'",
+    ].join("; ");
+    const meta = `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
+    return styledHtml.replace(/<head>/i, (match) => `${match}\n    ${meta}`);
   }
 
   async updateVersionInFile(filePath, newVersion) {
@@ -120,7 +171,10 @@ class ToPdf {
   async convert(inputFile = "README.md") {
     try {
       // Ensure temp directory exists
-      await fs.ensureDir(this.tempDir);
+      this.tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "2pdf-"));
+      if (this.options.verbose) {
+        console.log(chalk.gray("📁 Temp directory:"), this.tempDir);
+      }
 
       // Resolve input file path
       const inputPath = path.resolve(this.currentDir, inputFile);
@@ -138,7 +192,11 @@ class ToPdf {
       this.contentProcessor = new ContentProcessor(path.dirname(inputPath));
 
       // Load configuration
-      const config = await this.configManager.loadConfig(this.options.configPath);
+      // Sandboxed runs never search for a config; they use the one they are given or none.
+      const config =
+        this.options.sandboxed && !this.options.configPath
+          ? {}
+          : await this.configManager.loadConfig(this.options.configPath);
 
       // Determine file type and process accordingly
       const fileExtension = path.extname(inputPath).toLowerCase();
@@ -206,7 +264,9 @@ class ToPdf {
       // Resolve logo to absolute path and encode as base64 data URI
       let resolvedLogoPath = null;
       let logoDataUri = null;
-      if (logo) {
+      if (logo && this.options.sandboxed && !this.isBundledLogoName(logo)) {
+        console.log(chalk.yellow("⚠️  Logo must be a bundled file name, skipping:", logo));
+      } else if (logo) {
         resolvedLogoPath = path.isAbsolute(logo)
           ? logo
           : path.join(this.scriptDir, 'public', 'assets', 'images', logo);
@@ -252,7 +312,10 @@ class ToPdf {
 
       // Save styled HTML to temp file
       const htmlPath = path.join(this.tempDir, "styled.html");
-      await fs.writeFile(htmlPath, styledHtml);
+      await fs.writeFile(
+        htmlPath,
+        this.options.sandboxed ? this.applyContentSecurityPolicy(styledHtml) : styledHtml
+      );
 
       if (this.options.debug) {
         console.log(chalk.gray("🔍 Debug: HTML file saved as"), htmlPath);
@@ -268,7 +331,11 @@ class ToPdf {
       } else if (customFilename) {
         // Use custom filename from document settings
         // Ensure it has .pdf extension
-        const customName = customFilename.endsWith(".pdf") ? customFilename : `${customFilename}.pdf`;
+        let customName = customFilename.endsWith(".pdf") ? customFilename : `${customFilename}.pdf`;
+        if (this.options.sandboxed) {
+          // An untrusted document may name its PDF but never choose where it is written.
+          customName = this.safeOutputName(customName);
+        }
         outputPath = path.join(path.dirname(inputPath), customName);
       } else {
         // Default: use input filename with optional version suffix
@@ -313,7 +380,8 @@ class ToPdf {
       let opened = false;
       if (this.options.openAfterGeneration && process.platform === "darwin") {
         try {
-          execSync(`open "${outputPath}"`, { stdio: "ignore" });
+          // No shell: the output name can come from the document itself.
+          execFileSync("open", [outputPath], { stdio: "ignore" });
           opened = true;
         } catch (error) {
           if (this.options.verbose) {
@@ -338,7 +406,7 @@ class ToPdf {
       };
     } catch (error) {
       // Clean up temp directory on error
-      if (await fs.pathExists(this.tempDir)) {
+      if (this.tempDir && (await fs.pathExists(this.tempDir))) {
         await fs.remove(this.tempDir);
       }
 
