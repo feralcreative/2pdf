@@ -141,6 +141,7 @@ Gitignored paths that must never be read into a commit, a log, or a chat respons
 
 ## Deep-dive index
 
+- [docs/STATUS.md](docs/STATUS.md)—where the work stands and what is open. Read first when picking up a session.
 - [docs/architecture.md](docs/architecture.md)—the marker/`<style>` injection protocol, HTML-vs-Markdown paths, settings threading. Read before changing `ContentProcessor` or `StyleManager`.
 - [docs/decisions.md](docs/decisions.md)—why string-substituted CSS, why endnotes not footnotes, why Puppeteer is pinned. Read before "improving" something that looks wrong.
 - [docs/debugging.md](docs/debugging.md)—flags, temp-file inspection, symptom-to-cause table. Read when output is wrong but nothing errored.
