@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>2pdf</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="masthead">
+        <h1 class="masthead__title">2pdf</h1>
+        <p class="masthead__lede">Drop in a Markdown file and get a styled&nbsp;PDF.</p>
+      </header>
+
+      <section class="signin" id="signin" hidden>
+        <p class="signin__prompt" id="signin-prompt">Sign in with your work Google account to&nbsp;start.</p>
+        <div id="signin-button"></div>
+      </section>
+
+      <section class="drop" id="drop" hidden>
+        <input class="drop__input" id="file" type="file" accept=".md,.markdown,text/markdown" multiple />
+        <label class="drop__zone" id="zone" for="file">
+          <span class="drop__title">Drop Markdown files&nbsp;here</span>
+          <span class="drop__hint">or click to choose them</span>
+        </label>
+        <p class="drop__note">
+          Images load from https links or data URIs. Picture files on your computer are not&nbsp;uploaded.
+        </p>
+      </section>
+
+      <ul class="jobs" id="jobs" aria-live="polite"></ul>
+
+      <p class="status" id="status" role="status"></p>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

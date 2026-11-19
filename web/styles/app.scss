@@ -1,0 +1,235 @@
+// Drop page for the web version of 2pdf. Compiled to web/public/app.css,
+// which is gitignored like every other stylesheet in this repo.
+
+$ink: #1c1b1a;
+$ink-soft: #5f5b57;
+$paper: #faf9f7;
+$surface: #ffffff;
+$line: #d9d5cf;
+$accent: #800080;
+$accent-soft: #f6eaf6;
+$good: #1f7a3d;
+$bad: #b3261e;
+
+$ink-dark: #f1efec;
+$ink-soft-dark: #a9a49e;
+$paper-dark: #161514;
+$surface-dark: #211f1e;
+$line-dark: #3b3835;
+$accent-dark: #e39be3;
+$accent-soft-dark: #33203a;
+$good-dark: #7fd69a;
+$bad-dark: #ffb4ab;
+
+$measure: 34rem;
+$radius: 0.75rem;
+$font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+:root {
+  --ink: #{$ink};
+  --ink-soft: #{$ink-soft};
+  --paper: #{$paper};
+  --surface: #{$surface};
+  --line: #{$line};
+  --accent: #{$accent};
+  --accent-soft: #{$accent-soft};
+  --good: #{$good};
+  --bad: #{$bad};
+  color-scheme: light dark;
+}
+
+//@ Dark scheme
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #{$ink-dark};
+    --ink-soft: #{$ink-soft-dark};
+    --paper: #{$paper-dark};
+    --surface: #{$surface-dark};
+    --line: #{$line-dark};
+    --accent: #{$accent-dark};
+    --accent-soft: #{$accent-soft-dark};
+    --good: #{$good-dark};
+    --bad: #{$bad-dark};
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: $font;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+.page {
+  max-width: $measure;
+  margin: 0 auto;
+  padding: 4rem 1rem 3rem;
+}
+
+.masthead {
+  margin-bottom: 2rem;
+
+  &__title {
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent);
+    font-size: 2.25rem;
+    font-weight: 400;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  &__lede {
+    margin: 0.75rem 0 0;
+    color: var(--ink-soft);
+  }
+}
+
+.signin {
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: $radius;
+  background: var(--surface);
+
+  &__prompt {
+    margin: 0 0 1rem;
+  }
+}
+
+.drop {
+  &__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  &__zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    min-height: 14rem;
+    padding: 2rem 1rem;
+    border: 2px dashed var(--line);
+    border-radius: $radius;
+    background: var(--surface);
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 120ms ease,
+      background-color 120ms ease;
+
+    &:hover,
+    &--over {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+  }
+
+  &__input:focus-visible + &__zone {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  &__hint,
+  &__note {
+    color: var(--ink-soft);
+  }
+
+  &__note {
+    margin: 0.75rem 0 0;
+    font-size: 0.875rem;
+  }
+}
+
+.jobs {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+
+    &--working .jobs__state {
+      color: var(--ink-soft);
+    }
+
+    &--done .jobs__state {
+      color: var(--good);
+    }
+
+    &--failed .jobs__state {
+      color: var(--bad);
+    }
+  }
+
+  &__name {
+    min-width: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  &__link {
+    color: var(--accent);
+    overflow-wrap: anywhere;
+  }
+}
+
+.status {
+  min-height: 1.5rem;
+  margin: 1rem 0 0;
+  color: var(--bad);
+  font-size: 0.875rem;
+}
+
+//@ Phone
+@media (max-width: 30rem) {
+  .page {
+    padding-top: 2rem;
+  }
+
+  .drop__zone {
+    min-height: 10rem;
+  }
+}
+
+//@ Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .drop__zone {
+    transition: none;
+  }
+}

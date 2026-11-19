@@ -7,11 +7,14 @@
     "2pdf": "./bin/2pdf.js"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "npm run web:css && (PORT=1646 node utils/open-when-ready.js & npx sass --watch --poll web/styles/app.scss:web/public/app.css --style=compressed & PORT=1646 node --watch web/server.js --dev)",
+    "start:no-open": "OPEN_BROWSER=0 npm start",
+    "web": "node web/server.js",
+    "web:css": "npx sass web/styles/app.scss web/public/app.css --style=compressed",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint src/ bin/",
-    "lint:fix": "eslint src/ bin/ --fix",
+    "lint": "eslint src/ bin/ web/ utils/",
+    "lint:fix": "eslint src/ bin/ web/ utils/ --fix",
     "build": "npm run lint && npm test",
     "install-global": "npm install -g .",
     "dev": "nodemon src/index.js"
