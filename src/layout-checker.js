@@ -17,6 +17,9 @@ const MAX_TEXT_PX = 14;
 // Tallest an image can print and still leave room for a heading and a caption
 const MAX_IMAGE_HEIGHT_PX = 768; // 8in
 
+// A line of text this tall (in points) is the watermark, not body text
+const WATERMARK_MIN_HEIGHT_PT = 40;
+
 // A page that is not the last of its section should reach this far down
 const SPARSE_BELOW = 0.6;
 // Any page that stops short of this is nearly empty
@@ -54,11 +57,16 @@ class LayoutChecker {
     }
 
     // An <img> takes its natural width from the root element's width when that
-    // is an absolute length, and from the viewBox otherwise (Mermaid writes
-    // width="100%", which gives no natural size).
+    // is an absolute length. With no width, or a percentage (Mermaid writes
+    // width="100%"), the image has no natural width and fills the page.
+    // Checked in Chrome 157.
     const rootTag = (svgContent.match(/<svg\b[^>]*>/i) || [""])[0];
-    const widthAttribute = rootTag.match(/\swidth=["']\s*([\d.]+)(?:px)?\s*["']/i);
-    const naturalWidth = widthAttribute && parseFloat(widthAttribute[1]) > 0 ? parseFloat(widthAttribute[1]) : width;
+    const widthAttribute = rootTag.match(/\swidth=["']\s*([\d.]+)(px|in|cm|mm|pt|pc)?\s*["']/i);
+    const pxPerUnit = { px: 1, in: 96, cm: 96 / 2.54, mm: 96 / 25.4, pt: 96 / 72, pc: 16 };
+    const naturalWidth =
+      widthAttribute && parseFloat(widthAttribute[1]) > 0
+        ? parseFloat(widthAttribute[1]) * pxPerUnit[(widthAttribute[2] || "px").toLowerCase()]
+        : null;
 
     return {
       width,
@@ -73,7 +81,7 @@ class LayoutChecker {
   // unit this cannot resolve (em, rem, and so on).
   resolvePrintedWidth(widthValue, naturalWidth) {
     if (!widthValue) {
-      return Math.min(naturalWidth, CONTENT_WIDTH_PX);
+      return naturalWidth ? Math.min(naturalWidth, CONTENT_WIDTH_PX) : CONTENT_WIDTH_PX;
     }
 
     const value = widthValue.trim().toLowerCase();
@@ -99,7 +107,7 @@ class LayoutChecker {
 
   // Work out how one SVG will print, and what is wrong with that.
   assessSvg(metrics, widthValue, { singlePage = false } = {}) {
-    const printedWidth = this.resolvePrintedWidth(widthValue, metrics.naturalWidth || metrics.width);
+    const printedWidth = this.resolvePrintedWidth(widthValue, metrics.naturalWidth);
     if (printedWidth === null) {
       return { printedWidth: null, warnings: [] };
     }
@@ -249,7 +257,9 @@ class LayoutChecker {
   // text inside the printable area, top to bottom.
   //
   // ignoreText is the watermark, if any: it is real text in the PDF, stamped
-  // across the middle of every page, and would otherwise count as content.
+  // across the middle of every page, and would otherwise count as content. It
+  // is told apart from the same word in the body by its size: the watermark is
+  // huge and rotated, so its box is far taller than a line of text.
   parseBboxLayout(xml, { pageNumbers = false, ignoreText = null } = {}) {
     const ignored = ignoreText ? this.normalize(ignoreText) : null;
     const pages = [];
@@ -282,7 +292,8 @@ class LayoutChecker {
         if (!words.length) continue;
 
         const text = words.join(" ");
-        if (ignored && this.normalize(text) === ignored) continue;
+        const isWatermarkSized = yMax - yMin > WATERMARK_MIN_HEIGHT_PT;
+        if (ignored && isWatermarkSized && this.normalize(text) === ignored) continue;
 
         lines.push({ yMin, yMax, text });
       }
@@ -312,12 +323,16 @@ class LayoutChecker {
   // so a line is matched against the start of a heading (for the top of a page)
   // or the end of one (for the foot), not only against the whole thing.
   analyzePages(pages, headings = []) {
+    // Only a heading long enough to wrap can match in part
     const MIN_PARTIAL = 12;
+    const MIN_WRAPPING_HEADING = 50;
     const matches = (line, candidates, edge) => {
       const text = this.normalize(line);
       if (!text) return false;
       return candidates.some(
-        (heading) => heading === text || (text.length >= MIN_PARTIAL && heading[edge](text) && heading !== text)
+        (heading) =>
+          heading === text ||
+          (heading.length >= MIN_WRAPPING_HEADING && text.length >= MIN_PARTIAL && heading[edge](text))
       );
     };
     const allHeadings = headings.map((heading) => heading.text);

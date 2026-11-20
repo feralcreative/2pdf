@@ -22,7 +22,7 @@ describe("LayoutChecker", () => {
       expect(checker.parseSvgMetrics(svg)).toEqual({
         width: 1718.2,
         height: 1065.1,
-        naturalWidth: 1718.2,
+        naturalWidth: null,
         smallestFont: 12,
         largestFont: 16,
       });
@@ -35,7 +35,9 @@ describe("LayoutChecker", () => {
 
     test("should take the natural width from an absolute root width, not a percentage", () => {
       expect(checker.parseSvgMetrics('<svg width="400" viewBox="0 0 800 200"></svg>').naturalWidth).toBe(400);
-      expect(checker.parseSvgMetrics('<svg width="100%" viewBox="0 0 800 200"></svg>').naturalWidth).toBe(800);
+      expect(checker.parseSvgMetrics('<svg width="5in" viewBox="0 0 800 200"></svg>').naturalWidth).toBe(480);
+      expect(checker.parseSvgMetrics('<svg width="100%" viewBox="0 0 800 200"></svg>').naturalWidth).toBeNull();
+      expect(checker.parseSvgMetrics('<svg viewBox="0 0 800 200"></svg>').naturalWidth).toBeNull();
     });
 
     test("should accept a viewBox with a negative origin and commas", () => {
@@ -56,6 +58,10 @@ describe("LayoutChecker", () => {
     test("should cap an unsized image at the content width", () => {
       expect(checker.resolvePrintedWidth(null, 2000)).toBe(720);
       expect(checker.resolvePrintedWidth(null, 500)).toBe(500);
+    });
+
+    test("should fill the page with an image that has no natural width", () => {
+      expect(checker.resolvePrintedWidth(null, null)).toBe(720);
     });
 
     test("should resolve percentages, pixels, and inches", () => {
@@ -176,10 +182,16 @@ describe("LayoutChecker", () => {
     });
 
     test("should leave the watermark out of the content", () => {
-      const xml = page(line(40, 52, "Only line"), line(380, 420, "NOT FOR RELEASE"));
+      const xml = page(line(40, 52, "Only line"), line(200, 600, "NOT FOR RELEASE"));
       const [first] = checker.parseBboxLayout(xml, { pageNumbers: true, ignoreText: "Not for release" });
       expect(first.lastLine).toBe("Only line");
       expect(first.fullness).toBeLessThan(0.05);
+    });
+
+    test("should keep body text that happens to match the watermark", () => {
+      const xml = page(line(40, 52, "Title"), line(300, 312, "DRAFT"));
+      const [first] = checker.parseBboxLayout(xml, { pageNumbers: true, ignoreText: "DRAFT" });
+      expect(first.lastLine).toBe("DRAFT");
     });
 
     test("should number pages and report an empty one as empty", () => {

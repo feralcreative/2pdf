@@ -554,27 +554,49 @@ class ContentProcessor {
     return pieces.join("");
   }
 
+  // Add a class to a heading's attribute string, appending to an existing
+  // class attribute (in either quote style) instead of writing a second one.
+  addHeadingClass(level, attributes, name) {
+    const existing = /\bclass\s*=\s*(["'])([^"']*)\1/i;
+    return existing.test(attributes)
+      ? `<h${level}${attributes.replace(existing, (match, quote, value) => `class=${quote}${value} ${name}${quote}`)}>`
+      : `<h${level} class="${name}"${attributes}>`;
+  }
+
   processHeaderRules(htmlContent) {
     // Process per-header overrides for the hairline rule under a heading.
     // Look for comments like <!-- rule: off --> on the line *below* the heading.
     // Unlike every other marker, this one targets the element ABOVE it, because
     // that is where it reads naturally when authoring. `marked` may wrap a
     // standalone comment in a <p>, so the wrapper is matched and removed too.
-    const markerRegex = /(?:<p>\s*)?<!--\s*rule:\s*(.+?)\s*-->(?:\s*<\/p>)?/i;
-    const headingRegex = /<h([1-6])(?=[\s>])((?:[^"'<>]|"[^"]*"|'[^']*')*)>/gi;
+    //
+    // One pass over the headings and the comments, in document order, so a
+    // document with thousands of either stays fast. The tag pattern's
+    // alternatives cannot match the same character, so an unclosed tag full of
+    // quotes cannot make it backtrack. Every matched comment is removed.
+    const tokenRegex =
+      /<h([1-6])(?=[\s>])((?:[^"'<>]|"[^"]*"|'[^']*')*)>|(?:<p>\s*)?<!--\s*rule:\s*([^<>]*?)\s*-->(?:\s*<\/p>)?/gi;
     const off = ["off", "none", "false", "no", "hide"];
     const on = ["on", "true", "yes", "show"];
 
-    let result = htmlContent;
+    const pieces = [];
+    let lastHeading = null;
+    let copiedTo = 0;
     let applied = false;
-    let match;
+    let changed = 0;
+    let token;
 
-    while ((match = result.match(markerRegex)) !== null) {
-      const value = match[1].trim().toLowerCase();
-      const markerIndex = match.index;
-      const before = result.substring(0, markerIndex);
-      const after = result.substring(markerIndex + match[0].length);
+    while ((token = tokenRegex.exec(htmlContent)) !== null) {
+      pieces.push(htmlContent.slice(copiedTo, token.index));
+      copiedTo = token.index + token[0].length;
 
+      if (token[3] === undefined) {
+        lastHeading = { slot: pieces.length, level: token[1], attributes: token[2] };
+        pieces.push(token[0]);
+        continue;
+      }
+
+      const value = token[3].trim().toLowerCase();
       let ruleClass = null;
       if (off.includes(value)) {
         ruleClass = "no-header-rule";
@@ -584,30 +606,22 @@ class ContentProcessor {
         console.log(chalk.yellow(`⚠️ Unrecognized rule setting '${value}', expected on or off`));
       }
 
-      // Walk back to the nearest heading above the marker
-      const headings = [...before.matchAll(headingRegex)];
-      const heading = headings[headings.length - 1];
-
-      if (ruleClass && heading) {
-        const originalTag = heading[0];
-        const updatedTag = /class="/i.test(originalTag)
-          ? originalTag.replace(/class="([^"]*)"/i, `class="$1 ${ruleClass}"`)
-          : originalTag.replace(/^<h([1-6])/i, `<h$1 class="${ruleClass}"`);
-
-        result =
-          before.substring(0, heading.index) +
-          updatedTag +
-          before.substring(heading.index + originalTag.length) +
-          after;
+      if (ruleClass && lastHeading) {
+        // A later comment under the same heading builds on the earlier one
+        pieces[lastHeading.slot] = this.addHeadingClass(lastHeading.level, lastHeading.attributes, ruleClass);
+        lastHeading.attributes = pieces[lastHeading.slot].slice(`<h${lastHeading.level}`.length, -1);
         applied = true;
-        console.log(chalk.blue(`➖ Header rule ${off.includes(value) ? "off" : "on"} for h${heading[1]}`));
-      } else {
-        if (ruleClass) {
-          console.log(chalk.yellow("⚠️ `rule:` comment has no heading above it, ignoring"));
-        }
-        // Drop the marker either way so it cannot loop
-        result = before + after;
+        changed++;
+      } else if (ruleClass) {
+        console.log(chalk.yellow("⚠️ `rule:` comment has no heading above it, ignoring"));
       }
+    }
+
+    pieces.push(htmlContent.slice(copiedTo));
+    const result = pieces.join("");
+
+    if (changed > 0) {
+      console.log(chalk.blue(`➖ Header rule changed on ${changed} heading(s)`));
     }
 
     if (!applied) {
@@ -1067,10 +1081,7 @@ class ContentProcessor {
 
     pieces.push(htmlContent.slice(copiedTo));
 
-    const addClass = (attributes, name) =>
-      /\bclass="/i.test(attributes)
-        ? `<h2${attributes.replace(/\bclass="([^"]*)"/i, `class="$1 ${name}"`)}>`
-        : `<h2 class="${name}"${attributes}>`;
+    const addClass = (attributes, name) => this.addHeadingClass(2, attributes, name);
 
     let breaks = 0;
     headings.forEach((heading, index) => {

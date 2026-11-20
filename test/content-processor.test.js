@@ -208,6 +208,20 @@ describe("ContentProcessor", () => {
       expect(result).toContain('<h2 class="h2-page-break" id="b">');
     });
 
+    test("processHeaderRules should not slow down on thousands of comments", () => {
+      withinBudget(() => processor.processHeaderRules('<h2 id="a">A</h2><!-- rule: off -->'.repeat(50000)));
+      withinBudget(() => processor.processHeaderRules("<!-- rule: ".repeat(100000)));
+    });
+
+    test("should append to a single-quoted class instead of writing a second attribute", () => {
+      processor.documentSettings = { h2PageBreaks: true };
+      const result = processor.processH2PageBreaks("<h2 id=\"a\">A</h2><h2 class='mine'>B</h2>");
+      expect(result).toContain("<h2 class='mine h2-page-break'>");
+      expect(processor.processHeaderRules("<h3 class='mine'>C</h3><!-- rule: off -->")).toContain(
+        "<h3 class='mine no-header-rule'>"
+      );
+    });
+
     test("processHeaderRules should not backtrack on an unclosed tag full of quotes", () => {
       withinBudget(() => processor.processHeaderRules("<h2 " + '"'.repeat(5000) + "<!-- rule: off -->"));
     });

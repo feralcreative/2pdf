@@ -30,7 +30,7 @@ There is no typecheck step (plain JS, no TypeScript). `npm run dev` runs `src/in
 
 ## Baseline
 
-`npm run build` passes clean as of 2026-11-19: zero lint errors, 161 of 161 tests green (154 when the browser tests are skipped). Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
+`npm run build` passes clean as of 2026-11-19: zero lint errors, 165 of 165 tests green (158 when the browser tests are skipped). Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
 
 Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, `RequestGuard`, and `LayoutChecker` have unit tests, and `ContentProcessor` has tests for `processImageAlignment`, `processFigures`, `processH2PageBreaks`, and `processLeadIns` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output. The web version (`web/auth.js`, `web/convert.js`, `web/server.js`) is tested with stand-in workers, so its tests never launch Chrome. The one suite that does is `test/pagination.integration.test.js`: it prints short documents in real Chrome and reads them back with `pdftotext`, and it skips itself when Chrome, `pdftotext`, or the compiled stylesheet is missing, so on a fresh clone it proves nothing until the SCSS is compiled.
 
