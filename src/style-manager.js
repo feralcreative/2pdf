@@ -82,7 +82,9 @@ class StyleManager {
           console.log(chalk.blue("🎨 Using regular CSS file..."));
           cssContent = await fs.readFile(fallbackCssPath, "utf8");
         } else {
-          throw new Error("No CSS file found. Expected pdf.min.css or pdf.css in assets/styles/");
+          throw new Error(
+            `No CSS file found. Expected pdf.min.css or pdf.css in ${this.stylesDir}. In a checkout, run: npm run build:css`
+          );
         }
       }
     }

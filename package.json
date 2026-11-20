@@ -6,11 +6,22 @@
   "bin": {
     "2pdf": "./bin/2pdf.js"
   },
+  "files": [
+    "bin/",
+    "src/",
+    "public/assets/styles/pdf.min.css",
+    "public/assets/images/logo-feral.png",
+    "public/assets/images/logo-feral.svg",
+    "public/assets/images/lockup-visa-cannonball.png",
+    "public/assets/images/lockup-visa-cannonball.svg",
+    "config/2pdf.config.sample"
+  ],
   "scripts": {
     "start": "npm run web:css && (PORT=1646 node utils/open-when-ready.js & npx sass --watch --poll web/styles/app.scss:web/public/app.css --style=compressed & PORT=1646 node --watch web/server.js --dev)",
     "start:no-open": "OPEN_BROWSER=0 npm start",
     "web": "node web/server.js",
     "web:css": "npx sass web/styles/app.scss web/public/app.css --style=compressed",
+    "build:css": "sass --no-source-map assets/styles/pdf.scss public/assets/styles/pdf.min.css --style=compressed",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/ bin/ web/ utils/",
