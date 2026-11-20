@@ -322,6 +322,18 @@ class ContentProcessor {
       console.log(chalk.blue(`💧 Found watermark in document:`, settings.watermark || "off"));
     }
 
+    // Extract the H2 page-break switch from comments like <!-- h2-page-breaks: ON -->
+    // Code blocks are skipped, so documenting the setting does not switch it on.
+    const h2PageBreaksRegex = /<!--\s*h2-page-breaks:\s*(.+?)\s*-->/i;
+    const outsideCodeBlocks = this.splitByCodeBlocks(content)
+      .filter((part, index) => index % 2 === 0)
+      .join("\n");
+    const h2PageBreaksMatch = outsideCodeBlocks.match(h2PageBreaksRegex);
+    if (h2PageBreaksMatch) {
+      settings.h2PageBreaks = ["on", "true", "yes"].includes(h2PageBreaksMatch[1].trim().toLowerCase());
+      console.log(chalk.blue(`📃 Found h2-page-breaks setting in document:`, settings.h2PageBreaks ? "on" : "off"));
+    }
+
     return settings;
   }
 
@@ -464,11 +476,17 @@ class ContentProcessor {
     // Center standalone images by default; <!-- img-align: --> overrides one
     htmlContent = this.processImageAlignment(htmlContent);
 
+    // Join each standalone image to the italic caption directly after it
+    htmlContent = this.processFigures(htmlContent);
+
     // Apply code-size classes to the code block following each marker
     htmlContent = this.applyCodeSizeClasses(htmlContent);
 
     // Apply per-header rule overrides to the heading above each marker
     htmlContent = this.processHeaderRules(htmlContent);
+
+    // Start each H2 on a new page when the document asks for it
+    htmlContent = this.processH2PageBreaks(htmlContent);
 
     // Process table column alignment from markdown syntax
     htmlContent = this.processTableAlignment(htmlContent);
@@ -479,12 +497,61 @@ class ContentProcessor {
     // Process anchor links for PDF compatibility
     htmlContent = this.processAnchorLinks(htmlContent);
 
+    // Keep a paragraph that introduces a table, list, or figure with it
+    htmlContent = this.processLeadIns(htmlContent);
+
     // Process image paths to make them absolute
     if (this.inputDir) {
       htmlContent = this.processImagePaths(htmlContent);
     }
 
     return htmlContent;
+  }
+
+  processLeadIns(htmlContent) {
+    // "The endpoints are:" followed by a table belongs on the same page as the
+    // table. A paragraph that ends in a colon and is followed directly by a
+    // table, list, code block, blockquote, or figure gets class "lead-in",
+    // which the stylesheet keeps with what follows. Generated <style> blocks
+    // (from col-widths, table-size, and the like) may sit between the two.
+    //
+    // This walks the paragraph tags once and looks only a bounded distance
+    // either side of each </p>, so malformed HTML (thousands of unclosed <p>
+    // tags, say) cannot make it slow. Uploaded documents are hostile.
+    const LOOK_BEHIND = 200;
+    const LOOK_AHEAD = 5000;
+    const endsInColon = /:(?:\s*<\/[a-z]+>)*\s*$/i;
+    const introduces = /^\s*(?:<style>[\s\S]*?<\/style>\s*)*<(?:table|ul|ol|pre|blockquote|figure)\b/i;
+    const tagRegex = /<p>|<\/p>/gi;
+
+    const pieces = [];
+    let copiedTo = 0;
+    let openAt = -1;
+    let tag;
+
+    while ((tag = tagRegex.exec(htmlContent)) !== null) {
+      if (tag[0].toLowerCase() === "<p>") {
+        openAt = tag.index;
+        continue;
+      }
+
+      const closeAt = tag.index;
+      if (openAt === -1) continue;
+
+      const isLeadIn =
+        endsInColon.test(htmlContent.slice(Math.max(openAt + 3, closeAt - LOOK_BEHIND), closeAt)) &&
+        introduces.test(htmlContent.slice(closeAt + 4, closeAt + 4 + LOOK_AHEAD));
+
+      if (isLeadIn) {
+        pieces.push(htmlContent.slice(copiedTo, openAt), '<p class="lead-in">');
+        copiedTo = openAt + 3;
+      }
+
+      openAt = -1;
+    }
+
+    pieces.push(htmlContent.slice(copiedTo));
+    return pieces.join("");
   }
 
   processHeaderRules(htmlContent) {
@@ -494,7 +561,7 @@ class ContentProcessor {
     // that is where it reads naturally when authoring. `marked` may wrap a
     // standalone comment in a <p>, so the wrapper is matched and removed too.
     const markerRegex = /(?:<p>\s*)?<!--\s*rule:\s*(.+?)\s*-->(?:\s*<\/p>)?/i;
-    const headingRegex = /<h([1-6])((?:"[^"]*"|[^>])*)>/gi;
+    const headingRegex = /<h([1-6])(?=[\s>])((?:[^"'<>]|"[^"]*"|'[^']*')*)>/gi;
     const off = ["off", "none", "false", "no", "hide"];
     const on = ["on", "true", "yes", "show"];
 
@@ -889,6 +956,137 @@ class ContentProcessor {
     }
 
     return result;
+  }
+
+  processFigures(htmlContent) {
+    // A standalone image followed directly by a paragraph that is nothing but
+    // italic text is an image and its caption. Wrap the pair in one <figure> so
+    // the stylesheet can keep them on the same page. The caption must be the
+    // whole paragraph: one <em> from start to end, with no other italic run
+    // inside it. Anything else is ordinary text and is left alone, as is an
+    // image with no caption.
+    //
+    // Walks forward once with indexOf, never rescanning, so malformed HTML
+    // cannot make it slow.
+    const OPEN = '<p class="img-block';
+    const CLOSE = "</p>";
+    const nextParagraph = /\s*<p>/y;
+
+    const pieces = [];
+    let copiedTo = 0;
+    let position = 0;
+
+    for (;;) {
+      const start = htmlContent.indexOf(OPEN, position);
+      if (start === -1) break;
+
+      const imageEnd = htmlContent.indexOf(CLOSE, start);
+      if (imageEnd === -1) break;
+      const afterImage = imageEnd + CLOSE.length;
+      position = afterImage;
+
+      nextParagraph.lastIndex = afterImage;
+      const opening = nextParagraph.exec(htmlContent);
+      if (!opening) continue;
+
+      const captionStart = afterImage + opening[0].length;
+      const captionEnd = htmlContent.indexOf(CLOSE, captionStart);
+      if (captionEnd === -1) break;
+
+      const caption = htmlContent.slice(captionStart, captionEnd).trim();
+      const isWholeEm = /^<em>[\s\S]*<\/em>$/i.test(caption);
+      if (!isWholeEm || /<\/?em\b/i.test(caption.slice(4, -5))) continue;
+
+      const gap = opening[0].slice(0, -3);
+      pieces.push(
+        htmlContent.slice(copiedTo, start),
+        '<figure class="pdf-figure">',
+        htmlContent.slice(start, afterImage),
+        gap,
+        `<figcaption>${caption}</figcaption></figure>`
+      );
+      copiedTo = captionEnd + CLOSE.length;
+      position = copiedTo;
+    }
+
+    pieces.push(htmlContent.slice(copiedTo));
+    return pieces.join("");
+  }
+
+  processH2PageBreaks(htmlContent) {
+    // <!-- h2-page-breaks: ON --> in the document starts every H2 on a new page.
+    // <!-- h2-break: off --> on the line below an H2 keeps that one where it
+    // falls. Like <!-- rule: off -->, it targets the heading ABOVE it.
+    //
+    // Three H2s never get the break: the first in the document (it belongs to
+    // the title block), one that already follows a manual page break (a second
+    // forced break there would leave a blank page), and the footnotes heading.
+    //
+    // One pass over the H2 tags and the opt-out comments, in document order.
+    // The tag pattern's alternatives cannot match the same character, so an
+    // unclosed tag full of quotes cannot make it backtrack.
+    const tokenRegex =
+      /<h2(?=[\s>])((?:[^"'<>]|"[^"]*"|'[^']*')*)>|(?:<p>\s*)?<!--\s*h2-break:\s*([^<>]*?)\s*-->(?:\s*<\/p>)?/gi;
+    const off = ["off", "none", "false", "no"];
+    const enabled = !!(this.documentSettings && this.documentSettings.h2PageBreaks);
+
+    // Each H2 tag gets its own slot, so a later comment can still change it
+    const pieces = [];
+    const headings = [];
+    let copiedTo = 0;
+    let token;
+
+    while ((token = tokenRegex.exec(htmlContent)) !== null) {
+      pieces.push(htmlContent.slice(copiedTo, token.index));
+      copiedTo = token.index + token[0].length;
+
+      if (token[2] === undefined) {
+        const before = htmlContent.slice(Math.max(0, token.index - 200), token.index);
+        headings.push({
+          slot: pieces.length,
+          attributes: token[1],
+          optedOut: false,
+          isFootnotes: /\bid=["']footnote-label["']/i.test(token[1]),
+          followsManualBreak: /<div class="page-break"><\/div>\s*$/i.test(before),
+        });
+        pieces.push(token[0]);
+        continue;
+      }
+
+      // An opt-out comment: it is always removed, and it marks the H2 above it
+      const value = token[2].trim().toLowerCase();
+      const heading = headings[headings.length - 1];
+      if (!off.includes(value)) {
+        console.log(chalk.yellow(`⚠️ Unrecognized h2-break setting '${value}', expected off`));
+      } else if (!heading) {
+        console.log(chalk.yellow("⚠️ `h2-break:` comment has no H2 above it, ignoring"));
+      } else {
+        heading.optedOut = true;
+      }
+    }
+
+    pieces.push(htmlContent.slice(copiedTo));
+
+    const addClass = (attributes, name) =>
+      /\bclass="/i.test(attributes)
+        ? `<h2${attributes.replace(/\bclass="([^"]*)"/i, `class="$1 ${name}"`)}>`
+        : `<h2 class="${name}"${attributes}>`;
+
+    let breaks = 0;
+    headings.forEach((heading, index) => {
+      if (heading.optedOut) {
+        pieces[heading.slot] = addClass(heading.attributes, "no-h2-break");
+      } else if (enabled && index > 0 && !heading.isFootnotes && !heading.followsManualBreak) {
+        pieces[heading.slot] = addClass(heading.attributes, "h2-page-break");
+        breaks++;
+      }
+    });
+
+    if (enabled) {
+      console.log(chalk.blue(`📃 Starting ${breaks} H2 section(s) on a new page`));
+    }
+
+    return pieces.join("");
   }
 
   applyTableClasses(htmlContent) {

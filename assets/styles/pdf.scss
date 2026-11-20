@@ -403,6 +403,103 @@ pre * {
     }
   }
 
+  // An image paragraph and the italic caption paragraph directly after it are
+  // wrapped in one figure by processFigures, so the pair never splits
+  figure.pdf-figure {
+    margin: 10px 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+
+    p.img-block {
+      margin: 0 0 6px 0;
+    }
+
+    figcaption {
+      margin: 0;
+      text-align: left;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // PAGINATION - Keep-together rules, so a page never ends on a stranded heading
+  // -------------------------------------------------------------------------
+  // All of these are best effort: Chrome drops an "avoid" when the unit it
+  // protects is taller than a page.
+
+  // A heading stays with whatever follows it
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  // These never split across pages
+  pre,
+  blockquote,
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  // A short table moves whole to the next page instead of splitting.
+  // PdfGenerator.markBlocksThatFit measures every table in Chrome and tags the
+  // short ones; keeping a long table whole would leave most of a page blank
+  // before it. A table that does split keeps at least three rows on each side
+  table.keep-together {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  // A paragraph ending in a colon that introduces a table, list, code block,
+  // or figure stays with it (tagged by processLeadIns)
+  p.lead-in {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  tbody tr:nth-child(-n + 2) {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  tbody tr:nth-last-child(-n + 2) {
+    break-before: avoid;
+    page-break-before: avoid;
+  }
+
+  // A list never leaves one item alone on either side of a break
+  li:first-child {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  li:last-child {
+    break-before: avoid;
+    page-break-before: avoid;
+  }
+
+  // At least two lines of a paragraph or list item on each side of a break
+  p,
+  li {
+    orphans: 2;
+    widows: 2;
+  }
+
+  // A table that runs onto a new page repeats its header row
+  thead {
+    display: table-header-group;
+  }
+
+  // <!-- h2-page-breaks: ON --> starts each H2 on a new page (processH2PageBreaks)
+  h2.h2-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
   // -------------------------------------------------------------------------
   // MULTI-COLUMN LAYOUT - two/three/four-columns markers
   // -------------------------------------------------------------------------

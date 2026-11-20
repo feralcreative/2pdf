@@ -60,6 +60,63 @@ class PdfGenerator {
     }
   }
 
+  // Tag every table short enough to be kept whole on a page.
+  //
+  // CSS can say "do not split this table", but not "only if it is short". Asked
+  // to keep a table taller than the space left, Chrome moves it to the next
+  // page, and for a long table that leaves most of a page blank. So measure the
+  // tables as they will print and tag only those under 40% of a page. Larger
+  // tables split, and the stylesheet keeps at least three rows on each side of
+  // the break.
+  //
+  // The measurement must not change what prints. The viewport is left alone (a
+  // resize would re-run media queries and could swap responsive images after
+  // they have loaded); instead the document is squeezed to the printed content
+  // width for the length of one synchronous script, under print styles, and
+  // then put back.
+  async markBlocksThatFit(page, pageNumbers) {
+    const contentWidth = 720; // 7.5in: Letter less 0.5in side margins
+    const contentHeight = pageNumbers ? 936 : 960; // 9.75in with a footer, 10in without
+    const limit = contentHeight * 0.4;
+
+    try {
+      await page.emulateMediaType("print");
+
+      const kept = await page.evaluate(
+        (width, maxHeight) => {
+          const root = document.documentElement;
+          const previousWidth = root.style.width;
+          root.style.width = `${width}px`;
+
+          let count = 0;
+          for (const table of document.querySelectorAll("table")) {
+            if (table.getBoundingClientRect().height <= maxHeight) {
+              table.classList.add("keep-together");
+              count++;
+            }
+          }
+
+          root.style.width = previousWidth;
+          return count;
+        },
+        contentWidth,
+        limit
+      );
+
+      if (kept > 0) {
+        console.log(chalk.gray(`📐 Keeping ${kept} short table(s) whole`));
+      }
+    } catch (e) {
+      console.log(chalk.yellow("⚠️ Could not measure tables, continuing..."));
+    } finally {
+      try {
+        await page.emulateMediaType(null);
+      } catch (e) {
+        // Printing switches to print styles on its own
+      }
+    }
+  }
+
   async generatePdf(
     htmlPath,
     outputPath,
@@ -148,6 +205,10 @@ class PdfGenerator {
 
       // Brief wait for rendering
       await page.waitForTimeout(500);
+
+      if (!singlePage) {
+        await this.markBlocksThatFit(page, pageNumbers);
+      }
 
       // Generate PDF with options matching the shell script
       console.log(chalk.blue("📄 Generating PDF..."));
