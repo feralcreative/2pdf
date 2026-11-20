@@ -1,6 +1,6 @@
 {
   "name": "2pdf.js",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Convert Markdown and HTML files to PDF with styling, token replacement, and content processing features",
   "main": "src/index.js",
   "bin": {
@@ -45,23 +45,21 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/feralcreative/md-to-pdf.git"
+    "url": "https://github.com/feralcreative/2pdf.git"
   },
   "bugs": {
-    "url": "https://github.com/feralcreative/md-to-pdf/issues"
+    "url": "https://github.com/feralcreative/2pdf/issues"
   },
-  "homepage": "https://github.com/feralcreative/md-to-pdf#readme",
+  "homepage": "https://github.com/feralcreative/2pdf#readme",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=22"
   },
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^11.0.0",
     "fs-extra": "^11.0.0",
-    "glob": "^10.0.0",
     "marked": "^9.0.0",
     "marked-footnote": "^1.2.2",
-    "path": "^0.12.7",
     "puppeteer": "^21.0.0",
     "which": "^4.0.0"
   },
