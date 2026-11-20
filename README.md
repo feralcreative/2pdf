@@ -130,6 +130,42 @@ Content here...
 Content on next page...
 ```
 
+You rarely need one. 2pdf keeps related things together on its own:
+
+- **A heading stays with what follows it.** It is never the last thing on a page.
+- **An image stays with its caption.** A standalone image followed directly by a paragraph that is all italics is treated as an image and its caption, and the pair never splits. Put the heading right before the image and all three move together.
+- **Table rows, code blocks, and blockquotes do not split.** A short table (under 40% of a page) moves whole to the next page. A longer one splits, with at least three rows on each side, and repeats its header row.
+- **A paragraph ending in a colon stays with the table, list, code block, or figure it introduces.**
+- **Paragraphs and lists keep at least two lines or two items on each side of a break.**
+
+These are best effort: when something is taller than a page, it has to split somewhere. They come with 2pdf's own stylesheet, so a document rendered with `--style` or an HTML file that brings its own CSS does not get them, and figures, lead-ins, and the H2 setting below are for Markdown input only.
+
+#### Start every H2 on a new page
+
+```markdown
+<!-- h2-page-breaks: ON -->
+```
+
+With this setting, every H2 starts a new page except the first one in the document, which belongs with the title. To keep one more H2 where it falls, put this on the line below it:
+
+```markdown
+## How to use this document
+
+<!-- h2-break: off -->
+```
+
+An H2 that already follows a `PAGE-BREAK` comment is left alone, so the two never add up to a blank page.
+
+#### Checking the layout
+
+```bash
+2pdf document.md --layout-report
+```
+
+After rendering, this prints one line per page: how far down the page the text reaches, and the page's first line. It flags a page that is nearly empty, a page that is sparse in the middle of a section, and a page that ends on a heading. It needs `pdftotext` (`brew install poppler`), and it measures text only, so an image at the foot of a page is not counted.
+
+Every conversion also warns about a local SVG diagram whose text will print smaller than 9px, one stretched so far that its text prints larger than 14px, or one that will print taller than 8in. The fix is in the diagram or its `img-width`; 2pdf never resizes it for you.
+
 <!--| PAGE-BREAK -->
 
 ### 3. Live site shields
@@ -651,6 +687,7 @@ Content with custom styling...
 ### Page features
 
 - **page-numbers**: `on`, `off`, `X`, or `X of Y` - controls footer page numbering
+- **h2-page-breaks**: `on` or `off` (default `off`) - starts every H2 after the first on a new page; see [Page breaks](#2-page-breaks)
 - **disclosure**: Brief text for center footer (e.g., `Internal Use Only`, `CONFIDENTIAL`)
 - **watermark**: `on` (or `DRAFT`), `off`, or any custom text - stamps a large diagonal watermark across every page
   - `on`/`true`/`yes` renders `DRAFT`; `off`/`false`/`no`/`none` disables it

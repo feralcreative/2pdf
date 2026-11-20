@@ -36,6 +36,20 @@ Features on this protocol:
 
 `<!-- PDF ONLY ... -->` uses a different placeholder scheme: the block becomes `PDFONLY_PLACEHOLDER_START…END` in phase 1 and is run through `marked` a second time inside `postProcessHtml()`, so PDF-only content supports full markdown.
 
+## Pagination
+
+Three layers, each doing what the one before cannot.
+
+**The stylesheet** (the PAGINATION block in `pdf.scss`) holds the keep-together rules: a heading stays with what follows, rows, code blocks, and blockquotes do not split, the first and last two rows of a table and the first and last item of a list stay with their neighbours, and paragraphs keep two lines on each side of a break. All of it is best effort, and Chrome drops an `avoid` when the protected unit is taller than a page.
+
+**`ContentProcessor`** supplies the structure the stylesheet needs and Markdown does not give it. `processFigures()` wraps a standalone image and the all-italic paragraph directly after it in `<figure class="pdf-figure">`, so the pair is one unbreakable box. `processLeadIns()` tags a paragraph that ends in a colon and is followed by a table, list, code block, blockquote, or figure as `lead-in`. `processH2PageBreaks()` adds `h2-page-break` to each H2 when `<!-- h2-page-breaks: ON -->` is set, skipping the first H2, one that follows a manual page break, the footnotes heading, and any H2 with `<!-- h2-break: off -->` below it. `processFigures()` must run after `processImageAlignment()`, which creates the `img-block` paragraphs it looks for, and `processLeadIns()` runs late so the figures and table classes it looks past already exist.
+
+**`PdfGenerator.markBlocksThatFit()`** answers the one question that needs a layout: is this table short enough to keep whole? It switches the page to print media, squeezes the document to the printed content width (720px) for the length of one script, measures every table, tags those under 40% of the content height `keep-together`, and puts the width and media type back. The viewport is never resized, because that would re-run media queries and could swap responsive images after they have loaded. A blanket `table { break-inside: avoid }` was tried and rejected: Chrome moves a table that will not fit to the next page before splitting it, which left a near-empty page ahead of every long table.
+
+`LayoutChecker` is separate from all three and changes nothing. It warns about SVG images whose text will print too small or too large, from the `viewBox`, the font sizes, and the image's `img-width`, and with `--layout-report` it reads the finished PDF through `pdftotext -bbox-layout` to report how full each page is. Both are skipped in sandboxed mode, since the first reads local files and the second runs a local program. The page report drops the watermark's text, which `pdftotext` would otherwise read as content on every page.
+
+All of this is Markdown-only and default-stylesheet-only: HTML input never reaches `postProcessHtml()`, and `--style` or an HTML file's own CSS replaces the stylesheet that holds the rules. `markBlocksThatFit()` still runs for those, harmlessly, since nothing styles the class it adds.
+
 ## Two input paths
 
 `ToPdf.convert()` branches on file extension and the two branches share almost nothing.
@@ -53,7 +67,7 @@ Consequence: markers, columns, table widths, image widths, code sizes, header ru
 
 `extractDocumentSettings()` returns a plain object; `processContent()` stores it on `this.documentSettings`; `markdownToHtml()` then mutates the same object to add `documentTitle` (from the first `# H1`). So settings are only complete *after* HTML conversion—`ToPdf.convert()` calls `getDocumentSettings()` at that point, not earlier.
 
-From there each setting becomes a local `const` in `convert()` and is passed to `StyleManager.applyStyles()` by position (22 parameters, with `watermark` last). `pageNumbers`, `pageNumberFormat`, and `disclosure` bypass `StyleManager` and go straight to `PdfGenerator.generatePdf()` for the footer; `documentTitle` goes to both. `customFilename`, `fileDate`, `sequentialOutput`, and `versionNumber` are consumed by `convert()` itself for output-path resolution.
+From there each setting becomes a local `const` in `convert()` and is passed to `StyleManager.applyStyles()` by position (23 parameters, with `highlightColorRed` last). `pageNumbers`, `pageNumberFormat`, and `disclosure` bypass `StyleManager` and go straight to `PdfGenerator.generatePdf()` for the footer; `documentTitle` goes to both. `customFilename`, `fileDate`, `sequentialOutput`, and `versionNumber` are consumed by `convert()` itself for output-path resolution.
 
 `logo` is resolved in `convert()`, not `StyleManager`: a bare filename resolves against `<install>/public/assets/images/`, an absolute path is used as-is, and the file is read and inlined as a base64 data URI. Data URI, not `file://`, because the logo is emitted into the `<div class="pdf-header">` that `StyleManager.createStyledHtml()` builds, and Chrome's file-access rules make `file://` fragile there.
 
