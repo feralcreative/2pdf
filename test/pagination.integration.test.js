@@ -123,6 +123,18 @@ describeIfPossible("pagination in Chrome", () => {
     );
   }, 120000);
 
+  test("a list item is never split across pages", async () => {
+    const item = (n) => `<li>START${n} ${"word ".repeat(60)} END${n}</li>`;
+    await sweep(
+      (before) => `${before}<ul>${[1, 2, 3, 4].map(item).join("")}</ul>`,
+      (pages) => {
+        for (const n of [1, 2, 3, 4]) {
+          expect(pageOf(pages, `START${n}`)).toBe(pageOf(pages, `END${n}`));
+        }
+      }
+    );
+  }, 120000);
+
   test("an image and its caption stay together, with the heading above them", async () => {
     const image =
       "data:image/svg+xml;utf8," +

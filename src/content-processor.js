@@ -510,10 +510,12 @@ class ContentProcessor {
 
   processLeadIns(htmlContent) {
     // "The endpoints are:" followed by a table belongs on the same page as the
-    // table. A paragraph that ends in a colon and is followed directly by a
-    // table, list, code block, blockquote, or figure gets class "lead-in",
-    // which the stylesheet keeps with what follows. Generated <style> blocks
-    // (from col-widths, table-size, and the like) may sit between the two.
+    // table. A paragraph followed directly by a table, list, code block,
+    // blockquote, or figure gets class "lead-in", which the stylesheet keeps
+    // with what follows, in two cases: it ends in a colon, or it is the only
+    // paragraph between a heading and that block (a one-line introduction under
+    // a heading). Generated <style> blocks (from col-widths, table-size, and
+    // the like) may sit between the two.
     //
     // This walks the paragraph tags once and looks only a bounded distance
     // either side of each </p>, so malformed HTML (thousands of unclosed <p>
@@ -521,6 +523,7 @@ class ContentProcessor {
     const LOOK_BEHIND = 200;
     const LOOK_AHEAD = 5000;
     const endsInColon = /:(?:\s*<\/[a-z]+>)*\s*$/i;
+    const followsHeading = /<\/h[1-6]>\s*(?:<style>[^<]*<\/style>\s*)*$/i;
     const introduces = /^\s*(?:<style>[\s\S]*?<\/style>\s*)*<(?:table|ul|ol|pre|blockquote|figure)\b/i;
     const tagRegex = /<p>|<\/p>/gi;
 
@@ -539,8 +542,9 @@ class ContentProcessor {
       if (openAt === -1) continue;
 
       const isLeadIn =
-        endsInColon.test(htmlContent.slice(Math.max(openAt + 3, closeAt - LOOK_BEHIND), closeAt)) &&
-        introduces.test(htmlContent.slice(closeAt + 4, closeAt + 4 + LOOK_AHEAD));
+        introduces.test(htmlContent.slice(closeAt + 4, closeAt + 4 + LOOK_AHEAD)) &&
+        (endsInColon.test(htmlContent.slice(Math.max(openAt + 3, closeAt - LOOK_BEHIND), closeAt)) ||
+          followsHeading.test(htmlContent.slice(Math.max(0, openAt - LOOK_BEHIND), openAt)));
 
       if (isLeadIn) {
         pieces.push(htmlContent.slice(copiedTo, openAt), '<p class="lead-in">');

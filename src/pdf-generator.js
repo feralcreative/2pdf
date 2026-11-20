@@ -65,9 +65,10 @@ class PdfGenerator {
   // CSS can say "do not split this table", but not "only if it is short". Asked
   // to keep a table taller than the space left, Chrome moves it to the next
   // page, and for a long table that leaves most of a page blank. So measure the
-  // tables as they will print and tag only those under 40% of a page. Larger
-  // tables split, and the stylesheet keeps at least three rows on each side of
-  // the break.
+  // tables as they will print and tag only those that fit on one page with
+  // room left for a heading and an introduction (85% of the page). A table
+  // that fits on a page is never split; a longer one splits, and the
+  // stylesheet keeps at least three rows on each side of the break.
   //
   // The measurement must not change what prints. The viewport is left alone (a
   // resize would re-run media queries and could swap responsive images after
@@ -77,7 +78,7 @@ class PdfGenerator {
   async markBlocksThatFit(page, pageNumbers) {
     const contentWidth = 720; // 7.5in: Letter less 0.5in side margins
     const contentHeight = pageNumbers ? 936 : 960; // 9.75in with a footer, 10in without
-    const limit = contentHeight * 0.4;
+    const limit = contentHeight * 0.85;
 
     try {
       await page.emulateMediaType("print");
@@ -104,7 +105,7 @@ class PdfGenerator {
       );
 
       if (kept > 0) {
-        console.log(chalk.gray(`📐 Keeping ${kept} short table(s) whole`));
+        console.log(chalk.gray(`📐 Keeping ${kept} table(s) whole`));
       }
     } catch (e) {
       console.log(chalk.yellow("⚠️ Could not measure tables, continuing..."));

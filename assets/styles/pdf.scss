@@ -445,17 +445,18 @@ pre * {
     page-break-inside: avoid;
   }
 
-  // A short table moves whole to the next page instead of splitting.
-  // PdfGenerator.markBlocksThatFit measures every table in Chrome and tags the
-  // short ones; keeping a long table whole would leave most of a page blank
-  // before it. A table that does split keeps at least three rows on each side
+  // A table that fits on one page moves whole to the next page instead of
+  // splitting. PdfGenerator.markBlocksThatFit measures every table in Chrome
+  // and tags those that fit; asking Chrome to keep a table longer than a page
+  // whole would leave a blank page before it. A table that does split keeps at
+  // least three rows on each side
   table.keep-together {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
-  // A paragraph ending in a colon that introduces a table, list, code block,
-  // or figure stays with it (tagged by processLeadIns)
+  // A paragraph that introduces a table, list, code block, or figure stays
+  // with it (tagged by processLeadIns)
   p.lead-in {
     break-after: avoid;
     page-break-after: avoid;
@@ -469,6 +470,13 @@ pre * {
   tbody tr:nth-last-child(-n + 2) {
     break-before: avoid;
     page-break-before: avoid;
+  }
+
+  // A list item is not split, unless it holds a nested list (keeping that
+  // whole could strand most of a page)
+  li:not(:has(ul, ol)) {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   // A list never leaves one item alone on either side of a break

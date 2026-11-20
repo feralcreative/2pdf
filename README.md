@@ -134,9 +134,9 @@ You rarely need one. 2pdf keeps related things together on its own:
 
 - **A heading stays with what follows it.** It is never the last thing on a page.
 - **An image stays with its caption.** A standalone image followed directly by a paragraph that is all italics is treated as an image and its caption, and the pair never splits. Put the heading right before the image and all three move together.
-- **Table rows, code blocks, and blockquotes do not split.** A short table (under 40% of a page) moves whole to the next page. A longer one splits, with at least three rows on each side, and repeats its header row.
-- **A paragraph ending in a colon stays with the table, list, code block, or figure it introduces.**
-- **Paragraphs and lists keep at least two lines or two items on each side of a break.**
+- **Table rows, code blocks, and blockquotes do not split.** A table that fits on one page is never split: it moves whole to the next page. One longer than a page splits, with at least three rows on each side, and repeats its header row.
+- **An introduction stays with what it introduces.** A paragraph ending in a colon, or the only paragraph between a heading and a table, list, code block, or figure, stays on the same page as that block.
+- **A list item is not split**, and a list never leaves one item alone on a page. Paragraphs keep at least two lines on each side of a break.
 
 These are best effort: when something is taller than a page, it has to split somewhere. They come with 2pdf's own stylesheet, so a document rendered with `--style` or an HTML file that brings its own CSS does not get them, and figures, lead-ins, and the H2 setting below are for Markdown input only.
 

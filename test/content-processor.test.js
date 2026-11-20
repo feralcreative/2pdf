@@ -159,8 +159,18 @@ describe("ContentProcessor", () => {
       }
     });
 
-    test("should leave a paragraph that does not end in a colon alone", () => {
-      const html = "<p>The hosts are listed below.</p>\n<table></table>";
+    test("should leave a paragraph that does not end in a colon alone when other text comes before it", () => {
+      const html = "<p>First.</p>\n<p>The hosts are listed below.</p>\n<table></table>";
+      expect(processor.processLeadIns(html)).toBe(html);
+    });
+
+    test("should tag the only paragraph between a heading and a table, colon or not", () => {
+      const html = '<h3 id="e3">E.3 Surfaces</h3>\n<p>Three separate surfaces.</p>\n<table></table>';
+      expect(processor.processLeadIns(html)).toContain('<p class="lead-in">Three separate surfaces.</p>');
+    });
+
+    test("should not tag a paragraph under a heading that is followed by more prose", () => {
+      const html = '<h3 id="e3">E.3</h3>\n<p>Three separate surfaces.</p>\n<p>More.</p>\n<table></table>';
       expect(processor.processLeadIns(html)).toBe(html);
     });
 
