@@ -28,12 +28,18 @@ class ConfigManager {
         throw new Error(`Config file not found: ${configFile}`);
       }
     } else {
-      // Look for config file in multiple locations
+      // Sandboxed runs never search: they use the config they are given or none.
+      if (this.sandboxed) {
+        return {};
+      }
+
+      // The project being rendered comes first, so its config wins over one
+      // that happens to sit in the 2pdf install.
       const configLocations = [
-        path.join(this.scriptDir, "2pdf.config"), // Root directory
-        path.join(this.currentDir, "2pdf.config"), // Current working directory
-        path.join(this.scriptDir, "config", "2pdf.config"), // config subdirectory
-        path.join(this.currentDir, "config", "2pdf.config"), // config subdirectory in current dir
+        path.join(this.currentDir, "2pdf.config"),
+        path.join(this.currentDir, "config", "2pdf.config"),
+        path.join(this.scriptDir, "2pdf.config"),
+        path.join(this.scriptDir, "config", "2pdf.config"),
       ];
 
       for (const configPath of configLocations) {
@@ -49,7 +55,7 @@ class ConfigManager {
       return await this.parseConfigFile(configFile);
     } else {
       console.log(
-        chalk.gray("ℹ️ No config file found (looked for 2pdf.config in script, current, and config directories)")
+        chalk.gray("ℹ️ No config file found (looked for 2pdf.config in the current directory, its config/ folder, and the 2pdf install)")
       );
       console.log(chalk.gray("💡 Create 2pdf.config to use token replacement features"));
       return {};

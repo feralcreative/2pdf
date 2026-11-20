@@ -107,6 +107,56 @@ EMPTY_VALUE=
       expect(config.DEVELOPER_NAME).toBe("Script Dir User");
     });
 
+    describe("search order", () => {
+      let scriptDir;
+      let currentDir;
+      let manager;
+
+      beforeEach(async () => {
+        scriptDir = path.join(tempDir, "install");
+        currentDir = path.join(tempDir, "project");
+        await fs.ensureDir(path.join(scriptDir, "config"));
+        await fs.ensureDir(path.join(currentDir, "config"));
+        manager = new ConfigManager(scriptDir, currentDir);
+      });
+
+      test("the current directory wins over the install", async () => {
+        await fs.writeFile(path.join(scriptDir, "2pdf.config"), "DEVELOPER_NAME=Install");
+        await fs.writeFile(path.join(currentDir, "2pdf.config"), "DEVELOPER_NAME=Project");
+
+        expect((await manager.loadConfig()).DEVELOPER_NAME).toBe("Project");
+      });
+
+      test("the current directory's config folder wins over the install root", async () => {
+        await fs.writeFile(path.join(scriptDir, "2pdf.config"), "DEVELOPER_NAME=Install");
+        await fs.writeFile(path.join(currentDir, "config", "2pdf.config"), "DEVELOPER_NAME=Project Config");
+
+        expect((await manager.loadConfig()).DEVELOPER_NAME).toBe("Project Config");
+      });
+
+      test("the install is used when the project has no config", async () => {
+        await fs.writeFile(path.join(scriptDir, "config", "2pdf.config"), "DEVELOPER_NAME=Install Config");
+
+        expect((await manager.loadConfig()).DEVELOPER_NAME).toBe("Install Config");
+      });
+
+      test("sandboxed mode never searches", async () => {
+        await fs.writeFile(path.join(scriptDir, "2pdf.config"), "DEVELOPER_NAME=Install");
+        await fs.writeFile(path.join(currentDir, "2pdf.config"), "DEVELOPER_NAME=Project");
+        const sandboxed = new ConfigManager(scriptDir, currentDir, { sandboxed: true });
+
+        expect(await sandboxed.loadConfig()).toEqual({});
+      });
+
+      test("sandboxed mode still reads a config it is given", async () => {
+        const given = path.join(tempDir, "given.config");
+        await fs.writeFile(given, "DEVELOPER_NAME=Given");
+        const sandboxed = new ConfigManager(scriptDir, currentDir, { sandboxed: true });
+
+        expect((await sandboxed.loadConfig(given)).DEVELOPER_NAME).toBe("Given");
+      });
+    });
+
     test("should return empty config when no file found", async () => {
       const config = await configManager.loadConfig();
 
