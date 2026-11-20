@@ -17,6 +17,7 @@ const ConfigManager = require("./config-manager");
 const StyleManager = require("./style-manager");
 const ContentProcessor = require("./content-processor");
 const PdfGenerator = require("./pdf-generator");
+const LayoutChecker = require("./layout-checker");
 
 class ToPdf {
   constructor(options = {}) {
@@ -29,6 +30,8 @@ class ToPdf {
       openAfterGeneration: options.openAfterGeneration !== false,
       debug: options.debug || false,
       verbose: options.verbose || false,
+      // Print how full each page of the finished PDF is (needs pdftotext)
+      layoutReport: options.layoutReport || false,
       // Sandboxed mode treats the input as untrusted (the web version): no
       // config search, no machine tokens, bundled logos only, a Content
       // Security Policy on the rendered page, and guarded Chrome requests.
@@ -52,6 +55,7 @@ class ToPdf {
     this.styleManager = new StyleManager(this.scriptDir);
     this.contentProcessor = null; // Will be initialized with input directory
     this.pdfGenerator = new PdfGenerator({ sandboxed: this.options.sandboxed });
+    this.layoutChecker = new LayoutChecker();
 
     if (this.options.verbose) {
       console.log(chalk.gray("📁 Working directory:"), this.currentDir);
@@ -234,6 +238,12 @@ class ToPdf {
       // Get document settings extracted from the content
       const documentSettings = this.contentProcessor.getDocumentSettings();
 
+      // Warn about diagrams whose text will print too small, too large, or
+      // whose height will not fit a page. Reads local SVG files, so it never
+      // runs on untrusted input.
+      const imageWarnings = this.options.sandboxed ? [] : this.warnAboutImages(htmlContent, path.dirname(inputPath));
+
+
       // Use document settings for colors and font size, with CLI options as fallback
       const effectiveThemeColor = documentSettings.themeColor || this.options.themeColor;
       const themeColorPrimary = documentSettings.themeColorPrimary;
@@ -364,6 +374,12 @@ class ToPdf {
         pageNumberFormat
       );
 
+      // Report how full each page is, if asked
+      const layout =
+        this.options.layoutReport && !this.options.singlePage && !this.options.sandboxed
+          ? this.printLayoutReport(outputPath, htmlContent, pageNumbers, watermark)
+          : null;
+
       // Get file stats
       const stats = await fs.stat(outputPath);
       const fileSize = this.formatFileSize(stats.size);
@@ -403,6 +419,8 @@ class ToPdf {
         fullPath: outputPath,
         fileSize,
         opened,
+        imageWarnings,
+        layout,
       };
     } catch (error) {
       // Clean up temp directory on error
@@ -414,6 +432,70 @@ class ToPdf {
         success: false,
         error: error.message,
       };
+    }
+  }
+
+  // Check every local SVG image and print a warning for each problem found.
+  // A failure here never stops a conversion.
+  warnAboutImages(htmlContent, inputDir) {
+    try {
+      const images = this.layoutChecker.checkImages(htmlContent, inputDir, { singlePage: this.options.singlePage });
+      const warnings = [];
+
+      for (const image of images) {
+        for (const warning of image.warnings) {
+          warnings.push({ file: image.file, warning });
+          console.log(chalk.yellow(`⚠️ ${image.file}: ${warning}`));
+        }
+      }
+
+      return warnings;
+    } catch (error) {
+      if (this.options.verbose) {
+        console.log(chalk.yellow("⚠️ Could not check image sizes:"), error.message);
+      }
+      return [];
+    }
+  }
+
+  // Print one line per page of the finished PDF: how full it is and what is
+  // wrong with it. A failure here never stops a conversion.
+  printLayoutReport(pdfPath, htmlContent, pageNumbers, watermark) {
+    try {
+      const pages = this.layoutChecker.report(pdfPath, htmlContent, {
+        pageNumbers: !!pageNumbers,
+        ignoreText: watermark || null,
+      });
+
+      if (pages === null) {
+        console.log(chalk.yellow("⚠️ No layout report: pdftotext is not installed (brew install poppler)"));
+        return null;
+      }
+
+      console.log(chalk.blue("📐 Layout report (fullness is measured from text, so an image at the foot of a page is not counted):"));
+      for (const page of pages) {
+        const percent = `${Math.round(page.fullness * 100)}%`.padStart(4);
+        const start = page.firstLine.length > 60 ? `${page.firstLine.slice(0, 57)}...` : page.firstLine;
+        const line = `   ${String(page.number).padStart(3)}  ${percent}  ${start}`;
+
+        if (page.flags.length) {
+          console.log(chalk.yellow(`${line}  ← ${page.flags.join(", ")}`));
+        } else {
+          console.log(chalk.gray(line));
+        }
+      }
+
+      const flagged = pages.filter((page) => page.flags.length).length;
+      console.log(
+        flagged
+          ? chalk.yellow(`📐 ${flagged} of ${pages.length} page(s) need a look`)
+          : chalk.green(`📐 All ${pages.length} page(s) look fine`)
+      );
+
+      return pages;
+    } catch (error) {
+      console.log(chalk.yellow("⚠️ Could not build the layout report:"), error.message);
+      return null;
     }
   }
 

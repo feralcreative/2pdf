@@ -54,6 +54,7 @@ program
   .option("-r, --recursive", "Convert all .md/.html files in directory recursively")
   .option("--color <color>", "Theme color (predefined name or hex code) - overridden by document settings")
   .option("--single-page", "Generate single continuous page instead of multiple pages")
+  .option("--layout-report", "Print how full each page of the PDF is, and flag near-empty pages (needs pdftotext)")
   .option("--no-open", "Don't open the PDF after generation (macOS only)")
   .option("--debug", "Enable debug mode (keeps temporary files)")
   .option("--verbose", "Enable verbose logging")
@@ -96,6 +97,7 @@ program
             openAfterGeneration: false, // never auto-open in batch mode
             debug: options.debug || false,
             verbose: options.verbose || false,
+            layoutReport: options.layoutReport || false,
           });
 
           const result = await converter.convert(file);
@@ -134,6 +136,7 @@ program
           openAfterGeneration: options.open !== false,
           debug: options.debug || false,
           verbose: options.verbose || false,
+          layoutReport: options.layoutReport || false,
         });
 
         const result = await converter.convert(input);
