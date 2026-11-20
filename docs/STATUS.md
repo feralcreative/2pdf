@@ -6,7 +6,7 @@ Updated: 2026-11-19
 
 The web version exists and works locally. `npm start` serves a drop page on port 1646 that turns a dropped Markdown file into a PDF, using the same pipeline as the CLI with `sandboxed: true`. It is not hosted anywhere, and no one but the developer can reach it.
 
-Page-breaking features are built on the branch `feat/page-break-controls` (issue #6), six commits on top of `main`. `npm run build` is clean there: no lint errors, and 171 of 171 tests pass, eight of them printing in real Chrome. Nothing is pushed: `main` is ten commits ahead of GitHub, and the branch has never been pushed, so no pull request exists yet.
+Page-breaking features are built on the branch `feat/page-break-controls` (issue #6), on top of `main`, and are up for review as a pull request. `npm run build` is clean there: no lint errors, and 171 of 171 tests pass, eight of them printing in real Chrome.
 
 ## Landed on 2026-11-19
 
@@ -20,7 +20,7 @@ Codex reviewed the plan and the code twice. Its claim that Chrome ignores `break
 
 ## Open on the branch
 
-1. **Push and open the pull request.** Pushing the branch also publishes the ten unpushed `main` commits. Ziad's call.
+1. **Review and merge the pull request.** Until it is merged, 2pdf only has these features while this branch is checked out.
 2. **Sandboxed mode was not smoke-tested by hand** after these changes (Definition of done, step 7). The unit suites pass, but nobody dropped a file on the web page.
 3. **Compiled CSS does not travel in git.** On another machine, compile the SCSS after checking out the branch.
 4. **Qlty is not wired up** in this repo.
