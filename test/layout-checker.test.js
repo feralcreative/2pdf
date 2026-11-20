@@ -23,6 +23,7 @@ describe("LayoutChecker", () => {
         width: 1718.2,
         height: 1065.1,
         naturalWidth: null,
+        mainFont: 16,
         smallestFont: 12,
         largestFont: 16,
       });
@@ -78,39 +79,59 @@ describe("LayoutChecker", () => {
   });
 
   describe("assessSvg", () => {
+    const diagram = (width, height, mainFont = 14) => ({ width, height, naturalWidth: null, mainFont });
+
     test("should warn when a wide diagram shrinks its text below the minimum", () => {
-      const result = checker.assessSvg({ width: 2044, height: 317, smallestFont: 14, largestFont: 14 }, "100%");
+      const result = checker.assessSvg(diagram(2044, 317), "100%");
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toContain("4.9px");
     });
 
-    test("should warn when a small diagram is stretched", () => {
-      const result = checker.assessSvg({ width: 400, height: 200, smallestFont: 14, largestFont: 14 }, "100%");
+    test("should warn when a diagram's text prints larger than the body text", () => {
+      const result = checker.assessSvg(diagram(728, 464), "100%", { bodyTextPx: 11.7 });
       expect(result.warnings).toHaveLength(1);
-      expect(result.warnings[0]).toContain("stretched");
-      expect(result.warnings[0]).toContain("img-width: 56%");
+      expect(result.warnings[0]).toContain("larger than the 11.7px body text");
+      expect(result.warnings[0]).toContain("img-width: 84%");
+    });
+
+    test("should accept text exactly as large as the body text", () => {
+      expect(checker.assessSvg(diagram(1000, 400, 13), "100%", { bodyTextPx: 9.36 }).warnings).toEqual([]);
     });
 
     test("should warn when a diagram prints taller than a page allows", () => {
-      const result = checker.assessSvg({ width: 700, height: 1400, smallestFont: null, largestFont: null }, "100%");
+      const result = checker.assessSvg({ width: 700, height: 1400, naturalWidth: null, mainFont: null }, "100%");
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toContain("tall");
     });
 
     test("should not warn about height in single-page mode", () => {
-      const metrics = { width: 700, height: 1400, smallestFont: null, largestFont: null };
+      const metrics = { width: 700, height: 1400, naturalWidth: null, mainFont: null };
       expect(checker.assessSvg(metrics, "100%", { singlePage: true }).warnings).toEqual([]);
     });
 
     test("should base its redraw advice on the width the image prints at", () => {
-      const result = checker.assessSvg({ width: 2000, height: 400, smallestFont: 14, largestFont: 14 }, "50%");
+      const result = checker.assessSvg(diagram(2000, 400), "50%");
       expect(result.warnings[0]).toContain("narrower than 560px");
     });
 
     test("should pass a diagram sized for the page", () => {
-      const result = checker.assessSvg({ width: 1000, height: 600, smallestFont: 14, largestFont: 14 }, "100%");
+      const result = checker.assessSvg(diagram(1000, 600), "100%");
       expect(result.warnings).toEqual([]);
       expect(result.printedHeight).toBeCloseTo(432);
+    });
+  });
+
+  describe("main font and body text size", () => {
+    test("should take the most used font size as the label size, not the smallest or largest", () => {
+      const svg =
+        '<svg viewBox="0 0 800 400"><style>.title{font-size:18px}.tip{font-size:12px}.a{font-size:14px}.b{font-size:14px}</style></svg>';
+      expect(checker.parseSvgMetrics(svg).mainFont).toBe(14);
+    });
+
+    test("should work out body text size from the font-size and body-size settings", () => {
+      expect(checker.bodyTextPx("0.9em", "1em")).toBeCloseTo(11.7);
+      expect(checker.bodyTextPx(undefined, undefined)).toBe(13);
+      expect(checker.bodyTextPx("12px", "1.1em")).toBeCloseTo(14.3);
     });
   });
 

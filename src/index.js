@@ -439,7 +439,11 @@ class ToPdf {
   // A failure here never stops a conversion.
   warnAboutImages(htmlContent, inputDir) {
     try {
-      const images = this.layoutChecker.checkImages(htmlContent, inputDir, { singlePage: this.options.singlePage });
+      const settings = this.contentProcessor.getDocumentSettings();
+      const images = this.layoutChecker.checkImages(htmlContent, inputDir, {
+        singlePage: this.options.singlePage,
+        bodyTextPx: this.layoutChecker.bodyTextPx(settings.baseFontSize, settings.bodySize),
+      });
       const warnings = [];
 
       for (const image of images) {

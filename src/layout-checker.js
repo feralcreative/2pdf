@@ -11,9 +11,11 @@ const TOP_MARGIN_PT = 36;
 const BOTTOM_MARGIN_PT = 36;
 const BOTTOM_MARGIN_WITH_FOOTER_PT = 54;
 
-// Text inside a diagram should print between these sizes, in CSS px
+// Text inside a diagram should print no smaller than this, in CSS px, and no
+// larger than the document's own body text
 const MIN_TEXT_PX = 9;
-const MAX_TEXT_PX = 14;
+// The stylesheet's body text size before the font-size and body-size settings
+const BASE_BODY_TEXT_PX = 13;
 // Tallest an image can print and still leave room for a heading and a caption
 const MAX_IMAGE_HEIGHT_PX = 768; // 8in
 
@@ -68,10 +70,25 @@ class LayoutChecker {
         ? parseFloat(widthAttribute[1]) * pxPerUnit[(widthAttribute[2] || "px").toLowerCase()]
         : null;
 
+    // A diagram's stylesheet carries sizes for things it never draws (Mermaid
+    // writes a title size and a tooltip size into every flowchart), so the size
+    // that matters is the one used most: the labels.
+    const counts = new Map();
+    for (const size of fontSizes) {
+      counts.set(size, (counts.get(size) || 0) + 1);
+    }
+    let mainFont = null;
+    for (const [size, count] of counts) {
+      if (mainFont === null || count > counts.get(mainFont) || (count === counts.get(mainFont) && size > mainFont)) {
+        mainFont = size;
+      }
+    }
+
     return {
       width,
       height,
       naturalWidth,
+      mainFont,
       smallestFont: fontSizes.length ? Math.min(...fontSizes) : null,
       largestFont: fontSizes.length ? Math.max(...fontSizes) : null,
     };
@@ -106,7 +123,7 @@ class LayoutChecker {
   }
 
   // Work out how one SVG will print, and what is wrong with that.
-  assessSvg(metrics, widthValue, { singlePage = false } = {}) {
+  assessSvg(metrics, widthValue, { singlePage = false, bodyTextPx = BASE_BODY_TEXT_PX } = {}) {
     const printedWidth = this.resolvePrintedWidth(widthValue, metrics.naturalWidth);
     if (printedWidth === null) {
       return { printedWidth: null, warnings: [] };
@@ -116,26 +133,22 @@ class LayoutChecker {
     const printedHeight = metrics.height * scale;
     const warnings = [];
 
-    if (metrics.smallestFont !== null) {
-      const smallestText = metrics.smallestFont * scale;
-      if (smallestText < MIN_TEXT_PX) {
+    if (metrics.mainFont) {
+      const printedText = metrics.mainFont * scale;
+
+      if (printedText < MIN_TEXT_PX) {
         warnings.push(
-          `its ${metrics.smallestFont}px text will print at ${smallestText.toFixed(1)}px, under the ` +
+          `its ${metrics.mainFont}px text will print at ${printedText.toFixed(1)}px, under the ` +
             `${MIN_TEXT_PX}px minimum. It is drawn ${Math.round(metrics.width)}px wide and prints ` +
             `${Math.round(printedWidth)}px wide; redraw it narrower than ` +
-            `${Math.round((metrics.smallestFont * printedWidth) / MIN_TEXT_PX)}px or split it`
+            `${Math.round((metrics.mainFont * printedWidth) / MIN_TEXT_PX)}px or split it`
         );
-      }
-    }
-
-    if (metrics.largestFont !== null) {
-      const largestText = metrics.largestFont * scale;
-      const stretched = scale > 1;
-      if (stretched && largestText > MAX_TEXT_PX) {
-        const suggested = Math.max(10, Math.round((metrics.width / CONTENT_WIDTH_PX) * 100));
+      } else if (printedText > bodyTextPx + 0.05) {
+        // Text in a diagram should never be bigger than the text around it
+        const widest = Math.floor(((bodyTextPx * metrics.width) / metrics.mainFont / CONTENT_WIDTH_PX) * 100);
         warnings.push(
-          `it is stretched from ${Math.round(metrics.width)}px to ${Math.round(printedWidth)}px, so its text ` +
-            `prints at ${largestText.toFixed(1)}px. Try <!-- img-width: ${suggested}% -->`
+          `its ${metrics.mainFont}px text will print at ${printedText.toFixed(1)}px, larger than the ` +
+            `${bodyTextPx.toFixed(1)}px body text. Shrink it with <!-- img-width: ${Math.max(10, Math.min(100, widest))}% -->`
         );
       }
     }
@@ -149,6 +162,16 @@ class LayoutChecker {
     }
 
     return { printedWidth, printedHeight, warnings };
+  }
+
+  // The size body text prints at, from the document's font-size and body-size
+  // settings (em values scale the stylesheet's base; anything else is ignored).
+  bodyTextPx(baseFontSize, bodySize) {
+    const em = (value) => {
+      const match = typeof value === "string" ? value.trim().match(/^([\d.]+)em$/i) : null;
+      return match && parseFloat(match[1]) > 0 ? parseFloat(match[1]) : 1;
+    };
+    return BASE_BODY_TEXT_PX * em(baseFontSize) * em(bodySize);
   }
 
   // Find every local SVG image in the processed HTML and assess it. Remote and

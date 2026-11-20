@@ -164,7 +164,7 @@ An H2 that already follows a `PAGE-BREAK` comment is left alone, so the two neve
 
 After rendering, this prints one line per page: how far down the page the text reaches, and the page's first line. It flags a page that is nearly empty, a page that is sparse in the middle of a section, and a page that ends on a heading. It needs `pdftotext` (`brew install poppler`), and it measures text only, so an image at the foot of a page is not counted.
 
-Every conversion also warns about a local SVG diagram whose text will print smaller than 9px, one stretched so far that its text prints larger than 14px, or one that will print taller than 8in. The fix is in the diagram or its `img-width`; 2pdf never resizes it for you.
+Every conversion also warns about a local SVG diagram whose labels will print smaller than 9px, whose labels will print larger than the document's own body text (it suggests the `img-width` that brings them level), or that will print taller than 8in. The fix is in the diagram or its `img-width`; 2pdf never resizes it for you.
 
 <!--| PAGE-BREAK -->
 
