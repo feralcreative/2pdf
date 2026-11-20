@@ -9,8 +9,8 @@ When a change makes anything in this file inaccurate—a command, a path, a conv
 | Task | Command |
 | --- | --- |
 | Install | `npm install` |
-| Compile SCSS (required before first run) | `npx sass assets/styles/pdf.scss public/assets/styles/pdf.css && npx sass assets/styles/pdf.scss public/assets/styles/pdf.min.css --style=compressed` |
-| Watch runtime SCSS | `npx sass --watch --poll assets/styles/pdf.scss:public/assets/styles/pdf.min.css --style=compressed` |
+| Compile the stylesheet (after any change to `pdf.scss`) | `npm run build:css` |
+| Watch the stylesheet | `npx sass --watch --poll --no-source-map assets/styles/pdf.scss:public/assets/styles/pdf.min.css --style=compressed` |
 | Convert a file | `node bin/2pdf.js path/to/file.md --no-open` |
 | Convert and print how full each page is | `node bin/2pdf.js path/to/file.md --no-open --layout-report` |
 | Run the web version (port 1646, watch, opens a browser) | `npm start` |
@@ -30,15 +30,15 @@ There is no typecheck step (plain JS, no TypeScript). `npm run dev` runs `src/in
 
 ## Baseline
 
-`npm run build` passes clean as of 2026-11-19: zero lint errors, 171 of 171 tests green (163 when the browser tests are skipped). Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
+`npm run build` passes clean as of 2026-11-20: zero lint errors, 185 of 185 tests green (177 when the browser tests are skipped). Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
 
-Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, `RequestGuard`, and `LayoutChecker` have unit tests, and `ContentProcessor` has tests for `processImageAlignment`, `processFigures`, `processH2PageBreaks`, and `processLeadIns` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output. The web version (`web/auth.js`, `web/convert.js`, `web/server.js`) is tested with stand-in workers, so its tests never launch Chrome. The one suite that does is `test/pagination.integration.test.js`: it prints short documents in real Chrome and reads them back with `pdftotext`, and it skips itself when Chrome, `pdftotext`, or the compiled stylesheet is missing, so on a fresh clone it proves nothing until the SCSS is compiled.
+Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, `RequestGuard`, and `LayoutChecker` have unit tests, `ToPdf.resolveLogoPath()` and `PdfGenerator`'s browser choice have one each, and `ContentProcessor` has tests for `processImageAlignment`, `processFigures`, `processH2PageBreaks`, and `processLeadIns` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output. The web version (`web/auth.js`, `web/convert.js`, `web/server.js`) is tested with stand-in workers, so its tests never launch Chrome. The one suite that does is `test/pagination.integration.test.js`: it prints short documents in real Chrome and reads them back with `pdftotext`, and it skips itself when Chrome or `pdftotext` is missing.
 
 ## Definition of done
 
 1. `npm run lint`—clean, no errors.
 2. `npm test`—all green.
-3. If you touched `assets/styles/pdf.scss`, recompile into `public/assets/styles/` (see Commands). Nothing reads the SCSS at runtime.
+3. If you touched `assets/styles/pdf.scss`, run `npm run build:css` and commit `public/assets/styles/pdf.min.css` with it. Nothing reads the SCSS at runtime, and `test/stylesheet.test.js` fails when the two differ.
 4. Smoke-test an actual conversion end to end. Unit tests cover only `ConfigManager`, `TokenProcessor`, and `ContentProcessor.processImageAlignment()`; every other rendering path is uncovered.
 
    ```bash
@@ -52,9 +52,10 @@ Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, `Requ
 
 ## Prohibitions
 
-- **Never hand-edit** `public/assets/styles/pdf.css`, `pdf.min.css`, or the `.map` files, or `assets/styles/pdf.css` / `pdf.min.css`. All are compiled output. Edit `assets/styles/pdf.scss` and recompile.
+- **Never hand-edit** `public/assets/styles/pdf.min.css` (tracked), `pdf.css`, or the `.map` files, or `assets/styles/pdf.css` / `pdf.min.css`. All are compiled output. Edit `assets/styles/pdf.scss` and run `npm run build:css`.
 - **Never edit `package-lock.json` by hand.** Let npm write it.
 - **Do not add dependencies** without asking. This tool is deliberately thin.
+- **Do not add a `prepare`, `install`, or `postinstall` script.** The package must install with scripts off (`--ignore-scripts`), which is why the stylesheet is committed.
 - **Do not upgrade Puppeteer past 21.x** without asking. `src/pdf-generator.js` calls `page.waitForTimeout()`, removed in Puppeteer 22.
 - **Commit in logical blocks, but do not push.** The agent makes each commit itself with a Conventional Commits message; pushing needs explicit permission.
 - **Do not commit a `2pdf.config`.** `.gitignore` covers `*.config`; only `config/2pdf.config.sample` is tracked.
@@ -102,15 +103,17 @@ Adding a document setting touches four places, in order: `extractDocumentSetting
 
 ## Gotchas
 
-- **A fresh clone cannot generate a PDF.** `.gitignore` has `*.css`, so no compiled stylesheet is tracked and `StyleManager` throws "No CSS file found". Compile the SCSS first. This also means CSS changes never travel in a commit—say so when handing over a commit that changes `pdf.scss`.
-- **There are two compiled-CSS locations and only one is read.** Runtime loads `public/assets/styles/pdf.min.css`, falling back to `public/assets/styles/pdf.css`. The copies in `assets/styles/` are strays from someone compiling into the source directory; they are ignored at runtime. Always target `public/assets/styles/`.
+- **The compiled stylesheet is committed.** `public/assets/styles/pdf.min.css` is the one compiled file git tracks (an exception to `*.css` in `.gitignore`), so that a clone or an installed copy works with no build step. A change to `pdf.scss` is not finished until `npm run build:css` has run and the result is in the same commit; `test/stylesheet.test.js` fails otherwise. Compile it with plain `sass` and no source map: VS Code's Live Sass Compiler adds vendor prefixes and would rewrite the tracked file.
+- **A runtime file that is not in `files` does not exist in an installed copy.** `package.json` lists what ships: `bin/`, `src/`, the stylesheet, the tracked images by name, and the config sample. Add a new runtime asset there, by name when its folder also holds gitignored files (`files` overrides the root `.gitignore`), and check with `npm pack --dry-run`. `web/` is not shipped.
+- **Only one compiled stylesheet is read.** Runtime loads `public/assets/styles/pdf.min.css`, falling back to an untracked `public/assets/styles/pdf.css` if someone has compiled one. The copies in `assets/styles/` are strays from compiling into the source directory; they are ignored at runtime.
 - **`npx sass` does not add vendor prefixes.** `.vscode/settings.json` configures Live Sass Compiler with autoprefix `> 1%, last 2 versions`, so locally generated CSS may contain `-webkit-`/`-ms-` prefixes. Compiled CSS is ignored, not committed. Plain Sass output works in headless Chrome; do not add the prefixes by hand.
 - **Most of the stylesheet lives inside `@media print`.** Global rules also apply to PDFs, but print rules can override them. Check the print cascade; a screen-only inspection is insufficient.
-- **Watching only `pdf.css` leaves the runtime stale.** `StyleManager` prefers `pdf.min.css` whenever it exists. The watcher above updates that file; compile both outputs before handing over SCSS changes.
+- **Watching only `pdf.css` leaves the runtime stale.** `StyleManager` prefers `pdf.min.css` whenever it exists, so that is the file the watcher above writes.
 - **Standalone images are centered by default.** `processImageAlignment()` tags a `<p>` whose only content is an image (optionally inside a link) as `img-block`, which the stylesheet centers; `<!-- img-align: left|center|right -->` overrides the next one. A paragraph with any text beside the image is left alone, so do not widen the regex to catch images in running text—inline icons would jump to the center.
 - **`<!-- rule: off -->` targets the heading above it.** Unlike image (`img-width`, `img-align`), table, and code-size comments, this Markdown-only tag searches backward. Preserve unconditional marker removal in `processHeaderRules()` so unmatched comments cannot loop forever.
 - **Half the setting regexes reject hyphens in the value.** `theme-color`, `theme-color-primary`, `theme-color-secondary`, `body-color`, `link-color`, `font-size`, `header-size`, `body-size`, `line-height`, `paragraph-spacing`, `header-spacing`, `list-item-spacing`, `link-underline`, `page-numbers`, `disclosure`, and `version-number` use `([^-]+?)`; `filename`, `file-date`, `highlight-color`, and `logo` use `(.+?)`. So `<!-- disclosure: pre-release -->` silently fails to parse. Use `(.+?)` for anything new, and do not "normalize" the old ones to `(.+?)` without checking that the non-greedy match still stops at `-->` for every existing document.
-- **2pdf's own config wins over the calling project's `config/2pdf.config`.** Search order is `<install>/2pdf.config`, `<cwd>/2pdf.config`, `<install>/config/2pdf.config`, `<cwd>/config/2pdf.config`. When 2pdf is installed globally from this checkout and this repo has a `config/2pdf.config`, that one is used. Pass `-c` to be certain.
+- **The calling project's config wins over 2pdf's own.** Search order is `<cwd>/2pdf.config`, `<cwd>/config/2pdf.config`, `<install>/2pdf.config`, `<install>/config/2pdf.config` (reversed on 2026-11-20; the install used to come first). Run from inside this repo, `<cwd>` is the install, so this repo's `config/2pdf.config` is used; pass `-c` to be certain. Sandboxed mode never searches: `ConfigManager.loadConfig()` returns `{}` unless it is given a path.
+- **A logo is looked up in three ways.** `ToPdf.resolveLogoPath()`: a bare name is bundled-first, then beside the document; a relative path with a directory is relative to the document; sandboxed mode names bundled logos only. Never let the sandboxed branch look beside the document, which there is the upload directory.
 - **Inter is fetched from Google Fonts at render time.** `assets/fonts/` does not exist, so `processFontPaths()` logs "Fonts directory not found, using web fonts". Offline renders fall back to the system sans-serif—not a bug in your change.
 - **`sequential-output` writes to the user's source file.** `updateVersionInFile()` rewrites `<!-- version-number: -->` in the *input* Markdown after a successful render. Never enable it in a test fixture you care about.
 - **The footer layout is title / disclosure / date + page**, left / center / right—not what an older primer claimed. It is an inline template string duplicated in both branches of `generatePdf()`; change both.
@@ -142,7 +145,7 @@ Gitignored paths that must never be read into a commit, a log, or a chat respons
 - Branch: work on `main` unless the user says otherwise.
 - The agent commits in logical blocks, one feature, fix, or refactor step per commit. Never push without the user asking.
 - Never add AI attribution—no `Co-Authored-By`, no "Generated with" footer.
-- Never commit: `2pdf.config`, generated PDFs other than a deliberate `README.pdf` refresh, temp dirs, compiled CSS (already ignored).
+- Never commit: `2pdf.config`, generated PDFs other than a deliberate `README.pdf` refresh, temp dirs, compiled CSS other than `public/assets/styles/pdf.min.css`.
 
 ## Deep-dive index
 

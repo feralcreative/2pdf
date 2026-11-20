@@ -4,7 +4,7 @@ Updated: 2026-11-18
 
 A drop page and one endpoint: sign in with Google, drop a Markdown file, get the PDF. It lives in `web/` and runs the same `ToPdf` pipeline as the CLI, in sandboxed mode. It uses Node's built-in `http` server and adds no dependencies.
 
-It needs Node 20 or newer (`fetch`, `node --watch`, JWK import), whatever `engines` in `package.json` says about the CLI.
+It needs Node 22 or newer, the same as the CLI (`engines` in `package.json`). `web/` is not part of the installed package; run it from a checkout.
 
 ## Running it locally
 

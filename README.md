@@ -46,6 +46,30 @@ node bin/2pdf.js webpage.html        # converts HTML files too
 node bin/2pdf.js file.md -o out.pdf  # custom output name
 ```
 
+## Use it in another project
+
+Install 2pdf as a development dependency, pinned to a tag, and run it with `npx`. Nothing has to be built: the stylesheet comes with the package.
+
+```bash
+npm install --save-dev github:feralcreative/2pdf#v2.1.0
+npx 2pdf docs/report.md --no-open
+```
+
+A script in the project's `package.json` saves typing:
+
+```json
+{
+  "scripts": {
+    "pdf": "2pdf docs/report.md --no-open"
+  }
+}
+```
+
+- **Tokens** come from the project's own `2pdf.config` (see [Config file locations](#config-file-locations)).
+- **A logo** can sit beside the document: `<!-- logo: ./logo.svg -->`.
+- **Chrome.** 2pdf uses Google Chrome when it is installed in the usual place, and otherwise the copy Puppeteer downloads during `npm install`. Set `PUPPETEER_EXECUTABLE_PATH` to name a browser outright. On a machine that already has Chrome, `PUPPETEER_SKIP_DOWNLOAD=1` during `npm install` skips the download; without Chrome or that path, there is then no browser to print with.
+- **Node 22 or newer.**
+
 ## Web version
 
 There is also a drop page: sign in, drop a Markdown file, and download the PDF.
@@ -694,8 +718,9 @@ Content with custom styling...
   - Any other value is used verbatim, e.g. `<!-- watermark: NOT FOR DISTRIBUTION -->`
   - Drawn over the content in the `theme-color-primary` color faded to 5% (falls back to `theme-color`), and scaled down automatically for longer strings
   - Ignored for `.html` input that carries its own CSS (same as `logo`)
-- **logo**: Filename (or absolute path) for a logo image displayed at the top of the document
-  - Bare filenames resolve to `public/assets/images/` inside the 2pdf install
+- **logo**: A logo image displayed at the top of the document
+  - A bare filename is a logo that ships with 2pdf (`public/assets/images/` inside the install) when one has that name, and otherwise a file beside the document
+  - A relative path (`./logo.svg`, `img/logo.svg`) is relative to the document; an absolute path is used as given
   - Embedded as a base64 data URI so the PDF stays portable
   - Example: `<!-- logo: logo-feral.svg -->`
 
@@ -884,12 +909,14 @@ FOOTER_TEXT=Generated on {{DATE}} by {{DEVELOPER_NAME}}
 
 ### Config file locations
 
-2pdf searches for `2pdf.config` in this order:
+2pdf uses the first `2pdf.config` it finds, in this order:
 
-1. Same directory as the input file
-2. Current working directory
-3. 2pdf installation directory
-4. `config/` subdirectory in any of the above
+1. The directory you run it from
+2. `config/` in that directory
+3. The 2pdf installation directory
+4. `config/` in the installation directory
+
+`-c path/to/file` names one outright and skips the search.
 
 <!--| PAGE-BREAK -->
 

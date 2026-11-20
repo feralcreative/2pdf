@@ -81,3 +81,23 @@ Checking a hostname and then letting Chrome connect leaves a gap: the name can r
 ## One child process per web conversion
 
 A conversion that hangs cannot be cancelled from inside the process that started it, and `ContentProcessor` registers Marked extensions globally on every construction, which piles up in a long-lived server. A fresh process per upload fixes both and gives a process group to kill on timeout.
+
+## The compiled stylesheet is committed
+
+Set 2026-11-20 (issue #8), so that 2pdf can be installed into another repo as a git dependency. Compiled CSS used to be ignored, which left a clone or an installed copy with no stylesheet. Rejected: a `prepare` script that compiles on install. It fails when lifecycle scripts are off (`--ignore-scripts`, or npm's script approval), it makes npm install every devDependency for a git install, and it breaks `npm install -g .` on a clone that has not run `npm install`. The cost of committing is a generated file that can go stale, which `test/stylesheet.test.js` catches by recompiling and comparing. Only `pdf.min.css` is tracked; `pdf.css` and the source maps stay ignored.
+
+## The calling project's config wins
+
+Set 2026-11-20. The search used to start in the 2pdf install, so with the global install linked to this checkout, this checkout's `2pdf.config` beat the one in the project being rendered. The current directory now comes first. A project that relied on the install's config while having one of its own gets its own.
+
+## A bare logo name is bundled-first
+
+Set 2026-11-20. A project needs to supply its own logo without an absolute path, but a document that names a bundled logo must not be hijacked by a same-named file beside it. So a bare name falls back to the document's directory only when nothing bundled has that name, and a path with a directory in it (`./logo.svg`) always means the document's directory. The current directory is never searched. Sandboxed mode is unchanged: bundled names only.
+
+## Puppeteer, not puppeteer-core
+
+Considered 2026-11-20 as a way to avoid a Chrome download in every project that installs 2pdf. Kept `puppeteer`: its Chrome goes to a cache shared by every project on the machine, and it is the fallback when no system Chrome exists. `PUPPETEER_SKIP_DOWNLOAD=1` covers machines that have Chrome.
+
+## Windows is untested
+
+`file://` URLs are built by joining strings in `PdfGenerator`, `ContentProcessor.processImagePaths()`, and `StyleManager.processFontPaths()`, which Codex flagged on 2026-11-20 as wrong for Windows paths. Nobody has run 2pdf on Windows to confirm it, and the README still lists Windows. If it matters, test there and switch those three places to `url.pathToFileURL()`.

@@ -1,16 +1,40 @@
 # Deployment
 
-There is no CI and no release pipeline. "Deploying" the CLI means installing this checkout as a global CLI on the user's machine. The web version is not deployed anywhere yet; what a host must provide is in [web.md](web.md).
+Updated: 2026-11-20
+
+There is no CI and no release pipeline. 2pdf reaches a machine in one of two ways: as a dependency of another repo, or as a global CLI linked to a checkout. The web version is not deployed anywhere yet; what a host must provide is in [web.md](web.md).
+
+## As a dependency of another repo
+
+```bash
+npm install --save-dev github:feralcreative/2pdf#v2.1.0
+npx 2pdf docs/report.md --no-open
+```
+
+npm clones the tag, packs it by the `files` allowlist in `package.json`, and installs that. No lifecycle script runs and no devDependency is needed, because the compiled stylesheet is committed. Pin a tag, not a branch: a branch pin moves only when the lockfile is refreshed, and says nothing about what it holds.
+
+What ships is `bin/`, `src/`, `public/assets/styles/pdf.min.css`, the tracked images, `config/2pdf.config.sample`, `README.md`, `LICENSE`, and `package.json`. `web/`, `test/`, `docs/`, and the SCSS source do not. Check with `npm pack --dry-run` after adding any file the runtime reads.
+
+The package name is `2pdf.js`, so that is the key in the other repo's `package.json` and the name to `require`. The command is `2pdf`.
+
+Puppeteer's `postinstall` downloads Chrome into `~/.cache/puppeteer`, shared by every project on the machine. npm may hold that script for approval (`npm approve-scripts`), and `PUPPETEER_SKIP_DOWNLOAD=1` skips it; either way 2pdf then needs Google Chrome installed in the usual place, or `PUPPETEER_EXECUTABLE_PATH`.
+
+## Releasing a version
+
+1. `npm version <x.y.z> --no-git-tag-version`, commit, and merge to `main`.
+2. Tag `main` as `v<x.y.z>` and push the tag. Pushing is User's call.
+3. In each repo that uses 2pdf, change the tag in `package.json` and run `npm install`.
 
 ## Global install
 
 ```bash
+npm install
 npm install -g .        # or: npm run install-global
-2pdf --version          # 2.0.0
+2pdf --version
 2pdf document.md
 ```
 
-`package.json` maps `bin.2pdf` → `./bin/2pdf.js`. The shebang is `#!/usr/bin/env node`.
+`npm install -g .` links the checkout in place, so the global `2pdf` is whatever branch the checkout is on, and it needs the checkout's own `node_modules` (hence `npm install` first). `package.json` maps `bin.2pdf` → `./bin/2pdf.js`. The shebang is `#!/usr/bin/env node`.
 
 Uninstall with the **package** name, not the command name:
 
@@ -18,27 +42,17 @@ Uninstall with the **package** name, not the command name:
 npm uninstall -g 2pdf.js
 ```
 
-## Compile the SCSS before installing
+## Config resolution
 
-`npm install -g .` links the checkout in place, and the runtime reads `public/assets/styles/pdf.min.css` from that directory. Compiled CSS is gitignored, so a fresh clone installed globally will throw `No CSS file found` on first use. Compile first:
-
-```bash
-npx sass assets/styles/pdf.scss public/assets/styles/pdf.css
-npx sass assets/styles/pdf.scss public/assets/styles/pdf.min.css --style=compressed
-```
-
-## Config resolution after a global install
-
-`ConfigManager` searches, in order: `<install>/2pdf.config`, `<cwd>/2pdf.config`, `<install>/config/2pdf.config`, `<cwd>/config/2pdf.config`. Because the install directory is checked before the caller's `config/` subdirectory, a `config/2pdf.config` in this repo will win over the same path in whatever project the user is running from. Either keep this repo's config out of `config/`, keep per-project configs at the project root as `2pdf.config`, or pass `-c`.
+`ConfigManager` searches, in order: `<cwd>/2pdf.config`, `<cwd>/config/2pdf.config`, `<install>/2pdf.config`, `<install>/config/2pdf.config`. The project being rendered wins; the install's config is the fallback, which for the global install means this checkout's. `-c` skips the search.
 
 ## `package.json` fields that matter for install
 
 - `bin`—the `2pdf` command. Renaming it breaks every user's muscle memory; ask first.
-- `engines.node`—declares `>=14.0.0`. Not enforced, and unverified below the current local Node (v22 as of 2026-08-17). Do not raise it casually; do not trust it as tested.
-- No `files` allowlist, so `npm pack` includes everything not gitignored—which means the compiled CSS the tool needs is **excluded** from a tarball. Publishing to npm as-is would ship a broken package.
+- `files`—the allowlist of what an installed copy contains. It overrides the root `.gitignore`, so images are listed by name: a directory entry would pack the gitignored logos from this checkout into a local `npm pack`.
+- `engines.node`—`>=22`. Not enforced by npm unless the installer sets `engine-strict`.
+- No `prepare`, `install`, or `postinstall` script, on purpose. See [decisions.md](decisions.md).
 
 ## Publishing
 
-Never published. `repository`, `homepage`, and `bugs` point at `github.com/feralcreative/md-to-pdf` while the config sample points at `feralcreative/2pdf`—the metadata is inconsistent and unverified.
-
-If publishing is ever wanted, it needs at minimum: a `files` allowlist, a prepublish SCSS compile, reconciled repository URLs, and the user's explicit go-ahead. Do not run `npm publish`.
+Never published to npm, and not planned. Do not run `npm publish`.
