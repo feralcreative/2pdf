@@ -69,7 +69,7 @@ Consequence: markers, columns, table widths, image widths, code sizes, header ru
 
 From there each setting becomes a local `const` in `convert()` and is passed to `StyleManager.applyStyles()` by position (23 parameters, with `highlightColorRed` last). `pageNumbers`, `pageNumberFormat`, and `disclosure` bypass `StyleManager` and go straight to `PdfGenerator.generatePdf()` for the footer; `documentTitle` goes to both. `customFilename`, `fileDate`, `sequentialOutput`, and `versionNumber` are consumed by `convert()` itself for output-path resolution.
 
-`logo` is resolved in `convert()`, not `StyleManager`: a bare filename resolves against `<install>/public/assets/images/`, an absolute path is used as-is, and the file is read and inlined as a base64 data URI. Data URI, not `file://`, because the logo is emitted into the `<div class="pdf-header">` that `StyleManager.createStyledHtml()` builds, and Chrome's file-access rules make `file://` fragile there.
+`logo` is resolved in `convert()`, not `StyleManager`: `ToPdf.resolveLogoPath()` resolves a bare filename against `<install>/public/assets/images/` and then, when nothing there has that name, the document's directory; a relative path with a directory in it against the document's directory; an absolute path as-is (sandboxed mode: bundled names only), and the file is read and inlined as a base64 data URI. Data URI, not `file://`, because the logo is emitted into the `<div class="pdf-header">` that `StyleManager.createStyledHtml()` builds, and Chrome's file-access rules make `file://` fragile there.
 
 ## How styling settings reach the PDF
 

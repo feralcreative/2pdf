@@ -4,7 +4,7 @@ Updated: 2026-11-20
 
 ## Where things stand
 
-2pdf can be installed into another repo as a git dependency. That work is on the branch `feat/installable-package` (issue #8), on top of `main`, which now has the page-breaking features (pull request #7, merged 2026-11-19). `npm run build` is clean on the branch: no lint errors, and 185 of 185 tests pass.
+2pdf can be installed into another repo as a git dependency. That work is on the branch `feat/installable-package` (issue #8), on top of `main`, which now has the page-breaking features (pull request #7, merged 2026-11-19). `npm run build` is clean on the branch: no lint errors, and 186 of 186 tests pass.
 
 The web version works locally (`npm start`, port 1646) and is not hosted anywhere.
 

@@ -30,7 +30,7 @@ There is no typecheck step (plain JS, no TypeScript). `npm run dev` runs `src/in
 
 ## Baseline
 
-`npm run build` passes clean as of 2026-11-20: zero lint errors, 185 of 185 tests green (177 when the browser tests are skipped). Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
+`npm run build` passes clean as of 2026-11-20: zero lint errors, 186 of 186 tests green (178 when the browser tests are skipped). Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
 
 Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, `RequestGuard`, and `LayoutChecker` have unit tests, `ToPdf.resolveLogoPath()` and `PdfGenerator`'s browser choice have one each, and `ContentProcessor` has tests for `processImageAlignment`, `processFigures`, `processH2PageBreaks`, and `processLeadIns` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output. The web version (`web/auth.js`, `web/convert.js`, `web/server.js`) is tested with stand-in workers, so its tests never launch Chrome. The one suite that does is `test/pagination.integration.test.js`: it prints short documents in real Chrome and reads them back with `pdftotext`, and it skips itself when Chrome or `pdftotext` is missing.
 
@@ -133,7 +133,7 @@ Adding a document setting touches four places, in order: `extractDocumentSetting
 
 ## Credentials
 
-There are no secrets. The CLI reads no environment variables. The web version reads settings from the environment (`PORT`, `HOST`, `GOOGLE_CLIENT_ID`, `ALLOWED_DOMAINS`, `ALLOWED_SUBS`, `AUTH_DISABLED`, `TOPDF_WEB_CONFIG`, `MAX_BODY_BYTES`, `TOPDF_CHROME_NO_SANDBOX`; see [docs/web.md](docs/web.md)), none of which is secret: a Google OAuth client ID is public by design. There is no `.env` and no `.env.example`. `2pdf.config` is user-authored plain text (names, company, colour hexes) and is gitignored via `*.config`; `config/2pdf.config.sample` is the tracked template and the canonical key list.
+There are no secrets. The CLI reads one environment variable, `PUPPETEER_EXECUTABLE_PATH` (through Puppeteer, which also honors its other `PUPPETEER_*` settings). The web version reads settings from the environment (`PORT`, `HOST`, `GOOGLE_CLIENT_ID`, `ALLOWED_DOMAINS`, `ALLOWED_SUBS`, `AUTH_DISABLED`, `TOPDF_WEB_CONFIG`, `MAX_BODY_BYTES`, `TOPDF_CHROME_NO_SANDBOX`, and `PUPPETEER_EXECUTABLE_PATH` and `PUPPETEER_CACHE_DIR`, which it passes to each worker; see [docs/web.md](docs/web.md)), none of which is secret: a Google OAuth client ID is public by design. There is no `.env` and no `.env.example`. `2pdf.config` is user-authored plain text (names, company, colour hexes) and is gitignored via `*.config`; `config/2pdf.config.sample` is the tracked template and the canonical key list.
 
 If you ever add a secret-bearing key, document its name and source here—never its value, not even masked.
 

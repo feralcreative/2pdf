@@ -18,17 +18,13 @@ Rejected: keeping `var()` and setting the property from `page.evaluate()`. Same 
 
 Each `applyX()` in `src/style-manager.js` prepends a small override block. Rejected alternatives: templating the SCSS per render (needs a Sass compile in the hot path), and a CSS-in-JS layer (a whole dependency to restyle nine properties). The current approach is crude but has one failure mode, and it is obvious: forget `!important` and the override loses.
 
-## Compiled CSS is gitignored
+## Compiled CSS was gitignored until 2026-11-20
 
-`.gitignore` carries a blanket `*.css`. Effect: `public/assets/styles/pdf.min.css` is not tracked, so a fresh clone cannot render until the SCSS is compiled, and CSS changes never appear in a diff.
+`.gitignore` carries a blanket `*.css`, which once left `public/assets/styles/pdf.min.css` untracked, so a fresh clone could not render. Superseded: that one file is now tracked. See "The compiled stylesheet is committed" below.
 
-This is a side effect of a broad ignore rule, not a considered decision—but do not flip it without the user's say-so. Tracking compiled CSS would put autoprefixer output in every diff and create a second source of truth alongside `pdf.scss`.
+## `npm run build:css` is the sanctioned compiler
 
-## Live Sass Compiler, not an npm script, is the sanctioned compiler
-
-`.vscode/settings.json` configures Live Sass Compiler to emit `.css` and `.min.css` into `/public/assets/styles` with source maps and autoprefixing (`> 1%, last 2 versions`). Locally generated CSS can therefore carry `-webkit-`/`-ms-` prefixes that a plain `npx sass` run does not produce; these outputs are gitignored.
-
-There is deliberately no `npm run sass` script. The user's standing preference is `npx sass` over IDE extensions in general, but this repo predates that and its IDE compiler adds prefixes. Recompiling with `npx sass` is correct and safe for headless Chrome; just do not treat the vanished prefixes as a regression to patch by hand.
+Until 2026-11-20 it was VS Code's Live Sass Compiler, which `.vscode/settings.json` still configures to emit `.css` and `.min.css` into `/public/assets/styles` with source maps and autoprefixing (`> 1%, last 2 versions`). Its output differs from plain Sass, and `pdf.min.css` is now tracked and compared against a plain compile by `test/stylesheet.test.js`, so a save with the extension watching dirties the tracked file and fails the test. Run `npm run build:css` to put it right.
 
 ## Footnotes are endnotes, and that is final
 
@@ -44,7 +40,7 @@ Upgrading means replacing both calls with an explicit `new Promise(r => setTimeo
 
 ## System Chrome is preferred over Puppeteer's bundled Chromium
 
-`PdfGenerator`'s constructor probes three fixed paths (macOS Chrome, `/usr/bin/google-chrome`, `/usr/bin/chromium-browser`) and only falls back to the bundled binary. Rationale: matching the original shell script's output byte-for-byte during the port, and avoiding a second ~200MB Chromium on machines that already have Chrome.
+`PdfGenerator`'s constructor probes three fixed paths (macOS Chrome, `/usr/bin/google-chrome`, `/usr/bin/chromium-browser`) and only falls back to the bundled binary. Since 2026-11-20, `PUPPETEER_EXECUTABLE_PATH` skips the probe and names the browser outright. Rationale: matching the original shell script's output byte-for-byte during the port, and avoiding a second ~200MB Chromium on machines that already have Chrome.
 
 Note the probe list has no Windows path, so Windows always uses the bundled binary.
 
@@ -100,4 +96,4 @@ Considered 2026-11-20 as a way to avoid a Chrome download in every project that 
 
 ## Windows is untested
 
-`file://` URLs are built by joining strings in `PdfGenerator`, `ContentProcessor.processImagePaths()`, and `StyleManager.processFontPaths()`, which Codex flagged on 2026-11-20 as wrong for Windows paths. Nobody has run 2pdf on Windows to confirm it, and the README still lists Windows. If it matters, test there and switch those three places to `url.pathToFileURL()`.
+The README said "Works on macOS, Linux, and Windows" until 2026-11-20; it now says Windows is untested. `file://` URLs are built by joining strings in `PdfGenerator`, `ContentProcessor.processImagePaths()`, and `StyleManager.processFontPaths()`, which Codex flagged on 2026-11-20 as wrong for Windows paths. Nobody has run 2pdf on Windows to confirm it. If it matters, test there and switch those three places to `url.pathToFileURL()`.

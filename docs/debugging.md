@@ -43,11 +43,12 @@ Some steps print twice (once from `ToPdf.convert()`, once from the processor). C
 
 | Symptom | Cause | Move |
 | --- | --- | --- |
-| `No CSS file found. Expected pdf.min.css or pdf.css in assets/styles/` | Compiled CSS absent—it is gitignored | Compile the SCSS into `public/assets/styles/` (see AGENTS.md Commands). The error message names the wrong directory |
+| `No CSS file found. Expected pdf.min.css or pdf.css in <install>/public/assets/styles` | The tracked `pdf.min.css` is missing: deleted, or the install's `files` allowlist was changed | In a checkout, `npm run build:css` or `git checkout public/assets/styles/pdf.min.css` |
 | A document setting is ignored, no `Found …` line | Regex did not match. Most likely a hyphen in the value—the older settings use `([^-]+?)` | Remove the hyphen, or widen that one regex to `(.+?)` and verify it still stops at `-->` |
 | A recent `pdf.scss` change has no effect | Not recompiled, or compiled into `assets/styles/` instead of `public/assets/styles/` | Recompile to `public/assets/styles/` |
 | A CSS rule has no effect at all | Print rules or a prepended `!important` override in `style-manager.js` beat it, or `pdf.min.css` is stale | Inspect the print cascade and the loaded stylesheet; check the `apply*` methods |
-| Wrong config values | 2pdf's own `config/2pdf.config` outranks the calling project's `config/2pdf.config` | Pass `-c`, or check the `📋 Using config file` line |
+| Wrong config values | The directory 2pdf was run from has a `2pdf.config` or `config/2pdf.config`, which outranks the one in the 2pdf install | Pass `-c`, or check the `📋 Using config file` line |
+| `Logo file not found, skipping` | A bare name is looked up in the install's `public/assets/images/` and then beside the document; a relative path only beside the document. An installed copy has only the tracked logos | Put the logo beside the document and name it `./logo.svg` |
 | Tokens left as `{{FOO}}` | Not in config, misspelled, or inside a code block (protected by design) | Look for the unprocessed-tokens warning; check `config/2pdf.config.sample` for the canonical key list |
 | Fonts render as generic sans-serif | Google Fonts unreachable—Inter is not bundled | Check network. Not a code fault |
 | Images missing | Relative path resolved against the *input file's* directory, not the cwd | Grep `styled.html` for the emitted `file://` URL and check it exists |

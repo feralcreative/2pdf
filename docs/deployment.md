@@ -11,7 +11,7 @@ npm install --save-dev github:feralcreative/2pdf#v2.1.0
 npx 2pdf docs/report.md --no-open
 ```
 
-npm clones the tag, packs it by the `files` allowlist in `package.json`, and installs that. No lifecycle script runs and no devDependency is needed, because the compiled stylesheet is committed. Pin a tag, not a branch: a branch pin moves only when the lockfile is refreshed, and says nothing about what it holds.
+npm clones the tag, packs it by the `files` allowlist in `package.json`, and installs that. 2pdf itself has no lifecycle script and needs no devDependency, because the compiled stylesheet is committed. Pin a tag, not a branch: a branch pin moves only when the lockfile is refreshed, and says nothing about what it holds.
 
 What ships is `bin/`, `src/`, `public/assets/styles/pdf.min.css`, the tracked images, `config/2pdf.config.sample`, `README.md`, `LICENSE`, and `package.json`. `web/`, `test/`, `docs/`, and the SCSS source do not. Check with `npm pack --dry-run` after adding any file the runtime reads.
 

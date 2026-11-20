@@ -31,7 +31,7 @@ Converts Markdown and HTML files to PDFs with token replacement, styling, and co
 - Applies Inter font styling and consistent layout
 - Handles PDF-only content sections
 - Supports page breaks and special formatting
-- Works on macOS, Linux, and Windows
+- Works on macOS and Linux (Windows is untested)
 
 ## Quick start
 
