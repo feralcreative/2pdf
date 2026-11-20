@@ -1,4 +1,7 @@
 const crypto = require("crypto");
+const os = require("os");
+const path = require("path");
+const fs = require("fs-extra");
 const ConfigManager = require("../src/config-manager");
 const { ToPdf } = require("../src/index");
 
@@ -39,6 +42,70 @@ describe("ToPdf", () => {
     test("should refuse paths and other file types", () => {
       for (const logo of ["/etc/passwd", "../../etc/passwd", "sub/logo.svg", "..svg", "logo.svg/", "notes.txt", ".env"]) {
         expect(toPdf.isBundledLogoName(logo)).toBe(false);
+      }
+    });
+  });
+
+  describe("resolveLogoPath", () => {
+    let root;
+    let installDir;
+    let docDir;
+    let bundledDir;
+
+    beforeEach(async () => {
+      root = await fs.mkdtemp(path.join(os.tmpdir(), "2pdf-logo-"));
+      installDir = path.join(root, "install");
+      docDir = path.join(root, "docs");
+      bundledDir = path.join(installDir, "public", "assets", "images");
+      await fs.ensureDir(bundledDir);
+      await fs.ensureDir(path.join(docDir, "img"));
+    });
+
+    afterEach(async () => {
+      await fs.remove(root);
+    });
+
+    const make = (options = {}) => {
+      const toPdf = new ToPdf(options);
+      toPdf.scriptDir = installDir;
+      return toPdf;
+    };
+
+    test("a bare name is the bundled logo when one exists, even with a file of that name beside the document", async () => {
+      await fs.writeFile(path.join(bundledDir, "logo.svg"), "<svg/>");
+      await fs.writeFile(path.join(docDir, "logo.svg"), "<svg/>");
+
+      expect(await make().resolveLogoPath("logo.svg", docDir)).toBe(path.join(bundledDir, "logo.svg"));
+    });
+
+    test("a bare name falls back to the document's directory when nothing bundled has that name", async () => {
+      await fs.writeFile(path.join(docDir, "client.svg"), "<svg/>");
+
+      expect(await make().resolveLogoPath("client.svg", docDir)).toBe(path.join(docDir, "client.svg"));
+    });
+
+    test("a bare name found nowhere stays the bundled path", async () => {
+      expect(await make().resolveLogoPath("missing.svg", docDir)).toBe(path.join(bundledDir, "missing.svg"));
+    });
+
+    test("a relative path is relative to the document", async () => {
+      await fs.writeFile(path.join(bundledDir, "logo.svg"), "<svg/>");
+
+      expect(await make().resolveLogoPath("./logo.svg", docDir)).toBe(path.join(docDir, "logo.svg"));
+      expect(await make().resolveLogoPath("img/logo.svg", docDir)).toBe(path.join(docDir, "img", "logo.svg"));
+    });
+
+    test("an absolute path is used as given", async () => {
+      expect(await make().resolveLogoPath("/somewhere/logo.svg", docDir)).toBe("/somewhere/logo.svg");
+    });
+
+    test("sandboxed runs only ever name a bundled logo", async () => {
+      await fs.writeFile(path.join(docDir, "client.svg"), "<svg/>");
+      const sandboxed = make({ sandboxed: true });
+
+      expect(await sandboxed.resolveLogoPath("client.svg", docDir)).toBe(path.join(bundledDir, "client.svg"));
+      for (const logo of ["./client.svg", "img/logo.svg", "../install/x.svg", "/etc/passwd", path.join(docDir, "client.svg")]) {
+        expect(await sandboxed.resolveLogoPath(logo, docDir)).toBeNull();
       }
     });
   });

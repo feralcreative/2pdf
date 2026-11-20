@@ -96,6 +96,31 @@ class ToPdf {
     return `${y}${mo}${d}T${h}${mi}Z`;
   }
 
+  // Where a document's logo lives. A bare file name is a bundled logo
+  // (public/assets/images) when one has that name, and otherwise a file beside
+  // the document. A relative path with a directory in it is relative to the
+  // document. Sandboxed runs only ever look at the bundled logos.
+  async resolveLogoPath(logo, inputDir) {
+    const bundledDir = path.join(this.scriptDir, "public", "assets", "images");
+    if (this.options.sandboxed) {
+      return this.isBundledLogoName(logo) ? path.join(bundledDir, logo) : null;
+    }
+    if (path.isAbsolute(logo)) {
+      return logo;
+    }
+
+    const bundled = path.join(bundledDir, logo);
+
+    const besideDocument = path.resolve(inputDir, logo);
+    if (/[\\/]/.test(logo)) {
+      return besideDocument;
+    }
+    if (!(await fs.pathExists(bundled)) && (await fs.pathExists(besideDocument))) {
+      return besideDocument;
+    }
+    return bundled;
+  }
+
   // A logo named by an untrusted document may only be a plain file name, which
   // resolves inside public/assets/images. No directories, no absolute paths.
   isBundledLogoName(logo) {
@@ -277,9 +302,7 @@ class ToPdf {
       if (logo && this.options.sandboxed && !this.isBundledLogoName(logo)) {
         console.log(chalk.yellow("⚠️  Logo must be a bundled file name, skipping:", logo));
       } else if (logo) {
-        resolvedLogoPath = path.isAbsolute(logo)
-          ? logo
-          : path.join(this.scriptDir, 'public', 'assets', 'images', logo);
+        resolvedLogoPath = await this.resolveLogoPath(logo, path.dirname(inputPath));
         try {
           const imageBuffer = await fs.readFile(resolvedLogoPath);
           const base64 = imageBuffer.toString('base64');
