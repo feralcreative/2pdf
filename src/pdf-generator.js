@@ -28,8 +28,12 @@ class PdfGenerator {
       "/usr/bin/chromium-browser",
     ];
 
+    // PUPPETEER_EXECUTABLE_PATH names the browser to use outright. Puppeteer
+    // reads it itself, so the search below is skipped and nothing overrides it.
+    const chosenByEnvironment = Boolean(process.env.PUPPETEER_EXECUTABLE_PATH);
+
     let executablePath = null;
-    for (const chromePath of chromePaths) {
+    for (const chromePath of chosenByEnvironment ? [] : chromePaths) {
       try {
         fs.accessSync(chromePath);
         executablePath = chromePath;
