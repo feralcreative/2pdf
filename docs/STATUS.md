@@ -1,12 +1,29 @@
 # Status
 
-Updated: 2026-11-18
+Updated: 2026-11-19
 
 ## Where things stand
 
 The web version exists and works locally. `npm start` serves a drop page on port 1646 that turns a dropped Markdown file into a PDF, using the same pipeline as the CLI with `sandboxed: true`. It is not hosted anywhere, and no one but the developer can reach it.
 
-`npm run build` is clean: no lint errors, and 99 of 99 tests pass. Eight commits on `main` are not pushed.
+Page-breaking features are built on the branch `feat/page-break-controls` (issue #6), on top of `main`, and are up for review as a pull request. `npm run build` is clean there: no lint errors, and 171 of 171 tests pass, eight of them printing in real Chrome.
+
+## Landed on 2026-11-19
+
+- **Keep-together rules** in the stylesheet: a heading stays with what follows, a table that fits on a page is never split, rows, code blocks, blockquotes, and list items do not split, and a table that must split keeps three rows on each side.
+- **Figures and introductions.** An image and the italic caption after it become one unit; a paragraph that introduces a table, list, or figure stays with it.
+- **`<!-- h2-page-breaks: ON -->`**, with `<!-- h2-break: off -->` to exempt one heading.
+- **Diagram warnings** on every render, and **`--layout-report`** for a page-by-page fullness table (needs `pdftotext`).
+- **Hostile-input fixes** in `ContentProcessor`: the new transforms and `processHeaderRules()` are single-pass, after Codex found quadratic and exponential patterns.
+
+Codex reviewed the plan and the code twice. Its claim that Chrome ignores `break-after: avoid` between siblings was tested in Chrome 157 and is wrong; `test/pagination.integration.test.js` now holds that.
+
+## Open on the branch
+
+1. **Review and merge the pull request.** Until it is merged, 2pdf only has these features while this branch is checked out.
+2. **Sandboxed mode was not smoke-tested by hand** after these changes (Definition of done, step 7). The unit suites pass, but nobody dropped a file on the web page.
+3. **Compiled CSS does not travel in git.** On another machine, compile the SCSS after checking out the branch.
+4. **Qlty is not wired up** in this repo.
 
 ## Landed on 2026-11-18
 
@@ -22,7 +39,6 @@ Codex reviewed the plan and the diff. What was accepted and rejected is recorded
 2. **Sign-in.** Real sign-in needs a Google OAuth client ID and `ALLOWED_DOMAINS`. Until then the server runs only with `--dev` on loopback, with sign-in off. Sign-in has unit tests but has never been tried against Google.
 3. **Token check.** Codex recommends `google-auth-library` over the hand-written check in `web/auth.js`. It was kept out because the web version was built with no new dependencies. Ziad's call.
 4. **Brand.** The drop page is unbranded on purpose: this repo is public, and the acmpls marks and Klim fonts cannot live in it. Where the branded shell lives depends on the hosting decision.
-5. **`README.pdf` is deleted in the working tree**, not by the agent and not committed. Restore it with `git checkout README.pdf`, or commit the deletion.
 6. **Personal-repo defaults not done:** Qlty is not wired up, and no GitHub issue was filed for the web version.
 
 ## Known limits

@@ -12,6 +12,7 @@ When a change makes anything in this file inaccurate—a command, a path, a conv
 | Compile SCSS (required before first run) | `npx sass assets/styles/pdf.scss public/assets/styles/pdf.css && npx sass assets/styles/pdf.scss public/assets/styles/pdf.min.css --style=compressed` |
 | Watch runtime SCSS | `npx sass --watch --poll assets/styles/pdf.scss:public/assets/styles/pdf.min.css --style=compressed` |
 | Convert a file | `node bin/2pdf.js path/to/file.md --no-open` |
+| Convert and print how full each page is | `node bin/2pdf.js path/to/file.md --no-open --layout-report` |
 | Run the web version (port 1646, watch, opens a browser) | `npm start` |
 | Same, without opening a browser | `npm run start:no-open` |
 | Compile the drop page's SCSS | `npm run web:css` |
@@ -29,9 +30,9 @@ There is no typecheck step (plain JS, no TypeScript). `npm run dev` runs `src/in
 
 ## Baseline
 
-`npm run build` passes clean as of 2026-11-18: zero lint errors, 99 of 99 tests green. Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
+`npm run build` passes clean as of 2026-11-19: zero lint errors, 171 of 171 tests green (163 when the browser tests are skipped). Record the current worktree and run the build before editing; compare failures against that baseline and inspect `git stash list` without stashing or restoring another agent's work.
 
-Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, and `RequestGuard` have unit tests, and `ContentProcessor` has tests for `processImageAlignment` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output. The web version (`web/auth.js`, `web/convert.js`, `web/server.js`) is tested with stand-in workers, so its tests never launch Chrome either.
+Coverage is still thin on the pipeline: `ConfigManager`, `TokenProcessor`, `RequestGuard`, and `LayoutChecker` have unit tests, and `ContentProcessor` has tests for `processImageAlignment`, `processFigures`, `processH2PageBreaks`, and `processLeadIns` only. The rest of `ContentProcessor`, and all of `StyleManager` and `PdfGenerator`, is uncovered, so a green suite is weak evidence. Smoke-test real output. The web version (`web/auth.js`, `web/convert.js`, `web/server.js`) is tested with stand-in workers, so its tests never launch Chrome. The one suite that does is `test/pagination.integration.test.js`: it prints short documents in real Chrome and reads them back with `pdftotext`, and it skips itself when Chrome, `pdftotext`, or the compiled stylesheet is missing, so on a fresh clone it proves nothing until the SCSS is compiled.
 
 ## Definition of done
 
@@ -72,17 +73,17 @@ Three entry points: `bin/2pdf.js` (Commander CLI), `src/index.js` (exports `ToPd
 1. `ConfigManager.loadConfig()`—finds and parses `2pdf.config` into a flat `KEY=VALUE` map.
 2. `TokenProcessor.processTokens(inputPath, config)`—up to 3 passes of `{{TOKEN}}` substitution, skipping code blocks.
 3. `ContentProcessor.processContent()`—runs `extractDocumentSettings()` (stashed on `this.documentSettings`), then PDF-only blocks, page breaks, live-site shields.
-4. `ContentProcessor.markdownToHtml()`—captures the first `# H1` as `documentTitle`, runs `marked`, then `postProcessHtml()` (header IDs, columns, table widths/size/alignment, image widths, code sizes, header rules, footnote heading, anchor links, image paths).
+4. `ContentProcessor.markdownToHtml()`—captures the first `# H1` as `documentTitle`, runs `marked`, then `postProcessHtml()` (header IDs, columns, table widths/size/alignment, image widths, figures, code sizes, header rules, H2 page breaks, footnote heading, anchor links, lead-in paragraphs, image paths).
 5. `ToPdf` reads `contentProcessor.getDocumentSettings()` and resolves a `logo` into a base64 data URI.
 6. `StyleManager.applyStyles()`—loads compiled CSS, string-substitutes theme colors and every size/spacing setting into it, wraps the body in a full HTML document.
 7. Styled HTML is written to `os.tmpdir()/2pdf-XXXXXX/styled.html` (an `fs.mkdtemp` directory created at the top of `convert()`). In sandboxed mode a Content Security Policy `<meta>` is added first.
 8. Output path is resolved: CLI `-o` > `<!-- filename: -->` > input basename (+ `-vXX.YY` when `sequential-output` is on), then the `file-date` UTC stamp is layered on top.
-9. `PdfGenerator.generatePdf()`—Puppeteer renders the temp HTML to the output path.
-10. Post: bump `<!-- version-number: -->` in the *source* file, `open` the PDF (macOS), remove the temp dir unless `--debug`.
+9. `PdfGenerator.generatePdf()`—Puppeteer renders the temp HTML to the output path. Just before printing, `markBlocksThatFit()` measures every table in Chrome and tags the short ones `keep-together`.
+10. Post: print the `--layout-report` page table if asked (`LayoutChecker`, via `pdftotext`), bump `<!-- version-number: -->` in the *source* file, `open` the PDF (macOS), remove the temp dir unless `--debug`.
 
 HTML input (`.html`/`.htm`) skips steps 2–4 in favour of `processTokensInContent()` + `processHtmlContent()`, and `StyleManager` injects only theme-color overrides when the file already has its own CSS and no custom stylesheet was passed. This early return also skips the logo and watermark.
 
-Dependency direction is one-way: `bin` and `web` → `src/index.js` → the five processors. The processors never import each other, except `PdfGenerator`, which uses `src/request-guard.js` in sandboxed mode. `src/dependency-manager.js` is dead code (Chrome/Pandoc detection from the shell era)—nothing requires it.
+Dependency direction is one-way: `bin` and `web` → `src/index.js` → the five processors and `LayoutChecker`. The processors never import each other, except `PdfGenerator`, which uses `src/request-guard.js` in sandboxed mode. `src/dependency-manager.js` is dead code (Chrome/Pandoc detection from the shell era)—nothing requires it.
 
 See [docs/architecture.md](docs/architecture.md) for the non-obvious coupling in `ContentProcessor`'s marker/`<style>` protocol.
 
@@ -117,7 +118,11 @@ Adding a document setting touches four places, in order: `extractDocumentSetting
 - **The sandboxed CSP allows one script: the last `<script>` in the page, by hash.** That is the wrapper script `StyleManager.createStyledHtml()` appends. Add a second wrapper script, or move it ahead of the content, and it silently stops running on the web.
 - **`web/public/app.css` is compiled and gitignored**, like the PDF stylesheet. `npm start` compiles it; a bare `node web/server.js` on a fresh clone serves a page with no styles.
 - **Never `pkill -f` the web server by its command line from a shell command that contains that text.** It kills the shell running it. Use `lsof -nP -iTCP:1646 -sTCP:LISTEN` to find the PID.
-- **Positional parameters, not an options object.** `StyleManager.applyStyles()` takes 22 positional arguments. Inserting one in the middle silently shifts every later setting. Append at the end.
+- **Pagination is CSS plus two things CSS cannot do.** The keep-together rules live in the PAGINATION block of `pdf.scss`. Whether a table is short enough to keep whole is measured in Chrome by `PdfGenerator.markBlocksThatFit()`, because `break-inside: avoid` on a long table makes Chrome leave most of a page blank before it. It must not resize the viewport: it squeezes the document to 720px inside one script and puts it back. Which paragraph is a caption or a lead-in is decided by `processFigures()` and `processLeadIns()`. Every `avoid` is best effort; check a change against a long real document with `--layout-report`, not a smoke file, and run `npx jest test/pagination.integration.test.js`.
+- **`processFigures()`, `processLeadIns()`, and `processH2PageBreaks()` are single-pass scanners on purpose.** They run on uploaded documents. A regex that rescans from every unmatched tag goes quadratic on malformed HTML, and a tag pattern whose alternatives overlap (`"[^"]*"|[^>]`) backtracks exponentially on an unclosed tag. The hostile-input tests in `test/content-processor.test.js` hold the line.
+- **`<!-- h2-break: off -->` targets the H2 above it**, like `<!-- rule: off -->`, and `processH2PageBreaks()` removes the comment whether or not `h2-page-breaks` is on.
+- **The layout report measures text only.** `pdftotext` sees no images, so a page that ends on an uncaptioned image reads as less full than it is. `pdftotext` is optional; without it the report says so and the conversion still succeeds.
+- **Positional parameters, not an options object.** `StyleManager.applyStyles()` takes 23 positional arguments. Inserting one in the middle silently shifts every later setting. Append at the end.
 - **`--single-page` recomputes the page height from `document.body.scrollHeight` plus a fixed 200px buffer.** Tall or late-laying-out content clips. Adjust the buffer in `generatePdf()`, not the CSS.
 - **`debug-highlight.js` at the root is broken.** It calls `processContent(content, file)` expecting `{ documentSettings, htmlContent }`; the method takes one argument and returns a string. It also reads `test-highlight-closing.md`, which lives in `_archive/`. Do not use it as a reference; rewrite or delete it if you need a scratch harness.
 - **Auto-open is macOS-only.** `execSync("open ...")` runs only when `process.platform === "darwin"`. Batch/directory mode never auto-opens regardless.

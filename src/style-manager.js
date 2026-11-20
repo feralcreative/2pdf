@@ -399,7 +399,7 @@ body { font-size: var(--base-font-size) !important; }
     // Add CSS rule for body text color
     const bodyColorRule = `
 /* Body text color override from document settings */
-body, p, li, td, th, div, span {
+body, p, li, td, th, div, span, figcaption {
   color: ${bodyColor} !important;
 }
 `;
@@ -467,7 +467,7 @@ h6 { font-size: calc(${headerSize} * 1.1) !important; }
     // Add CSS rule for body text sizes
     const bodySizeRule = `
 /* Body text size override from document settings */
-p, li, td, th, div, span, blockquote {
+p, li, td, th, div, span, blockquote, figcaption {
   font-size: ${bodySize} !important;
 }
 `;
@@ -481,7 +481,7 @@ p, li, td, th, div, span, blockquote {
     // Add CSS rule for line height on all text elements
     const lineHeightRule = `
 /* Line height override from document settings */
-body, p, li, td, th, div, span, blockquote, h1, h2, h3, h4, h5, h6, pre, code {
+body, p, li, td, th, div, span, blockquote, figcaption, h1, h2, h3, h4, h5, h6, pre, code {
   line-height: ${lineHeight} !important;
 }
 `;
