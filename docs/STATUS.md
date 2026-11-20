@@ -20,7 +20,7 @@ Proved in scratch projects: a tarball installed with `--ignore-scripts`, a git d
 
 ## Open
 
-1. **Merge the branch, then tag `v2.1.0` and push the tag.** Until a tag exists, other repos have nothing stable to pin. After pushing, install from `github:feralcreative/2pdf#v2.1.0` in a clean project as the last check; only a local git install has been tried.
+1. **Open a pull request for the branch, merge it, then tag `v2.1.0` and push the tag.** The branch is pushed to `origin`; no pull request exists yet (2026-11-20). Until a tag exists, other repos have nothing stable to pin. After pushing, install from `github:feralcreative/2pdf#v2.1.0` in a clean project as the last check; only a local git install has been tried.
 2. **`README.pdf` is out of date** with the README's new section.
 3. **Move the repos that use 2pdf onto the dependency**, one at a time. Work repos are their owners' call.
 4. **`npm audit` reports vulnerabilities** in the dependency tree (see the open Dependabot pull request #5).
